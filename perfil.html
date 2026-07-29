@@ -8,15 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --paper: #EDE8DC;
       --ink: #1B1815;
-      --ink-soft: #4a453e;
       --card: #242019;
       --card-line: rgba(237,232,220,0.10);
       --s-color: #D6432F;
@@ -38,19 +33,16 @@
       min-height: 100vh;
       padding-bottom: 40px;
     }
-    ::selection {
-      background: var(--s-color);
-      color: var(--paper);
-    }
+    ::selection { background: var(--s-color); color: var(--paper); }
     .perfil-header {
       position: relative;
-      padding: 40px 6vw 28px;
+      padding: 32px 6vw 24px;
       border-bottom: 1px solid var(--card-line);
       overflow: hidden;
       display: flex;
       flex-wrap: wrap;
       align-items: flex-start;
-      gap: 24px;
+      gap: 20px;
     }
     .perfil-header::before {
       content: "";
@@ -60,60 +52,74 @@
       pointer-events: none;
       z-index: 0;
     }
-    .perfil-header>* {
-      position: relative;
-      z-index: 1;
-    }
+    .perfil-header>* { position: relative; z-index: 1; }
     .perfil-avatar {
-      width: 80px;
-      height: 80px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
       background: var(--s-color);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Anton', sans-serif;
-      font-size: 36px;
+      font-size: 32px;
       color: var(--ink);
       flex-shrink: 0;
+      overflow: hidden;
     }
-    .perfil-info {
-      flex: 1;
-      min-width: 180px;
+    .perfil-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
+    .perfil-info { flex: 1; min-width: 160px; }
     .perfil-info h1 {
       font-family: 'Anton', sans-serif;
-      font-size: 30px;
+      font-size: 26px;
       letter-spacing: 0.02em;
       line-height: 1.1;
     }
     .perfil-info .username {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--paper);
       opacity: 0.5;
       margin-top: 2px;
     }
     .perfil-info .bio {
-      margin-top: 8px;
-      font-size: 14px;
+      margin-top: 6px;
+      font-size: 13px;
       opacity: 0.6;
-      max-width: 48ch;
+      max-width: 44ch;
     }
-    .perfil-actions {
+    .perfil-info .redes {
       display: flex;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .perfil-info .redes a {
+      color: var(--paper);
+      opacity: 0.5;
+      font-size: 18px;
+      transition: 0.2s;
+      text-decoration: none;
+    }
+    .perfil-info .redes a:hover { opacity: 1; }
+    .perfil-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
       flex-wrap: wrap;
     }
     .perfil-actions button {
       background: transparent;
       border: 1px solid var(--card-line);
       color: var(--paper);
-      padding: 4px 14px;
-      border-radius: 6px;
+      padding: 3px 12px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 11px;
       transition: 0.2s;
       font-family: 'Inter', sans-serif;
     }
@@ -127,29 +133,27 @@
       color: var(--ink);
       font-weight: 600;
     }
-    .perfil-actions .btn-primary:hover {
-      opacity: 0.8;
-    }
+    .perfil-actions .btn-primary:hover { opacity: 0.8; }
     .perfil-metrics {
       display: flex;
-      gap: 20px;
+      gap: 16px;
       flex-wrap: wrap;
-      padding: 0 6vw 20px;
+      padding: 0 6vw 16px;
       border-bottom: 1px solid var(--card-line);
     }
     .metric-item {
       display: flex;
       align-items: baseline;
-      gap: 6px;
+      gap: 4px;
     }
     .metric-item .num {
       font-family: 'Anton', sans-serif;
-      font-size: 24px;
+      font-size: 20px;
       line-height: 1;
       color: var(--paper);
     }
     .metric-item .label {
-      font-size: 12px;
+      font-size: 10px;
       opacity: 0.5;
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.05em;
@@ -158,41 +162,41 @@
     .metric-item .num.a-color { color: var(--a-color); }
     .metric-item .num.vinil-color { color: var(--vinil-color); }
     .perfil-genres {
-      padding: 10px 6vw 0;
+      padding: 8px 6vw 0;
       display: flex;
       flex-wrap: wrap;
-      gap: 6px 14px;
-      font-size: 13px;
+      gap: 4px 12px;
+      font-size: 12px;
       opacity: 0.6;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .perfil-genres span { font-weight: 500; }
-    .perfil-genres .count { opacity: 0.4; font-size: 11px; }
+    .perfil-genres .count { opacity: 0.4; font-size: 10px; }
     .section {
-      padding: 24px 6vw 6px;
+      padding: 18px 6vw 4px;
     }
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       border-bottom: 1px solid var(--card-line);
-      padding-bottom: 10px;
+      padding-bottom: 6px;
     }
     .section-header h2 {
       font-family: 'Anton', sans-serif;
-      font-size: 22px;
+      font-size: 18px;
       letter-spacing: 0.02em;
     }
     .section-header h2 span {
       font-family: 'Inter', sans-serif;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 400;
       opacity: 0.4;
-      margin-left: 6px;
+      margin-left: 4px;
     }
     .section-header .link {
-      font-size: 12px;
+      font-size: 11px;
       opacity: 0.5;
       cursor: pointer;
       transition: 0.2s;
@@ -203,19 +207,19 @@
     .section-header .link.s-color:hover { opacity: 1; }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 14px;
-      padding-bottom: 6px;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      padding-bottom: 4px;
     }
     .grid-item {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
     .grid-item:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       border-color: rgba(237,232,220,0.2);
     }
     .grid-item .art {
@@ -232,24 +236,24 @@
     .grid-item .art .fallback {
       font-family: 'Inter', sans-serif;
       font-weight: 700;
-      font-size: 12px;
+      font-size: 10px;
       text-align: center;
       color: rgba(255,255,255,0.8);
-      padding: 0 10px;
+      padding: 0 8px;
       text-transform: uppercase;
-      line-height: 1.3;
+      line-height: 1.2;
       text-shadow: 0 2px 10px rgba(0,0,0,0.8);
     }
     .grid-item .art .tier-badge {
       position: absolute;
-      top: 6px;
-      left: 6px;
+      top: 4px;
+      left: 4px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       color: var(--ink);
-      padding: 1px 6px;
-      border-radius: 4px;
+      padding: 1px 5px;
+      border-radius: 3px;
       background: var(--tier-color);
     }
     .grid-item .art .tier-badge.s { background: var(--s-color); }
@@ -257,62 +261,62 @@
     .grid-item .art .tier-badge.b { background: var(--b-color); }
     .grid-item .art .tier-badge.c { background: var(--c-color); }
     .grid-item .info {
-      padding: 8px 10px 10px;
+      padding: 6px 8px 8px;
     }
     .grid-item .info .album {
       font-weight: 600;
-      font-size: 12px;
+      font-size: 10px;
       line-height: 1.2;
     }
     .grid-item .info .artist {
-      font-size: 11px;
+      font-size: 9px;
       opacity: 0.6;
       margin-top: 1px;
     }
     .grid-item .info .year {
-      font-size: 10px;
+      font-size: 9px;
       opacity: 0.3;
       font-family: 'JetBrains Mono', monospace;
-      margin-top: 2px;
+      margin-top: 1px;
     }
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px 36px;
-      padding-bottom: 6px;
+      gap: 16px 28px;
+      padding-bottom: 4px;
     }
     @media (max-width:700px) {
-      .stats-grid { grid-template-columns: 1fr; gap: 14px; }
+      .stats-grid { grid-template-columns: 1fr; gap: 10px; }
     }
     .stat-group h3 {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       opacity: 0.4;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .stat-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 4px;
+      gap: 8px;
+      margin-bottom: 3px;
     }
     .stat-bar .label {
-      font-size: 12px;
-      min-width: 50px;
+      font-size: 11px;
+      min-width: 44px;
       opacity: 0.7;
     }
     .stat-bar .track {
       flex: 1;
-      height: 5px;
+      height: 4px;
       background: var(--card-line);
-      border-radius: 3px;
+      border-radius: 2px;
       overflow: hidden;
     }
     .stat-bar .track .fill {
       height: 100%;
-      border-radius: 3px;
+      border-radius: 2px;
       background: var(--s-color);
       transition: width 0.6s ease;
     }
@@ -327,18 +331,18 @@
     .stat-bar .track .fill.other { background: #5C6B7A; }
     .stat-bar .value {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      min-width: 28px;
+      font-size: 11px;
+      min-width: 24px;
       text-align: right;
       opacity: 0.5;
     }
     .perfil-footer {
-      padding: 32px 6vw 0;
+      padding: 24px 6vw 0;
       border-top: 1px solid var(--card-line);
-      margin-top: 24px;
+      margin-top: 18px;
       text-align: center;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+      font-size: 9px;
       color: rgba(237,232,220,0.25);
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -346,13 +350,13 @@
     .perfil-footer .social {
       display: flex;
       justify-content: center;
-      gap: 16px;
-      margin-bottom: 12px;
+      gap: 14px;
+      margin-bottom: 10px;
     }
     .perfil-footer .social a {
       color: var(--paper);
       opacity: 0.4;
-      font-size: 13px;
+      font-size: 12px;
       transition: 0.2s;
       text-decoration: none;
     }
@@ -362,34 +366,38 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
-        padding: 24px 4vw 20px;
-        gap: 16px;
+        padding: 20px 4vw 16px;
+        gap: 12px;
       }
-      .perfil-info h1 { font-size: 24px; }
-      .perfil-avatar { width: 64px; height: 64px; font-size: 28px; }
-      .perfil-metrics { justify-content: center; gap: 14px 20px; padding: 0 4vw 16px; }
-      .metric-item .num { font-size: 20px; }
-      .perfil-genres { justify-content: center; padding: 6px 4vw 0; font-size: 12px; }
-      .section { padding: 18px 4vw 4px; }
-      .section-header h2 { font-size: 18px; }
-      .grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-      .grid-item .info .album { font-size: 11px; }
-      .grid-item .info .artist { font-size: 10px; }
-      .stats-grid { grid-template-columns: 1fr; gap: 12px; }
+      .perfil-info h1 { font-size: 20px; }
+      .perfil-avatar { width: 56px; height: 56px; font-size: 24px; }
+      .perfil-metrics { justify-content: center; gap: 10px 16px; padding: 0 4vw 12px; }
+      .metric-item .num { font-size: 16px; }
+      .perfil-genres { justify-content: center; padding: 4px 4vw 0; font-size: 11px; }
+      .section { padding: 14px 4vw 4px; }
+      .section-header h2 { font-size: 15px; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+      .grid-item .info .album { font-size: 9px; }
+      .grid-item .info .artist { font-size: 8px; }
+      .stats-grid { grid-template-columns: 1fr; gap: 8px; }
       .perfil-actions { justify-content: center; }
     }
     @media (max-width:400px) {
-      .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     }
     .loading {
       text-align: center;
-      padding: 60px 20px;
+      padding: 48px 20px;
       opacity: 0.5;
     }
     .error {
       text-align: center;
-      padding: 60px 20px;
+      padding: 48px 20px;
       color: #f44336;
+    }
+    .redes-placeholder {
+      font-size: 11px;
+      opacity: 0.3;
     }
   </style>
 </head>
@@ -403,7 +411,6 @@
   <footer class="perfil-footer">
     <div class="social">
       <a href="#">📷 Instagram</a>
-      <a href="#">🐦 Twitter</a>
       <a href="#">🎵 Spotify</a>
       <a href="#">💿 Discogs</a>
     </div>
@@ -411,9 +418,6 @@
   </footer>
 
   <script>
-    // ================================================================
-    // CONFIGURAÇÕES
-    // ================================================================
     const API_URL = 'https://fporteladatest.pythonanywhere.com';
     const CORES = ['#D6432F', '#E39A2E', '#4E7A8C', '#8A8378', '#5C6B7A', '#B8A88A', '#E8C87A', '#7AB8D8', '#A78BFA', '#9B59B6'];
 
@@ -428,9 +432,6 @@
       return `${a}\n${b}`;
     }
 
-    // ================================================================
-    // CARREGAR PERFIL
-    // ================================================================
     function carregarPerfil() {
       const params = new URLSearchParams(window.location.search);
       const userId = params.get('id');
@@ -455,15 +456,20 @@
         });
     }
 
-    // ================================================================
-    // RENDER PERFIL
-    // ================================================================
     function renderPerfil(data) {
       const container = document.getElementById('perfil-content');
 
-      const { id, nome, email, data_criacao, total_discos, total_wishlist, ultimos_discos, wishlist } = data;
+      const { id, nome, email, data_criacao, foto_url, bio, discogs_url, spotify_url, instagram_url, total_discos, total_wishlist, ultimos_discos, wishlist } = data;
 
       const ano = data_criacao ? data_criacao.split('-')[0] : '2024';
+      const avatarHtml = foto_url ? `<img src="${foto_url}" alt="Avatar">` : nome.charAt(0).toUpperCase();
+
+      // Redes sociais
+      let redesHtml = '';
+      if (spotify_url) redesHtml += `<a href="${spotify_url}" target="_blank" title="Spotify">🎵</a>`;
+      if (discogs_url) redesHtml += `<a href="${discogs_url}" target="_blank" title="Discogs">💿</a>`;
+      if (instagram_url) redesHtml += `<a href="${instagram_url}" target="_blank" title="Instagram">📷</a>`;
+      if (!redesHtml) redesHtml = `<span class="redes-placeholder">Sem redes sociais adicionadas</span>`;
 
       // Métricas
       let metricsHtml = `
@@ -471,33 +477,21 @@
         <div class="metric-item"><span class="num s-color">${total_wishlist || 0}</span><span class="label">Wishlist</span></div>
       `;
 
-      // Gêneros (mock para demonstração)
-      const generos = [
-        { nome: 'Rock', count: 45 },
-        { nome: 'Metal', count: 30 },
-        { nome: 'Jazz', count: 12 },
-        { nome: 'Indie', count: 8 }
-      ];
-
       let html = `
         <header class="perfil-header">
-          <div class="perfil-avatar">${nome.charAt(0).toUpperCase()}</div>
+          <div class="perfil-avatar">${avatarHtml}</div>
           <div class="perfil-info">
             <h1>${nome}</h1>
             <div class="username">@${nome.toLowerCase().replace(/[^a-z0-9]/g, '')} · Colecionando desde ${ano}</div>
-            <div class="bio">🎵 Colecionador · ${total_discos || 0} discos e contando</div>
+            ${bio ? `<div class="bio">${bio}</div>` : ''}
+            <div class="redes">${redesHtml}</div>
             <div class="perfil-actions">
               <button class="btn-primary" onclick="copiarLink()">🔗 Copiar link</button>
-              <button onclick="compartilhar()">📤 Compartilhar</button>
             </div>
           </div>
         </header>
 
         <div class="perfil-metrics">${metricsHtml}</div>
-
-        <div class="perfil-genres">
-          ${generos.map(g => `<span>${g.nome} <span class="count">(${g.count})</span></span>`).join('')}
-        </div>
       `;
 
       // Coleção
@@ -558,7 +552,7 @@
         html += `</div></section>`;
       }
 
-      // Estatísticas (mock)
+      // Estatísticas
       html += `
         <section class="section">
           <div class="section-header">
@@ -584,36 +578,15 @@
       container.innerHTML = html;
     }
 
-    // ================================================================
-    // AÇÕES
-    // ================================================================
     function copiarLink() {
       const url = window.location.href;
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => {
-          alert('✅ Link copiado!');
-        });
+        navigator.clipboard.writeText(url).then(() => alert('✅ Link copiado!'));
       } else {
         prompt('Copie o link:', url);
       }
     }
 
-    function compartilhar() {
-      const url = window.location.href;
-      if (navigator.share) {
-        navigator.share({
-          title: 'Minha coleção na Discoteca',
-          text: 'Confira minha coleção de discos!',
-          url: url
-        }).catch(() => {});
-      } else {
-        copiarLink();
-      }
-    }
-
-    // ================================================================
-    // INICIAR
-    // ================================================================
     document.addEventListener('DOMContentLoaded', carregarPerfil);
   </script>
 </body>
