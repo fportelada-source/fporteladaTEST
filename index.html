@@ -19,7 +19,7 @@
       --ink: #1B1815;
       --ink-soft: #4a453e;
       --card: #242019;
-      --card-line: rgba(237,232,220,0.10);
+      --card-line: rgba(237, 232, 220, 0.10);
       --s-color: #D6432F;
       --a-color: #E39A2E;
       --b-color: #4E7A8C;
@@ -30,14 +30,14 @@
       --cd-color: #7AB8D8;
       --cassete-color: #A78BFA;
       --dvd-color: #9B59B6;
-      --groove: repeating-radial-gradient(circle at center, rgba(237,232,220,0.035) 0px, rgba(237,232,220,0.035) 1px, transparent 1px, transparent 3px);
+      --groove: repeating-radial-gradient(circle at center, rgba(237, 232, 220, 0.035) 0px, rgba(237, 232, 220, 0.035) 1px, transparent 1px, transparent 3px);
     }
     body {
       background: var(--ink);
       color: var(--paper);
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      padding-bottom: 40px;
+      padding-bottom: 80px;
     }
     ::selection {
       background: var(--s-color);
@@ -49,7 +49,7 @@
     }
     .hero {
       position: relative;
-      padding: 48px 6vw 32px;
+      padding: 64px 6vw 48px;
       border-bottom: 1px solid var(--card-line);
       overflow: hidden;
       transition: all 0.4s ease;
@@ -63,17 +63,17 @@
     }
     .hero-eyebrow {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 12px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--paper);
       opacity: 0.55;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
     .hero h1 {
       font-family: 'Anton', sans-serif;
       font-weight: 400;
-      font-size: clamp(34px, 6vw, 72px);
+      font-size: clamp(42px, 7vw, 92px);
       line-height: 0.92;
       letter-spacing: 0.005em;
       text-transform: uppercase;
@@ -83,29 +83,39 @@
       color: var(--s-color);
     }
     .hero-sub {
-      margin-top: 14px;
-      max-width: 48ch;
-      font-size: 15px;
+      margin-top: 20px;
+      max-width: 52ch;
+      font-size: 16px;
       color: var(--paper);
       opacity: 0.68;
-      line-height: 1.5;
+      line-height: 1.6;
     }
     .hero-meter {
-      margin-top: 28px;
+      margin-top: 36px;
       display: flex;
       gap: 2px;
-      max-width: 480px;
+      max-width: 520px;
     }
     .hero-meter span {
       flex: 1;
       height: 6px;
       border-radius: 1px;
     }
-    .hero-state-colecao .hero h1 span { color: var(--colecao-color); }
-    .hero-state-wishlist .hero h1 span { color: var(--a-color); }
-    .hero-state-estatisticas .hero h1 span { color: var(--e-color); }
-    .hero-state-perfil .hero h1 span { color: var(--colecao-color); }
-    .hero-state-importar .hero h1 span { color: var(--colecao-color); }
+    .hero-state-colecao .hero h1 span {
+      color: var(--colecao-color);
+    }
+    .hero-state-wishlist .hero h1 span {
+      color: var(--a-color);
+    }
+    .hero-state-estatisticas .hero h1 span {
+      color: var(--e-color);
+    }
+    .hero-state-perfil .hero h1 span {
+      color: var(--colecao-color);
+    }
+    .hero-state-importar .hero h1 span {
+      color: var(--colecao-color);
+    }
     .tabs-container {
       padding: 0 6vw;
       border-bottom: 1px solid var(--card-line);
@@ -116,8 +126,8 @@
     }
     .tabs {
       display: flex;
-      gap: 2px;
-      padding: 10px 0 0 0;
+      gap: 4px;
+      padding: 12px 0 0 0;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -127,10 +137,10 @@
       color: var(--paper);
       opacity: 0.4;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 13px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 8px 14px 10px 14px;
+      padding: 12px 24px 14px 24px;
       cursor: pointer;
       transition: all 0.3s ease;
       border-bottom: 2px solid transparent;
@@ -148,14 +158,14 @@
       display: inline-block;
       background: var(--s-color);
       color: var(--ink);
-      font-size: 8px;
-      padding: 1px 6px;
+      font-size: 10px;
+      padding: 1px 8px;
       border-radius: 10px;
-      margin-left: 4px;
+      margin-left: 6px;
       font-weight: 700;
     }
     .tab-btn .badge-em-breve {
-      font-size: 7px;
+      font-size: 9px;
       background: var(--card-line);
       color: var(--paper);
       padding: 1px 6px;
@@ -177,78 +187,84 @@
       display: block;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     .section {
-      padding: 24px 6vw 6px;
+      padding: 40px 6vw 8px;
     }
     .tier-head {
       display: flex;
       align-items: flex-end;
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 18px;
+      margin-bottom: 28px;
       border-bottom: 1px solid var(--card-line);
-      padding-bottom: 10px;
+      padding-bottom: 18px;
       flex-wrap: wrap;
     }
     .tier-stamp {
       font-family: 'Anton', sans-serif;
-      font-size: 48px;
+      font-size: 64px;
       line-height: 0.8;
       color: var(--ink);
       background: var(--tier-color);
-      padding: 4px 12px 8px;
+      padding: 6px 16px 12px;
       border-radius: 6px;
-      transform: rotate(-2deg);
-      box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+      transform: rotate(-3deg);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
     }
     .tier-stamp.small {
-      font-size: 36px;
-      padding: 4px 10px 6px;
+      font-size: 48px;
+      padding: 6px 14px 10px;
     }
     .tier-stamp.tiny {
-      font-size: 22px;
-      padding: 3px 8px 5px;
+      font-size: 28px;
+      padding: 4px 10px 6px;
     }
     .tier-info h2 {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 13px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--tier-color);
-      margin-bottom: 3px;
+      margin-bottom: 6px;
     }
     .tier-info p {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--paper);
       opacity: 0.6;
-      max-width: 48ch;
+      max-width: 60ch;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 14px;
-      padding-bottom: 6px;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 18px;
+      padding-bottom: 8px;
     }
     .card {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       position: relative;
       transition: transform 0.25s ease, border-color 0.25s ease;
       border-top: 3px solid var(--tier-color);
     }
     .card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(237,232,220,0.25);
+      transform: translateY(-4px);
+      border-color: rgba(237, 232, 220, 0.28);
     }
     .art-wrap {
       position: relative;
       width: 100%;
       aspect-ratio: 1/1;
-      min-height: 160px;
+      min-height: 230px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -260,13 +276,13 @@
     .art-wrap .spine-letter {
       position: absolute;
       font-family: 'Anton', sans-serif;
-      font-size: 80px;
+      font-size: 130px;
       line-height: 1;
-      color: rgba(255,255,255,0.06);
+      color: rgba(255, 255, 255, 0.08);
       text-transform: uppercase;
       user-select: none;
-      right: -8px;
-      bottom: -20px;
+      right: -14px;
+      bottom: -32px;
       z-index: 1;
       pointer-events: none;
     }
@@ -274,55 +290,55 @@
       position: relative;
       font-family: 'Inter', sans-serif;
       font-weight: 700;
-      font-size: 12px;
+      font-size: 15px;
       text-align: center;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255, 255, 255, 0.92);
       letter-spacing: 0.01em;
-      padding: 0 14px;
+      padding: 0 20px;
       text-transform: uppercase;
-      line-height: 1.2;
+      line-height: 1.3;
       z-index: 1;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
     }
     .priority-tag {
       position: absolute;
-      top: 6px;
-      left: 6px;
+      top: 10px;
+      left: 10px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.08em;
       color: var(--ink);
       background: var(--tier-color);
-      padding: 2px 6px;
+      padding: 3px 8px;
       border-radius: 4px;
       z-index: 3;
     }
     .card-body {
-      padding: 10px 12px 12px;
+      padding: 16px 16px 18px;
     }
     .card-body h3 {
       font-family: 'Inter', sans-serif;
       font-weight: 700;
-      font-size: 14px;
-      line-height: 1.2;
+      font-size: 16px;
+      line-height: 1.25;
       margin-bottom: 2px;
     }
     .card-body .artist {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--tier-color);
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
     .card-body .motivos {
-      font-size: 10px;
+      font-size: 12px;
       color: var(--paper);
       opacity: 0.7;
-      margin: 4px 0 6px;
-      line-height: 1.3;
+      margin: 6px 0 8px;
+      line-height: 1.4;
     }
     .card-body .motivos .motivo-item {
-      padding: 1px 0;
+      padding: 2px 0;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -334,14 +350,14 @@
     .meta-row {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      padding-top: 6px;
+      font-size: 11px;
+      padding-top: 10px;
       border-top: 1px dashed var(--card-line);
     }
     .meta-row .label {
-      color: rgba(237,232,220,0.4);
+      color: rgba(237, 232, 220, 0.4);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -352,89 +368,89 @@
       max-width: 60%;
     }
     .meta-block {
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
     .card-actions {
       display: flex;
-      gap: 4px;
-      margin-top: 6px;
+      gap: 6px;
+      margin-top: 10px;
       flex-wrap: wrap;
     }
     .btn-icon {
       background: transparent;
       border: 1px solid var(--card-line);
       color: var(--paper);
-      width: 26px;
-      height: 26px;
-      border-radius: 4px;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 14px;
       line-height: 1;
       font-family: 'Inter', sans-serif;
     }
     .btn-icon:hover {
       background: var(--card-line);
-      border-color: rgba(237,232,220,0.3);
+      border-color: rgba(237, 232, 220, 0.3);
     }
     .btn-icon.btn-edit:hover {
       border-color: var(--a-color);
       color: var(--a-color);
-      background: rgba(227,154,46,0.1);
+      background: rgba(227, 154, 46, 0.1);
     }
     .btn-icon.btn-remove:hover {
       border-color: #f44336;
       color: #f44336;
-      background: rgba(244,67,54,0.1);
+      background: rgba(244, 67, 54, 0.1);
     }
     .btn-icon.btn-move:hover {
       border-color: #4CAF50;
       color: #4CAF50;
-      background: rgba(76,175,80,0.1);
+      background: rgba(76, 175, 80, 0.1);
     }
     .btn-icon.btn-tier:hover {
       border-color: var(--s-color);
       color: var(--s-color);
-      background: rgba(214,67,47,0.1);
+      background: rgba(214, 67, 47, 0.1);
     }
     .wishlist-phrase {
-      font-size: 10px;
+      font-size: 12px;
       color: var(--paper);
       opacity: 0.6;
       font-style: italic;
       border-top: 1px dashed var(--card-line);
-      margin-top: 4px;
-      padding-top: 4px;
+      margin-top: 8px;
+      padding-top: 8px;
       white-space: normal;
-      line-height: 1.2;
+      line-height: 1.4;
     }
     .estrategia-text {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--paper);
       opacity: 0.85;
-      padding: 3px 0 0 0;
-      margin-top: 3px;
+      padding: 6px 0 0 0;
+      margin-top: 4px;
       border-top: 1px dashed var(--card-line);
       text-align: left;
       font-family: 'Inter', sans-serif;
-      line-height: 1.2;
+      line-height: 1.4;
     }
     .barcode-btn {
       background: var(--s-color);
       color: var(--ink);
       border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
+      padding: 8px 16px;
+      border-radius: 6px;
       font-weight: 600;
       cursor: pointer;
       transition: 0.2s;
-      font-size: 11px;
+      font-size: 13px;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
     .barcode-btn:hover {
       opacity: 0.8;
@@ -458,7 +474,7 @@
     }
     .scanner-fullscreen #scanner-reader {
       width: 100%;
-      max-width: 450px;
+      max-width: 600px;
       aspect-ratio: 1/1;
     }
     .scanner-fullscreen #scanner-reader video {
@@ -467,14 +483,14 @@
     }
     .scanner-fullscreen .scanner-close {
       position: absolute;
-      top: 16px;
-      right: 16px;
-      background: rgba(255,255,255,0.2);
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
       border: none;
       color: #fff;
-      font-size: 24px;
-      width: 40px;
-      height: 40px;
+      font-size: 32px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       cursor: pointer;
       transition: 0.2s;
@@ -483,12 +499,12 @@
       justify-content: center;
     }
     .scanner-fullscreen .scanner-close:hover {
-      background: rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.3);
     }
     .scanner-fullscreen .scanner-hint {
       color: #fff;
-      font-size: 13px;
-      margin-top: 14px;
+      font-size: 16px;
+      margin-top: 20px;
       opacity: 0.7;
       text-align: center;
       font-family: 'Inter', sans-serif;
@@ -497,7 +513,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0, 0, 0, 0.7);
       z-index: 999;
       justify-content: center;
       align-items: center;
@@ -510,30 +526,30 @@
     .modal {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 500px;
-      width: 92%;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 600px;
+      width: 90%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
     }
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
     }
     .modal-header h2 {
       font-family: 'Anton', sans-serif;
-      font-size: 22px;
+      font-size: 28px;
       letter-spacing: 0.02em;
     }
     .modal-close {
       background: none;
       border: none;
       color: var(--paper);
-      font-size: 22px;
+      font-size: 28px;
       cursor: pointer;
       opacity: 0.5;
       transition: 0.2s;
@@ -542,16 +558,16 @@
       opacity: 1;
     }
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
     .form-group label {
       display: block;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
+      font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       opacity: 0.5;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
     .form-group input,
     .form-group select,
@@ -560,10 +576,10 @@
       background: var(--ink);
       border: 1px solid var(--card-line);
       color: var(--paper);
-      padding: 6px 10px;
-      border-radius: 4px;
+      padding: 10px 14px;
+      border-radius: 6px;
       font-family: 'Inter', sans-serif;
-      font-size: 12px;
+      font-size: 14px;
       transition: 0.2s;
     }
     .form-group input:focus,
@@ -574,25 +590,25 @@
     }
     .form-group textarea {
       resize: vertical;
-      min-height: 40px;
+      min-height: 60px;
     }
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
     }
     .form-btn {
       background: var(--s-color);
       color: var(--ink);
       border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
+      padding: 14px 28px;
+      border-radius: 6px;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 16px;
       cursor: pointer;
       transition: 0.2s;
       width: 100%;
-      margin-top: 4px;
+      margin-top: 8px;
     }
     .form-btn:hover {
       opacity: 0.8;
@@ -602,20 +618,24 @@
       cursor: not-allowed;
     }
     .form-msg {
-      font-size: 11px;
-      padding: 6px 0 0;
+      font-size: 13px;
+      padding: 10px 0 0;
       text-align: center;
     }
-    .form-msg.success { color: #4CAF50; }
-    .form-msg.error { color: #f44336; }
+    .form-msg.success {
+      color: #4CAF50;
+    }
+    .form-msg.error {
+      color: #f44336;
+    }
     .upload-area {
       background: var(--card);
       border: 2px dashed var(--card-line);
-      border-radius: 8px;
-      padding: 16px;
+      border-radius: 12px;
+      padding: 24px;
       text-align: center;
       transition: 0.3s;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       position: relative;
       overflow: hidden;
     }
@@ -623,12 +643,12 @@
       border-color: var(--s-color);
     }
     .upload-area .icon {
-      font-size: 20px;
+      font-size: 28px;
       margin-bottom: 4px;
     }
     .upload-area p {
       opacity: 0.5;
-      font-size: 12px;
+      font-size: 14px;
     }
     .upload-area .file-input {
       position: absolute;
@@ -644,44 +664,49 @@
       display: inline-block;
       background: var(--s-color);
       color: var(--ink);
-      padding: 4px 14px;
-      border-radius: 4px;
+      padding: 8px 20px;
+      border-radius: 6px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 4px;
+      margin-top: 8px;
       transition: 0.2s;
       position: relative;
       z-index: 2;
-      font-size: 12px;
     }
     .upload-area .upload-label:hover {
       opacity: 0.8;
     }
     .upload-status {
-      font-size: 10px;
-      margin-top: 4px;
+      font-size: 12px;
+      margin-top: 6px;
       opacity: 0.6;
     }
-    .upload-status.success { color: #4CAF50; }
-    .upload-status.error { color: #f44336; }
+    .upload-status.success {
+      color: #4CAF50;
+    }
+    .upload-status.error {
+      color: #f44336;
+    }
     .upload-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 16px;
     }
     @media (max-width:600px) {
-      .upload-grid { grid-template-columns: 1fr; }
+      .upload-grid {
+        grid-template-columns: 1fr;
+      }
     }
     .btn {
       background: var(--s-color);
       color: var(--ink);
       border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
+      padding: 12px 24px;
+      border-radius: 6px;
       font-weight: 600;
       cursor: pointer;
       transition: 0.2s;
-      font-size: 12px;
+      font-size: 14px;
       width: 100%;
     }
     .btn:hover {
@@ -707,117 +732,124 @@
     }
     .empty-state {
       text-align: center;
-      padding: 48px 20px;
+      padding: 80px 20px;
       grid-column: 1 / -1;
     }
     .empty-state .icon {
-      font-size: 40px;
-      margin-bottom: 10px;
+      font-size: 64px;
+      margin-bottom: 16px;
     }
     .empty-state h3 {
-      font-family: 'Anton', sans-serif;
-      font-size: 20px;
-      letter-spacing: 0.02em;
-      margin-bottom: 4px;
-    }
-    .empty-state p {
-      font-size: 12px;
-      opacity: 0.7;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-    .empty-state .empty-hint {
-      font-size: 11px;
-      opacity: 0.4;
-      margin-top: 8px;
-    }
-    .empty-state-full {
-      text-align: center;
-      padding: 64px 20px;
-    }
-    .empty-state-full .icon {
-      font-size: 56px;
-      margin-bottom: 14px;
-    }
-    .empty-state-full h3 {
       font-family: 'Anton', sans-serif;
       font-size: 24px;
       letter-spacing: 0.02em;
       margin-bottom: 8px;
     }
-    .empty-state-full p {
+    .empty-state p {
       font-size: 14px;
+      opacity: 0.7;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .empty-state .empty-hint {
+      font-size: 13px;
+      opacity: 0.4;
+      margin-top: 12px;
+    }
+    .empty-state-full {
+      text-align: center;
+      padding: 100px 20px;
+    }
+    .empty-state-full .icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    .empty-state-full h3 {
+      font-family: 'Anton', sans-serif;
+      font-size: 32px;
+      letter-spacing: 0.02em;
+      margin-bottom: 12px;
+    }
+    .empty-state-full p {
+      font-size: 16px;
       opacity: 0.6;
-      max-width: 420px;
+      max-width: 500px;
       margin: 0 auto;
     }
     .empty-state-full .empty-hint {
-      font-size: 12px;
+      font-size: 14px;
       opacity: 0.4;
-      margin-top: 10px;
+      margin-top: 16px;
     }
     .stat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
     }
     .stat-card {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 8px;
-      padding: 14px 12px;
+      border-radius: 10px;
+      padding: 20px 16px;
       text-align: center;
       border-top: 3px solid var(--e-color);
     }
     .stat-number {
       font-family: 'Anton', sans-serif;
-      font-size: 28px;
+      font-size: 36px;
       line-height: 1.1;
       color: var(--e-color);
     }
     .stat-label {
-      font-size: 10px;
+      font-size: 12px;
       opacity: 0.5;
-      margin-top: 3px;
+      margin-top: 4px;
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
     .stat-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 8px;
-      margin-bottom: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
     }
     .stat-list-item {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 6px;
-      padding: 8px 12px;
+      border-radius: 8px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .stat-list-item .name {
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 500;
     }
     .stat-list-item .count {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 13px;
       color: var(--e-color);
       font-weight: 700;
     }
     .stat-subtitle {
       font-family: 'Anton', sans-serif;
-      font-size: 16px;
+      font-size: 20px;
       letter-spacing: 0.02em;
-      margin: 18px 0 10px 0;
+      margin: 28px 0 12px 0;
       color: var(--e-color);
     }
+    .stat-subtitle span {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      opacity: 0.4;
+      margin-left: 8px;
+    }
     .estatistica-secao {
-      margin-top: 28px;
+      margin-top: 40px;
     }
     .estatistica-secao:first-of-type {
       margin-top: 0;
@@ -827,18 +859,18 @@
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      padding-bottom: 4px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--card-line);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
     .estatistica-secao .secao-header h3 {
       font-family: 'Anton', sans-serif;
-      font-size: 18px;
+      font-size: 22px;
       letter-spacing: 0.02em;
       margin: 0;
     }
     .estatistica-secao .secao-header .toggle-icon {
-      font-size: 14px;
+      font-size: 18px;
       opacity: 0.5;
       transition: 0.2s;
     }
@@ -854,29 +886,29 @@
     .estatistica-secao .resumo-cards {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 8px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
     .estatistica-secao .resumo-cards .resumo-item {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 6px;
-      padding: 4px 12px;
+      border-radius: 8px;
+      padding: 8px 16px;
       display: flex;
       align-items: center;
-      gap: 4px;
-      font-size: 12px;
+      gap: 8px;
+      font-size: 14px;
       border-top: 2px solid var(--e-color);
     }
     .estatistica-secao .resumo-cards .resumo-item .num {
       font-family: 'Anton', sans-serif;
-      font-size: 16px;
+      font-size: 20px;
       line-height: 1;
       color: var(--e-color);
     }
     .estatistica-secao .resumo-cards .resumo-item .label {
       opacity: 0.6;
-      font-size: 10px;
+      font-size: 12px;
     }
     .estatistica-secao.estante .resumo-cards .resumo-item {
       border-top-color: var(--colecao-color);
@@ -897,23 +929,23 @@
     .exportify-guide {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      padding: 28px 30px;
+      margin-bottom: 28px;
       border-left: 4px solid var(--s-color);
     }
     .exportify-guide h3 {
       font-family: 'Anton', sans-serif;
-      font-size: 18px;
+      font-size: 22px;
       letter-spacing: 0.02em;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       color: var(--s-color);
     }
     .exportify-guide p {
-      font-size: 12px;
+      font-size: 14px;
       opacity: 0.8;
-      line-height: 1.5;
-      margin-bottom: 4px;
+      line-height: 1.7;
+      margin-bottom: 6px;
     }
     .exportify-guide .link {
       color: var(--s-color);
@@ -926,28 +958,35 @@
     .exportify-guide ul {
       list-style: none;
       padding: 0;
-      margin: 8px 0 0 0;
+      margin: 12px 0 0 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2px 14px;
+      gap: 4px 20px;
     }
     .exportify-guide ul li {
-      font-size: 11px;
+      font-size: 13px;
       opacity: 0.8;
-      padding: 2px 0;
+      padding: 3px 0;
       display: flex;
       align-items: flex-start;
-      gap: 4px;
-      line-height: 1.2;
+      gap: 8px;
+      line-height: 1.4;
     }
     .exportify-guide ul li .num {
       color: var(--s-color);
       font-weight: 700;
-      min-width: 14px;
+      min-width: 18px;
+    }
+    .exportify-guide ul li .text {
+      opacity: 0.8;
+    }
+    .exportify-guide ul li .text strong {
+      color: var(--paper);
+      opacity: 1;
     }
     .exportify-guide .dica {
-      margin-top: 8px;
-      font-size: 11px;
+      margin-top: 12px;
+      font-size: 13px;
       opacity: 0.5;
       font-style: italic;
     }
@@ -955,17 +994,19 @@
       .exportify-guide ul {
         grid-template-columns: 1fr;
       }
-      .exportify-guide { padding: 14px; }
+      .exportify-guide {
+        padding: 20px;
+      }
     }
     input[type="date"] {
       color-scheme: dark;
       background: var(--ink);
       border: 1px solid var(--card-line);
       color: var(--paper);
-      padding: 6px 10px;
-      border-radius: 4px;
+      padding: 10px 14px;
+      border-radius: 6px;
       font-family: 'Inter', sans-serif;
-      font-size: 12px;
+      font-size: 14px;
       width: 100%;
       transition: 0.2s;
       cursor: pointer;
@@ -979,41 +1020,45 @@
       cursor: pointer;
       padding: 4px;
       border-radius: 4px;
-      background: rgba(214,67,47,0.2);
+      background: rgba(214, 67, 47, 0.2);
     }
     input[type="date"]::-webkit-calendar-picker-indicator:hover {
-      background: rgba(214,67,47,0.4);
+      background: rgba(214, 67, 47, 0.4);
+    }
+    input[type="date"]::-moz-calendar-picker-indicator {
+      filter: invert(1) sepia(1) saturate(5) hue-rotate(340deg);
+      cursor: pointer;
     }
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 8px;
-      margin-bottom: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
     }
     .dashboard-card {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 8px;
-      padding: 10px 8px;
+      border-radius: 10px;
+      padding: 16px 12px;
       text-align: center;
       border-top: 3px solid var(--s-color);
     }
     .dashboard-card .number {
       font-family: 'Anton', sans-serif;
-      font-size: 24px;
+      font-size: 32px;
       line-height: 1;
       color: var(--paper);
     }
     .dashboard-card .label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
+      font-size: 10px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       opacity: 0.5;
-      margin-top: 3px;
+      margin-top: 4px;
     }
     .dashboard-card .sub {
-      font-size: 9px;
+      font-size: 12px;
       opacity: 0.4;
       margin-top: 2px;
     }
@@ -1026,24 +1071,24 @@
     .colecao-controls {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 24px;
       align-items: center;
       background: var(--card);
-      padding: 10px 14px;
-      border-radius: 8px;
+      padding: 14px 18px;
+      border-radius: 10px;
       border: 1px solid var(--card-line);
     }
     .colecao-controls .search-box {
       flex: 1;
-      min-width: 130px;
+      min-width: 180px;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
       background: var(--ink);
       border: 1px solid var(--card-line);
-      border-radius: 4px;
-      padding: 0 8px;
+      border-radius: 6px;
+      padding: 0 12px;
       transition: 0.2s;
     }
     .colecao-controls .search-box:focus-within {
@@ -1053,31 +1098,31 @@
       background: transparent;
       border: none;
       color: var(--paper);
-      padding: 4px 4px;
-      font-size: 12px;
+      padding: 8px 4px;
+      font-size: 14px;
       width: 100%;
       outline: none;
     }
     .colecao-controls .search-box .icon {
       opacity: 0.4;
-      font-size: 12px;
+      font-size: 16px;
     }
     .colecao-controls select {
       background: var(--ink);
       border: 1px solid var(--card-line);
       color: var(--paper);
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 8px 12px;
+      border-radius: 6px;
       font-family: 'Inter', sans-serif;
-      font-size: 11px;
+      font-size: 13px;
       cursor: pointer;
       outline: none;
-      min-width: 100px;
+      min-width: 130px;
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23EDE8DC' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 8px center;
-      padding-right: 24px;
+      background-position: right 12px center;
+      padding-right: 32px;
     }
     .colecao-controls select:focus {
       border-color: var(--s-color);
@@ -1088,11 +1133,11 @@
     }
     .colecao-controls .view-toggle {
       display: flex;
-      gap: 2px;
+      gap: 4px;
       background: var(--ink);
       border: 1px solid var(--card-line);
-      border-radius: 4px;
-      padding: 2px;
+      border-radius: 6px;
+      padding: 3px;
       margin-left: auto;
     }
     .colecao-controls .view-toggle button {
@@ -1100,10 +1145,10 @@
       border: none;
       color: var(--paper);
       opacity: 0.4;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 4px 10px;
+      border-radius: 4px;
       font-family: 'Inter', sans-serif;
-      font-size: 10px;
+      font-size: 12px;
       cursor: pointer;
       transition: 0.2s;
     }
@@ -1117,21 +1162,21 @@
     }
     .group-toggle {
       display: flex;
-      gap: 2px;
+      gap: 4px;
       background: var(--ink);
       border: 1px solid var(--card-line);
-      border-radius: 4px;
-      padding: 2px;
+      border-radius: 6px;
+      padding: 3px;
     }
     .group-toggle button {
       background: transparent;
       border: none;
       color: var(--paper);
       opacity: 0.4;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 4px 10px;
+      border-radius: 4px;
       font-family: 'Inter', sans-serif;
-      font-size: 10px;
+      font-size: 12px;
       cursor: pointer;
       transition: 0.2s;
     }
@@ -1154,38 +1199,38 @@
     .list-view table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11px;
+      font-size: 13px;
     }
     .list-view th {
       text-align: left;
-      padding: 6px 8px;
+      padding: 10px 12px;
       border-bottom: 2px solid var(--card-line);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
+      font-size: 11px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       opacity: 0.5;
     }
     .list-view td {
-      padding: 6px 8px;
+      padding: 10px 12px;
       border-bottom: 1px solid var(--card-line);
       vertical-align: middle;
     }
     .list-view tr:hover td {
-      background: rgba(237,232,220,0.03);
+      background: rgba(237, 232, 220, 0.03);
     }
     .list-view .list-actions {
       display: flex;
-      gap: 4px;
+      gap: 6px;
     }
     .list-view .list-actions button {
       background: transparent;
       border: 1px solid var(--card-line);
       color: var(--paper);
-      width: 22px;
-      height: 22px;
-      border-radius: 3px;
-      font-size: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      font-size: 12px;
       cursor: pointer;
       transition: 0.2s;
       display: flex;
@@ -1203,24 +1248,36 @@
       color: #fff;
     }
     .list-view .format-badge {
-      font-size: 8px;
-      padding: 1px 5px;
-      border-radius: 10px;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 12px;
       border: 1px solid var(--card-line);
       opacity: 0.6;
       font-family: 'JetBrains Mono', monospace;
     }
-    .list-view .format-badge.vinil { color: var(--vinil-color); border-color: var(--vinil-color); }
-    .list-view .format-badge.cd { color: var(--cd-color); border-color: var(--cd-color); }
-    .list-view .format-badge.cassete { color: var(--cassete-color); border-color: var(--cassete-color); }
-    .list-view .format-badge.dvd { color: var(--dvd-color); border-color: var(--dvd-color); }
+    .list-view .format-badge.vinil {
+      color: var(--vinil-color);
+      border-color: var(--vinil-color);
+    }
+    .list-view .format-badge.cd {
+      color: var(--cd-color);
+      border-color: var(--cd-color);
+    }
+    .list-view .format-badge.cassete {
+      color: var(--cassete-color);
+      border-color: var(--cassete-color);
+    }
+    .list-view .format-badge.dvd {
+      color: var(--dvd-color);
+      border-color: var(--dvd-color);
+    }
     .list-view .secao-header {
-      padding: 8px 0 4px 0;
+      padding: 12px 0 8px 0;
       font-family: 'Anton', sans-serif;
-      font-size: 14px;
+      font-size: 18px;
       letter-spacing: 0.02em;
       border-bottom: 1px solid var(--card-line);
-      margin-top: 12px;
+      margin-top: 16px;
     }
     .list-view .secao-header:first-of-type {
       margin-top: 0;
@@ -1229,7 +1286,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 6vw;
+      padding: 12px 6vw;
       border-bottom: 1px solid var(--card-line);
       background: var(--ink);
       position: sticky;
@@ -1242,15 +1299,15 @@
       gap: 10px;
     }
     .user-bar .user-avatar {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--s-color);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Anton', sans-serif;
-      font-size: 14px;
+      font-size: 16px;
       color: var(--ink);
       overflow: hidden;
     }
@@ -1260,17 +1317,17 @@
       object-fit: cover;
     }
     .user-bar .user-name {
-      font-size: 12px;
+      font-size: 13px;
       opacity: 0.6;
     }
     .user-bar .logout-btn {
       background: transparent;
       border: 1px solid var(--card-line);
       color: var(--paper);
-      padding: 3px 10px;
+      padding: 4px 14px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 10px;
+      font-size: 12px;
       transition: 0.2s;
     }
     .user-bar .logout-btn:hover {
@@ -1279,10 +1336,10 @@
       border-color: var(--s-color);
     }
     footer {
-      padding: 28px 6vw 0;
+      padding: 40px 6vw 0;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      color: rgba(237,232,220,0.25);
+      font-size: 11px;
+      color: rgba(237, 232, 220, 0.3);
       text-align: center;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -1297,39 +1354,39 @@
     .login-box {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 12px;
-      padding: 32px 28px;
-      max-width: 340px;
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 420px;
       width: 100%;
       text-align: center;
     }
     .login-box .logo {
       font-family: 'Anton', sans-serif;
-      font-size: 36px;
+      font-size: 48px;
       letter-spacing: 0.02em;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .login-box .logo span {
       color: var(--s-color);
     }
     .login-box .sub {
-      font-size: 12px;
+      font-size: 14px;
       opacity: 0.5;
-      margin-bottom: 24px;
+      margin-bottom: 32px;
     }
     .login-btn {
       background: #ffffff;
       color: #1a1815;
       border: none;
-      padding: 10px 24px;
-      border-radius: 6px;
+      padding: 14px 32px;
+      border-radius: 8px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 16px;
       cursor: pointer;
       transition: 0.2s;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       width: 100%;
       justify-content: center;
     }
@@ -1338,29 +1395,29 @@
       transform: scale(1.02);
     }
     .login-btn svg {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
     }
     .login-error {
       color: #f44336;
-      font-size: 12px;
-      margin-top: 12px;
+      font-size: 14px;
+      margin-top: 16px;
       display: none;
     }
     .add-btn-wrap {
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
     }
     .add-btn {
       background: var(--s-color);
       color: var(--ink);
       border: none;
-      width: 36px;
-      height: 36px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      font-size: 20px;
+      font-size: 28px;
       font-weight: 700;
       cursor: pointer;
       transition: 0.2s;
@@ -1375,20 +1432,20 @@
     }
     .btn-group {
       display: flex;
-      gap: 6px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      margin-top: 16px;
     }
     .btn-group .btn {
       flex: 1;
-      min-width: 80px;
+      min-width: 120px;
     }
     .modal-confirm-text {
       color: var(--paper);
       opacity: 0.8;
-      font-size: 14px;
-      margin: 14px 0;
-      line-height: 1.4;
+      font-size: 16px;
+      margin: 20px 0;
+      line-height: 1.6;
     }
     .modal-confirm-text strong {
       color: var(--paper);
@@ -1398,10 +1455,10 @@
       background: #f44336;
       color: #fff;
       border: none;
-      padding: 8px 20px;
-      border-radius: 4px;
+      padding: 12px 28px;
+      border-radius: 6px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 16px;
       cursor: pointer;
       transition: 0.2s;
       flex: 1;
@@ -1413,10 +1470,10 @@
       background: var(--card-line);
       color: var(--paper);
       border: none;
-      padding: 8px 20px;
-      border-radius: 4px;
+      padding: 12px 28px;
+      border-radius: 6px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 16px;
       cursor: pointer;
       transition: 0.2s;
       flex: 1;
@@ -1426,7 +1483,7 @@
     }
     .pergunta-ajuste .btn-opcao-ajuste.selecionado {
       border-color: var(--s-color) !important;
-      background: rgba(214,67,47,0.15) !important;
+      background: rgba(214, 67, 47, 0.15) !important;
     }
     .btn-ajuste-salvar:disabled {
       opacity: 0.4;
@@ -1436,30 +1493,30 @@
       opacity: 1;
     }
     .wishlist-analise {
-      margin-top: 18px;
+      margin-top: 24px;
     }
     .wishlist-analise .analise-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 10px;
-      margin-bottom: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
     }
     .wishlist-analise .analise-card {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 8px;
-      padding: 10px 12px;
+      border-radius: 10px;
+      padding: 14px 16px;
       text-align: center;
       border-top: 3px solid var(--a-color);
     }
     .wishlist-analise .analise-card .num {
       font-family: 'Anton', sans-serif;
-      font-size: 22px;
+      font-size: 28px;
       line-height: 1;
       color: var(--a-color);
     }
     .wishlist-analise .analise-card .label {
-      font-size: 10px;
+      font-size: 11px;
       opacity: 0.5;
       margin-top: 2px;
       font-family: 'JetBrains Mono', monospace;
@@ -1469,27 +1526,27 @@
     .wishlist-analise .trilogia-item {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin-bottom: 6px;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 8px;
     }
     .wishlist-analise .trilogia-item .artista {
       font-weight: 600;
-      font-size: 13px;
+      font-size: 14px;
     }
     .wishlist-analise .trilogia-item .progresso {
-      font-size: 11px;
+      font-size: 12px;
       opacity: 0.6;
     }
     .wishlist-analise .trilogia-item .status {
-      font-size: 10px;
-      padding: 1px 8px;
-      border-radius: 10px;
+      font-size: 12px;
+      padding: 2px 10px;
+      border-radius: 12px;
       font-weight: 600;
     }
     .wishlist-analise .trilogia-item .status.alta {
@@ -1507,44 +1564,44 @@
     .plan-item {
       background: var(--card);
       border: 1px solid var(--card-line);
-      border-radius: 6px;
-      padding: 6px 10px;
-      margin-bottom: 4px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 6px;
     }
     .plan-item .disc {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
     }
     .plan-item .preco {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--a-color);
     }
     .perfil-edit {
-      max-width: 500px;
+      max-width: 560px;
       margin: 0 auto;
     }
     .perfil-edit .perfil-foto {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 14px;
+      gap: 16px;
+      margin-bottom: 16px;
     }
     .perfil-edit .perfil-foto .avatar {
-      width: 56px;
-      height: 56px;
+      width: 64px;
+      height: 64px;
       border-radius: 50%;
       background: var(--s-color);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Anton', sans-serif;
-      font-size: 24px;
+      font-size: 28px;
       color: var(--ink);
       overflow: hidden;
     }
@@ -1554,7 +1611,7 @@
       object-fit: cover;
     }
     .perfil-edit .perfil-foto .info {
-      font-size: 12px;
+      font-size: 13px;
       opacity: 0.6;
     }
     .perfil-edit .perfil-foto .info strong {
@@ -1562,23 +1619,59 @@
       color: var(--paper);
     }
     @media (max-width:600px) {
-      .tier-stamp { font-size: 34px; padding: 4px 8px 6px; }
-      .tier-stamp.small { font-size: 28px; padding: 3px 8px 5px; }
-      .tier-stamp.tiny { font-size: 18px; padding: 2px 6px 4px; }
-      .hero h1 { font-size: clamp(26px, 9vw, 42px); }
-      .tab-btn { font-size: 9px; padding: 6px 10px 8px; }
-      .tabs { gap: 2px; }
-      .tabs-container { padding: 0 4vw; }
-      .section { padding: 18px 4vw 4px; }
-      .login-box { padding: 24px 16px; }
-      .user-bar { padding: 6px 4vw; }
-      .stat-grid { grid-template-columns: 1fr 1fr; }
-      .empty-state-full h3 { font-size: 20px; }
-      .empty-state-full .icon { font-size: 40px; }
-      .dashboard-grid { grid-template-columns: 1fr 1fr 1fr; }
-      .list-view table { font-size: 10px; }
+      .tier-stamp {
+        font-size: 44px;
+        padding: 4px 12px 8px;
+      }
+      .tier-stamp.small {
+        font-size: 34px;
+        padding: 4px 10px 6px;
+      }
+      .tier-stamp.tiny {
+        font-size: 22px;
+        padding: 4px 8px 5px;
+      }
+      .hero h1 {
+        font-size: clamp(34px, 11vw, 60px);
+      }
+      .tab-btn {
+        font-size: 11px;
+        padding: 10px 14px 12px;
+      }
+      .tabs {
+        gap: 2px;
+      }
+      .tabs-container {
+        padding: 0 4vw;
+      }
+      .section {
+        padding: 32px 4vw 8px;
+      }
+      .login-box {
+        padding: 32px 20px;
+      }
+      .user-bar {
+        padding: 8px 4vw;
+      }
+      .stat-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .empty-state-full h3 {
+        font-size: 24px;
+      }
+      .empty-state-full .icon {
+        font-size: 60px;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .list-view table {
+        font-size: 12px;
+      }
       .list-view th,
-      .list-view td { padding: 4px 6px; }
+      .list-view td {
+        padding: 6px 8px;
+      }
       .colecao-controls {
         flex-direction: column;
         align-items: stretch;
@@ -1596,21 +1689,40 @@
         min-width: 100%;
       }
       .estatistica-secao .resumo-cards .resumo-item {
-        font-size: 10px;
-        padding: 3px 8px;
+        font-size: 12px;
+        padding: 6px 12px;
       }
       .estatistica-secao .resumo-cards .resumo-item .num {
-        font-size: 13px;
+        font-size: 16px;
       }
-      .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-      .wishlist-analise .analise-grid { grid-template-columns: 1fr 1fr; }
-      .form-row { grid-template-columns: 1fr; gap: 8px; }
-      .perfil-edit .perfil-foto { flex-direction: column; align-items: center; text-align: center; }
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 14px;
+      }
+      .wishlist-analise .analise-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .perfil-edit .perfil-foto {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
     }
     @media (max-width:400px) {
-      .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .dashboard-grid { grid-template-columns: 1fr 1fr; }
-      .wishlist-analise .analise-grid { grid-template-columns: 1fr; }
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .wishlist-analise .analise-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -1621,7 +1733,7 @@
       <div class="logo">Discoteca<span>.</span></div>
       <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
       <button class="login-btn" id="btnLogin">
-        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Entrar com Google
       </button>
       <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
@@ -1707,7 +1819,7 @@
         </div>
 
         <!-- AGRUPAMENTO -->
-        <div class="colecao-controls" id="groupControls" style="margin-top:-6px; display:none;">
+        <div class="colecao-controls" id="groupControls" style="margin-top:-8px; display:none;">
           <div class="group-toggle" id="groupToggle">
             <button class="active" data-group="separado" onclick="setGroup('separado')">📂 Separado</button>
             <button data-group="junto" onclick="setGroup('junto')">📚 Juntar</button>
@@ -1738,7 +1850,7 @@
         <div id="wishlist-analise" class="wishlist-analise"></div>
 
         <!-- CONTROLES -->
-        <div class="colecao-controls" style="margin-bottom:12px;">
+        <div class="colecao-controls" style="margin-bottom:16px;">
           <div class="view-toggle" id="wishlistViewToggle">
             <button class="active" data-view="cards" onclick="setWishlistView('cards')">🎴</button>
             <button data-view="list" onclick="setWishlistView('list')">📋</button>
@@ -1828,21 +1940,21 @@
           <div class="upload-grid">
             <div class="upload-area">
               <div class="icon">🏆</div>
-              <p><strong>Top</strong> <span style="opacity:0.4;font-size:10px;">(peso 3x)</span></p>
+              <p><strong>Top</strong> <span style="opacity:0.4;font-size:11px;">(peso 3x)</span></p>
               <label class="upload-label" for="upload-top">Escolher CSV</label>
               <input type="file" id="upload-top" accept=".csv,text/csv" class="file-input">
               <div id="status-top" class="upload-status"></div>
             </div>
             <div class="upload-area">
               <div class="icon">🔍</div>
-              <p><strong>Descobertas</strong> <span style="opacity:0.4;font-size:10px;">(peso 2x)</span></p>
+              <p><strong>Descobertas</strong> <span style="opacity:0.4;font-size:11px;">(peso 2x)</span></p>
               <label class="upload-label" for="upload-desc">Escolher CSV</label>
               <input type="file" id="upload-desc" accept=".csv,text/csv" class="file-input">
               <div id="status-desc" class="upload-status"></div>
             </div>
             <div class="upload-area">
               <div class="icon">⭐</div>
-              <p><strong>Favoritos</strong> <span style="opacity:0.4;font-size:10px;">(peso 1x)</span></p>
+              <p><strong>Favoritos</strong> <span style="opacity:0.4;font-size:11px;">(peso 1x)</span></p>
               <label class="upload-label" for="upload-fav">Escolher CSV</label>
               <input type="file" id="upload-fav" accept=".csv,text/csv" class="file-input">
               <div id="status-fav" class="upload-status"></div>
@@ -1856,10 +1968,10 @@
             </div>
           </div>
           <button class="btn" id="btn-gerar">⚡ Gerar Recomendações</button>
-          <div id="status-gerar" class="upload-status" style="text-align:center;margin-top:4px;"></div>
+          <div id="status-gerar" class="upload-status" style="text-align:center;margin-top:6px;"></div>
 
-          <div style="margin-top: 24px; border-top: 1px solid var(--card-line); padding-top: 16px;">
-            <p style="opacity:0.4; font-size:10px; margin-bottom:8px; font-family:'JetBrains Mono', monospace;">⚠️ Ações permanentes</p>
+          <div style="margin-top: 28px; border-top: 1px solid var(--card-line); padding-top: 20px;">
+            <p style="opacity:0.4; font-size:11px; margin-bottom:10px; font-family:'JetBrains Mono', monospace;">⚠️ Ações permanentes</p>
             <div class="btn-group">
               <button class="btn btn-danger" onclick="zerarPlaylists()">🧹 Playlists</button>
               <button class="btn btn-danger" onclick="zerarColecao()">🧹 Coleção</button>
@@ -1955,13 +2067,13 @@
         </div>
         <div class="form-group">
           <label>Código de Barras</label>
-          <div style="display:flex; gap:4px; align-items:center;">
+          <div style="display:flex; gap:6px; align-items:center;">
             <input type="text" id="campo-codigo-barras" placeholder="Ex: 042284834181" style="flex:1;">
             <button type="button" class="barcode-btn" id="btnBarcode">📷</button>
           </div>
           <input type="hidden" id="campo-capa-url" value="">
         </div>
-        <div id="edicoes-container" style="margin-top:4px;"></div>
+        <div id="edicoes-container" style="margin-top:6px;"></div>
         <button type="submit" class="form-btn" id="btn-submit">Salvar Disco</button>
         <div class="form-msg" id="form-msg"></div>
       </form>
@@ -2039,13 +2151,13 @@
 
   <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
   <div class="modal-overlay" id="modalConfirm">
-    <div class="modal" style="max-width:380px;">
+    <div class="modal" style="max-width:420px;">
       <div class="modal-header">
         <h2>⚠️ Confirmar</h2>
         <button class="modal-close" id="btnFecharConfirm">✕</button>
       </div>
       <div class="modal-confirm-text" id="confirmMessage">Tem certeza?</div>
-      <div style="display:flex; gap:8px; margin-top:12px;">
+      <div style="display:flex; gap:10px; margin-top:16px;">
         <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
         <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
       </div>
@@ -2166,7 +2278,6 @@
       if (avatarEl) {
         avatarEl.textContent = nome.charAt(0).toUpperCase();
       }
-      // Buscar foto do perfil
       fetch(API_URL + '/perfil/' + id)
         .then(r => r.json())
         .then(data => {
@@ -2441,12 +2552,12 @@
       secoes.forEach(secao => {
         if (secao.items.length === 0) return;
         html += `
-          <div style="margin-bottom:18px;">
-            <div class="tier-head" style="border-bottom:1px solid var(--card-line);padding-bottom:8px;margin-bottom:10px;--tier-color:${secao.cor};">
+          <div style="margin-bottom:24px;">
+            <div class="tier-head" style="border-bottom:1px solid var(--card-line);padding-bottom:10px;margin-bottom:14px;--tier-color:${secao.cor};">
               <div class="tier-stamp tiny" style="background:${secao.cor};color:var(--ink);">${secao.icone}</div>
               <div class="tier-info">
                 <h2 style="color:${secao.cor};">${secao.nome}</h2>
-                <p style="opacity:0.4;font-size:11px;">${secao.items.length} discos</p>
+                <p style="opacity:0.4;font-size:12px;">${secao.items.length} discos</p>
               </div>
             </div>
             <div class="grid">
@@ -2687,10 +2798,10 @@
             </div>
             ${resumoHtml}
             <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-player-content">
-              <div class="empty-state" style="padding:28px 20px;">
-                <div class="icon" style="font-size:32px;">🎧</div>
-                <h3 style="font-size:16px;">Ainda não dividimos o fone</h3>
-                <p style="font-size:12px;">Faça upload da sua playlist para começar a análise.</p>
+              <div class="empty-state" style="padding:40px 20px;">
+                <div class="icon" style="font-size:40px;">🎧</div>
+                <h3 style="font-size:20px;">Ainda não dividimos o fone</h3>
+                <p style="font-size:13px;">Faça upload da sua playlist para começar a análise.</p>
               </div>
             </div>
           </div>
@@ -2772,10 +2883,10 @@
             </div>
             ${resumoHtml}
             <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
-              <div class="empty-state" style="padding:28px 20px;">
-                <div class="icon" style="font-size:32px;">📀</div>
-                <h3 style="font-size:16px;">Sua estante está vazia</h3>
-                <p style="font-size:12px;">Adicione discos à sua coleção.</p>
+              <div class="empty-state" style="padding:40px 20px;">
+                <div class="icon" style="font-size:40px;">📀</div>
+                <h3 style="font-size:20px;">Sua estante está vazia</h3>
+                <p style="font-size:13px;">Adicione discos à sua coleção.</p>
               </div>
             </div>
           </div>
@@ -2885,7 +2996,7 @@
       html += `</div>`;
 
       if (trilogias && trilogias.length > 0) {
-        html += `<div style="margin-bottom:10px;"><h3 style="font-family:'Anton',sans-serif;font-size:16px;letter-spacing:0.02em;color:var(--a-color);margin-bottom:6px;">🎯 Trilogias para fechar</h3>`;
+        html += `<div style="margin-bottom:14px;"><h3 style="font-family:'Anton',sans-serif;font-size:18px;letter-spacing:0.02em;color:var(--a-color);margin-bottom:8px;">🎯 Trilogias para fechar</h3>`;
         trilogias.forEach(t => {
           const statusClass = t.faltam === 1 ? 'alta' : t.faltam === 2 ? 'media' : 'baixa';
           const statusText = t.faltam === 1 ? '🔥 Falta 1!' : t.faltam === 2 ? '🟡 Falta 2' : '🟢 Falta 3';
@@ -2903,7 +3014,7 @@
       }
 
       if (generos_wishlist && generos_wishlist.length > 0) {
-        html += `<div style="margin-bottom:10px;"><h3 style="font-family:'Anton',sans-serif;font-size:16px;letter-spacing:0.02em;color:var(--a-color);margin-bottom:6px;">🎸 Gêneros na wishlist</h3>
+        html += `<div style="margin-bottom:14px;"><h3 style="font-family:'Anton',sans-serif;font-size:18px;letter-spacing:0.02em;color:var(--a-color);margin-bottom:8px;">🎸 Gêneros na wishlist</h3>
         <div class="stat-list">`;
         generos_wishlist.slice(0, 6).forEach(g => {
           const colecaoCount = generos_colecao ? generos_colecao.find(c => c.nome === g.nome)?.total || 0 : 0;
@@ -2928,15 +3039,15 @@
 
       if (orcamento > 0) {
         let html = `
-          <div style="background:var(--card);border:1px solid var(--card-line);border-radius:8px;padding:10px 12px;margin-bottom:10px;border-top:3px solid #4CAF50;">
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
-              <span style="font-weight:600;font-size:13px;">💰 Orçamento do mês</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:16px;color:#4CAF50;">R$ ${orcamento}</span>
+          <div style="background:var(--card);border:1px solid var(--card-line);border-radius:10px;padding:14px 16px;margin-bottom:14px;border-top:3px solid #4CAF50;">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+              <span style="font-weight:600;">💰 Orçamento do mês</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#4CAF50;">R$ ${orcamento}</span>
             </div>
         `;
 
         if (plano && plano.length > 0) {
-          html += `<div style="font-size:11px;opacity:0.5;margin-bottom:4px;">Plano de compra (${plano.length} discos):</div>`;
+          html += `<div style="font-size:12px;opacity:0.5;margin-bottom:6px;">Plano de compra (${plano.length} discos):</div>`;
           plano.forEach(item => {
             html += `
               <div class="plan-item">
@@ -2946,13 +3057,13 @@
             `;
           });
           html += `
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-top:6px;padding-top:6px;border-top:1px solid var(--card-line);">
-              <span style="font-size:11px;opacity:0.6;">Total: R$ ${total_plano}</span>
-              <span style="font-size:11px;opacity:0.6;">Sobra: R$ ${sobra}</span>
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--card-line);">
+              <span style="font-size:12px;opacity:0.6;">Total: R$ ${total_plano}</span>
+              <span style="font-size:12px;opacity:0.6;">Sobra: R$ ${sobra}</span>
             </div>
           `;
         } else {
-          html += `<div style="font-size:12px;opacity:0.5;">Nenhum disco cabe no orçamento.</div>`;
+          html += `<div style="font-size:13px;opacity:0.5;">Nenhum disco cabe no orçamento.</div>`;
         }
 
         html += `</div>`;
@@ -2972,7 +3083,7 @@
 
       if (!active || active.length === 0) {
         container.innerHTML = `
-          <div class="empty-state-full" style="padding:48px 20px;">
+          <div class="empty-state-full" style="padding:60px 20px;">
             <div class="icon">💰</div>
             <h3>Sua carteira está cheia... de expectativas!</h3>
             <p>Adicione discos manualmente ou gere recomendações.</p>
@@ -2997,21 +3108,21 @@
         const tierDesc = tier === 'S' ? 'Prioridade Máxima' : tier === 'A' ? 'Alta Prioridade' : tier === 'B' ? 'Sem Urgência' : 'Baixa Prioridade';
 
         html += `
-          <div style="margin-bottom:16px;">
-            <div class="tier-head" style="--tier-color:${tierColor};padding-bottom:6px;margin-bottom:8px;">
+          <div style="margin-bottom:20px;">
+            <div class="tier-head" style="--tier-color:${tierColor};padding-bottom:8px;margin-bottom:12px;">
               <div class="tier-stamp tiny" style="background:${tierColor};color:var(--ink);">${tier}</div>
               <div class="tier-info">
                 <h2 style="color:${tierColor};">${tierDesc}</h2>
-                <p style="opacity:0.4;font-size:11px;">${items.length} discos</p>
+                <p style="opacity:0.4;font-size:12px;">${items.length} discos</p>
               </div>
             </div>
-            <div class="grid" style="grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));">
+            <div class="grid" style="grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));">
         `;
 
         if (items.length === 0) {
-          html += `<div class="empty-state" style="padding:14px;"><p style="font-size:11px;opacity:0.4;">Nenhum disco ${tier}</p></div>`;
+          html += `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;opacity:0.4;">Nenhum disco ${tier}</p></div>`;
         } else {
-          // Mostra primeiros 4, collapse
+          // Mostra apenas primeiros 4, collapse
           const showItems = items.slice(0, 4);
           const hidden = items.length - 4;
           showItems.forEach((item, idx) => {
@@ -3020,10 +3131,10 @@
           if (hidden > 0) {
             const hiddenItems = items.slice(4);
             html += `
-              <div class="card" style="border-top-color:${tierColor};display:flex;align-items:center;justify-content:center;min-height:100px;cursor:pointer;" onclick="expandirTier('${tier}')">
+              <div class="card" style="border-top-color:${tierColor};display:flex;align-items:center;justify-content:center;min-height:120px;cursor:pointer;" onclick="expandirTier('${tier}')">
                 <div style="text-align:center;opacity:0.5;">
-                  <div style="font-size:22px;">+${hidden}</div>
-                  <div style="font-size:10px;">Ver mais</div>
+                  <div style="font-size:28px;">+${hidden}</div>
+                  <div style="font-size:12px;">Ver mais</div>
                 </div>
               </div>
             `;
@@ -3031,7 +3142,7 @@
             expandDiv.id = `expand-${tier}`;
             expandDiv.style.display = 'none';
             expandDiv.className = 'grid';
-            expandDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(160px, 1fr))';
+            expandDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
             let hiddenHtml = '';
             hiddenItems.forEach(item => {
               hiddenHtml += renderWishlistCard(item, tierColor);
@@ -3074,7 +3185,7 @@
             <td><strong>${item.artista}</strong></td>
             <td>${item.album}</td>
             <td><span style="color:${tierColor};font-weight:700;">${item.tier}</span></td>
-            <td style="font-size:10px;opacity:0.6;">${frase}</td>
+            <td style="font-size:11px;opacity:0.6;">${frase}</td>
             <td>
               <div class="list-actions">
                 <button class="edit" onclick="abrirEditTier('${item.id}','${item.artista}','${item.album}','${item.tier}')">✎</button>
@@ -3171,7 +3282,7 @@
                 <div class="info">
                   <div><strong>${data.nome}</strong></div>
                   <div>${data.email}</div>
-                  <div style="font-size:10px;opacity:0.4;">Colecionando desde ${data.data_criacao ? data.data_criacao.split('-')[0] : '2024'}</div>
+                  <div style="font-size:11px;opacity:0.4;">Colecionando desde ${data.data_criacao ? data.data_criacao.split('-')[0] : '2024'}</div>
                 </div>
               </div>
               <form id="form-perfil">
@@ -3194,15 +3305,14 @@
                 <button type="submit" class="form-btn" id="btn-salvar-perfil">💾 Salvar Perfil</button>
                 <div id="perfil-msg" class="form-msg"></div>
               </form>
-              <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--card-line);">
-                <p style="font-size:11px;opacity:0.4;">🔗 Perfil público:</p>
-                <code style="font-size:11px;word-break:break-all;opacity:0.6;">https://fportelada-source.github.io/fporteladaTEST/perfil.html?id=${usuarioId}</code>
-                <button class="btn" style="margin-top:6px;font-size:11px;padding:4px 12px;" onclick="copiarLinkPerfil()">📋 Copiar link</button>
+              <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--card-line);">
+                <p style="font-size:12px;opacity:0.4;">🔗 Perfil público:</p>
+                <code style="font-size:12px;word-break:break-all;opacity:0.6;">https://fportelada-source.github.io/fporteladaTEST/perfil.html?id=${usuarioId}</code>
+                <button class="btn" style="margin-top:8px;font-size:12px;padding:6px 16px;" onclick="copiarLinkPerfil()">📋 Copiar link</button>
               </div>
             </div>
           `;
 
-          // Form submit
           document.getElementById('form-perfil').addEventListener('submit', function(e) {
             e.preventDefault();
             salvarPerfil();
@@ -3753,7 +3863,7 @@
       scannerFullscreenInstance = html5QrCode;
       const config = {
         fps: 10,
-        qrbox: { width: 240, height: 240 },
+        qrbox: { width: 260, height: 260 },
         formatsToSupport: [
           Html5QrcodeSupportedFormats.EAN_13,
           Html5QrcodeSupportedFormats.UPC_A,
@@ -3870,28 +3980,28 @@
 
       let html = `
         <div class="modal-overlay open" id="modalAjusteFino">
-          <div class="modal" style="max-width:460px;">
+          <div class="modal" style="max-width:520px;">
             <div class="modal-header"><h2>🎵 Quase lá</h2><button class="modal-close" id="btnFecharAjuste">✕</button></div>
-            <p style="opacity:0.6;margin-bottom:12px;font-size:13px;">Só mais algumas perguntas para ajustar suas recomendações:</p>
+            <p style="opacity:0.6;margin-bottom:16px;font-size:14px;">Só mais algumas perguntas para ajustar suas recomendações:</p>
       `;
 
       artistas.forEach((artista, index) => {
         const pergunta = perguntas[index] || perguntas[0];
         html += `
-          <div class="pergunta-ajuste" data-artista="${artista}" style="margin-bottom:12px;padding:10px;background:var(--ink);border-radius:6px;border:1px solid var(--card-line);">
-            <div style="font-size:12px;font-weight:500;margin-bottom:6px;">${pergunta.texto}</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <div class="pergunta-ajuste" data-artista="${artista}" style="margin-bottom:16px;padding:12px;background:var(--ink);border-radius:8px;border:1px solid var(--card-line);">
+            <div style="font-size:13px;font-weight:500;margin-bottom:8px;">${pergunta.texto}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
         `;
         pergunta.opcoes.forEach(opcao => {
-          html += `<button class="btn-opcao-ajuste" data-artista="${artista}" data-valor="${opcao}" style="background:transparent;border:1px solid var(--card-line);color:var(--paper);padding:3px 12px;border-radius:4px;cursor:pointer;transition:0.2s;font-size:11px;">${opcao}</button>`;
+          html += `<button class="btn-opcao-ajuste" data-artista="${artista}" data-valor="${opcao}" style="background:transparent;border:1px solid var(--card-line);color:var(--paper);padding:4px 14px;border-radius:6px;cursor:pointer;transition:0.2s;font-size:12px;">${opcao}</button>`;
         });
         html += `</div></div>`;
       });
 
       html += `
-            <div style="display:flex;gap:8px;margin-top:4px;">
-              <button class="btn-ajuste-pular" id="btnPularAjuste" style="flex:1;background:transparent;border:1px solid var(--card-line);color:var(--paper);padding:8px;border-radius:4px;cursor:pointer;font-size:12px;">Agora não</button>
-              <button class="btn-ajuste-salvar" id="btnSalvarAjuste" disabled style="flex:1;background:var(--s-color);color:var(--ink);border:none;padding:8px;border-radius:4px;cursor:pointer;font-weight:700;font-size:12px;opacity:0.4;">Salvar</button>
+            <div style="display:flex;gap:10px;margin-top:4px;">
+              <button class="btn-ajuste-pular" id="btnPularAjuste" style="flex:1;background:transparent;border:1px solid var(--card-line);color:var(--paper);padding:10px;border-radius:6px;cursor:pointer;font-size:13px;">Agora não</button>
+              <button class="btn-ajuste-salvar" id="btnSalvarAjuste" disabled style="flex:1;background:var(--s-color);color:var(--ink);border:none;padding:10px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;opacity:0.4;">Salvar</button>
             </div>
           </div>
         </div>
