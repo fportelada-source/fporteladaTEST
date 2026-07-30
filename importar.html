@@ -138,9 +138,372 @@
 
   <footer>Discoteca — Sua coleção, suas recomendações.</footer>
 
-  <script src="app.js"></script>
-  <script src="importar.js"></script>
   <script>
+// ================================================================
+// CONFIGURAÇÕES
+// ================================================================
+// Ambiente de TESTE (fporteladaTEST). Trocar API_URL para o
+// dominio de producao (fportelada.pythonanywhere.com) quando for
+// promover essas paginas para o ambiente real.
+const API_URL = 'https://fporteladaTEST.pythonanywhere.com';
+
+// DEV_MODE: quando true, pula o login do Google inteiramente e usa
+// o usuario de teste (Teste ID 1). Usar SOMENTE no ambiente de teste.
+// Isso espelha o bypass que o back-end tambem precisa ter (ver app.py).
+const DEV_MODE = true;
+const DEV_USER_ID = 1;
+const DEV_USER_NOME = 'Teste ID 1';
+
+let usuarioId = null;
+let colecao = [];
+let recomendacoes = [];
+let editandoId = null;
+let barcodeScanner = null;
+let viewPreference = localStorage.getItem('discoteca_view') || 'cards';
+let groupPreference = localStorage.getItem('discoteca_group') || 'separado';
+let colecaoFiltrada = [];
+let confirmCallback = null;
+
+// ================================================================
+// NAVEGAÇÃO (abas viraram links entre paginas separadas)
+// ================================================================
+const NAV_ITEMS = [
+  { id: 'tab-compras', href: 'index.html', label: '📋 Compras' },
+  { id: 'tab-estatisticas', href: 'estatisticas.html', label: '📊 Estatísticas' },
+  { id: 'tab-colecao', href: 'colecao.html', label: '💿 Coleção', badge: true },
+  { id: 'tab-importar', href: 'importar.html', label: '📤 Importar' }
+];
+
+function renderNav(paginaAtiva) {
+  const container = document.getElementById('navContainer');
+  if (!container) return;
+  const html = NAV_ITEMS.map(item => {
+    const ativo = item.href === paginaAtiva ? ' active' : '';
+    const badge = item.badge ? ' <span class="tab-badge" id="colecao-badge">0</span>' : '';
+    return `<a class="tab-btn${ativo}" data-tab="${item.id}" href="${item.href}">${item.label}${badge}</a>`;
+  }).join('');
+  container.innerHTML = html;
+}
+
+// Atualiza o badge de contagem da coleção no menu, quando presente na página.
+function atualizarBadgeColecao(n) {
+  const el = document.getElementById('colecao-badge');
+  if (el) el.textContent = n;
+}
+
+// Usado pelas páginas que não carregam a coleção inteira, apenas para
+// manter o número no menu (badge) sincronizado.
+function sincronizarBadge() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/colecao?user_id=' + usuarioId)
+    .then(r => r.json())
+    .then(data => atualizarBadgeColecao(Array.isArray(data) ? data.length : 0))
+    .catch(() => {});
+}
+
+// ================================================================
+// LOGIN
+// ================================================================
+function salvarSessao(userId, nome) {
+  localStorage.setItem('discoteca_user_id', userId);
+  localStorage.setItem('discoteca_user_nome', nome);
+}
+
+function carregarSessao() {
+  const userId = localStorage.getItem('discoteca_user_id');
+  const nome = localStorage.getItem('discoteca_user_nome');
+  if (userId && nome) return { userId, nome };
+  return null;
+}
+
+function limparSessao() {
+  localStorage.removeItem('discoteca_user_id');
+  localStorage.removeItem('discoteca_user_nome');
+}
+
+function ativarTelaApp(nome) {
+  const loginScreen = document.getElementById('loginScreen');
+  const appScreen = document.getElementById('appScreen');
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (appScreen) appScreen.style.display = 'block';
+  const nomeDisplay = document.getElementById('userNameDisplay');
+  if (nomeDisplay) nomeDisplay.textContent = '👤 ' + nome;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btnLogin = document.getElementById('btnLogin');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', function() {
+      const btn = this;
+      const error = document.getElementById('loginError');
+      btn.disabled = true;
+      if (error) error.style.display = 'none';
+      fetch(API_URL + '/login')
+        .then(r => r.json())
+        .then(d => {
+          if (d.auth_url) window.location.href = d.auth_url;
+          else throw new Error('URL não recebida');
+        })
+        .catch(() => {
+          if (error) error.style.display = 'block';
+          btn.disabled = false;
+        });
+    });
+  }
+
+  const btnLogout = document.getElementById('btnLogout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', function() {
+      limparSessao();
+      window.location.href = 'index.html';
+    });
+  }
+});
+
+// ================================================================
+// VERIFICAR SESSÃO
+// ================================================================
+function verificarSessao() {
+  // Bypass de ambiente de teste: nao depende do Google OAuth.
+  if (DEV_MODE) {
+    usuarioId = DEV_USER_ID;
+    salvarSessao(DEV_USER_ID, DEV_USER_NOME);
+    ativarTelaApp(DEV_USER_NOME);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('user_id');
+  const nome = params.get('nome');
+
+  if (userId && nome) {
+    salvarSessao(userId, nome);
+    usuarioId = userId;
+    ativarTelaApp(nome);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+
+  const sessao = carregarSessao();
+  if (sessao) {
+    usuarioId = sessao.userId;
+    ativarTelaApp(sessao.nome);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+
+  fetch(API_URL + '/sessao')
+    .then(r => r.json())
+    .then(data => {
+      if (data.logado) {
+        usuarioId = data.usuario_id;
+        salvarSessao(data.usuario_id, data.nome || 'Usuário');
+        ativarTelaApp(data.nome || 'Usuário');
+        if (typeof onPaginaPronta === 'function') onPaginaPronta();
+      }
+    })
+    .catch(() => {});
+}
+
+// ================================================================
+// MODAL: CONFIRMAÇÃO (compartilhado entre páginas)
+// ================================================================
+function abrirConfirm(mensagem, callback) {
+  document.getElementById('confirmMessage').textContent = mensagem;
+  confirmCallback = callback;
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btnFecharConfirm = document.getElementById('btnFecharConfirm');
+  const btnConfirmCancel = document.getElementById('btnConfirmCancel');
+  const btnConfirmAction = document.getElementById('btnConfirmAction');
+
+  if (btnFecharConfirm) {
+    btnFecharConfirm.addEventListener('click', function() {
+      document.getElementById('modalConfirm').classList.remove('open');
+      confirmCallback = null;
+    });
+  }
+  if (btnConfirmCancel) {
+    btnConfirmCancel.addEventListener('click', function() {
+      document.getElementById('modalConfirm').classList.remove('open');
+      confirmCallback = null;
+    });
+  }
+  if (btnConfirmAction) {
+    btnConfirmAction.addEventListener('click', function() {
+      if (confirmCallback) {
+        confirmCallback();
+        confirmCallback = null;
+      }
+      document.getElementById('modalConfirm').classList.remove('open');
+    });
+  }
+});
+
+// ================================================================
+// PÁGINA: IMPORTAR — importar.html
+// ================================================================
+function onPaginaPronta() {
+  sincronizarBadge();
+}
+
+// Nesta página "carregarDados" é usado pelas ações de zerar apenas
+// para atualizar o badge da coleção no menu (sem estado próprio de dados).
+function carregarDados() {
+  sincronizarBadge();
+}
+
+    function zerarPlaylists() {
+      abrirConfirm('⚠️ Tem certeza? Isso vai apagar TODAS as playlists importadas e as recomendações geradas. Essa ação é permanente.', function() {
+        fetch(API_URL + '/zerar_playlists?user_id=' + usuarioId, { method: 'DELETE' })
+          .then(r => r.json())
+          .then(data => {
+            alert(data.mensagem);
+            carregarDados();
+          })
+          .catch(() => alert('❌ Erro ao zerar playlists'));
+      });
+    }
+
+    function zerarColecao() {
+      abrirConfirm('⚠️ Tem certeza? Isso vai apagar TODOS os discos da sua coleção. Essa ação é permanente.', function() {
+        fetch(API_URL + '/zerar_colecao?user_id=' + usuarioId, { method: 'DELETE' })
+          .then(r => r.json())
+          .then(data => {
+            alert(data.mensagem);
+            carregarDados();
+          })
+          .catch(() => alert('❌ Erro ao zerar coleção'));
+      });
+    }
+
+    function zerarWishlist() {
+      abrirConfirm('⚠️ Tem certeza? Isso vai apagar TODOS os discos da sua lista de compras (wishlist). Essa ação é permanente.', function() {
+        fetch(API_URL + '/zerar_wishlist?user_id=' + usuarioId, { method: 'DELETE' })
+          .then(r => r.json())
+          .then(data => {
+            alert(data.mensagem);
+            carregarDados();
+          })
+          .catch(() => alert('❌ Erro ao zerar wishlist'));
+      });
+    }
+
+    function zerarTudo() {
+      abrirConfirm('🔥 Tem certeza ABSOLUTA? Isso vai apagar TODOS os seus dados: playlists, coleção, wishlist, estatísticas. Tudo. Essa ação é permanente e não pode ser desfeita.', function() {
+        fetch(API_URL + '/zerar_tudo?user_id=' + usuarioId, { method: 'DELETE' })
+          .then(r => r.json())
+          .then(data => {
+            alert(data.mensagem);
+            carregarDados();
+          })
+          .catch(() => alert('❌ Erro ao zerar tudo'));
+      });
+    }
+
+    function uploadPlaylist(tipo, input) {
+      const statusEl = document.getElementById('status-' + tipo);
+      if (!statusEl) return;
+      const file = input.files[0];
+      if (!file) {
+        statusEl.textContent = '❌ Nenhum arquivo selecionado';
+        statusEl.className = 'upload-status error';
+        return;
+      }
+      statusEl.textContent = '⏳ Enviando...';
+      statusEl.className = 'upload-status';
+      const fd = new FormData();
+      fd.append('tipo', tipo);
+      fd.append('arquivo', file);
+      fetch(API_URL + '/importar_playlist?user_id=' + usuarioId, { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(d => {
+          if (d.sucesso) {
+            statusEl.textContent = '✅ ' + d.mensagem;
+            statusEl.className = 'upload-status success';
+            document.getElementById('btn-gerar').disabled = false;
+          } else {
+            statusEl.textContent = '❌ ' + (d.erro || 'Erro no upload');
+            statusEl.className = 'upload-status error';
+          }
+        })
+        .catch(() => {
+          statusEl.textContent = '❌ Erro de conexão';
+          statusEl.className = 'upload-status error';
+        });
+    }
+
+    function uploadDiscogs(input) {
+      const statusEl = document.getElementById('status-discogs');
+      if (!statusEl) return;
+      const file = input.files[0];
+      if (!file) {
+        statusEl.textContent = '❌ Nenhum arquivo selecionado';
+        statusEl.className = 'upload-status error';
+        return;
+      }
+      statusEl.textContent = '⏳ Enviando...';
+      statusEl.className = 'upload-status';
+      const fd = new FormData();
+      fd.append('arquivo', file);
+      fetch(API_URL + '/importar_colecao?user_id=' + usuarioId, { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(d => {
+          if (d.sucesso) {
+            statusEl.textContent = '✅ ' + d.mensagem;
+            statusEl.className = 'upload-status success';
+            carregarDados();
+          } else {
+            statusEl.textContent = '❌ ' + (d.erro || 'Erro no upload');
+            statusEl.className = 'upload-status error';
+          }
+        })
+        .catch(() => {
+          statusEl.textContent = '❌ Erro de conexão';
+          statusEl.className = 'upload-status error';
+        });
+    }
+
+    function gerarRecomendacoes() {
+      const status = document.getElementById('status-gerar');
+      const btn = document.getElementById('btn-gerar');
+      btn.disabled = true;
+      btn.textContent = '⏳ Gerando...';
+      status.textContent = '⏳ Processando...';
+      status.className = 'upload-status';
+      fetch(API_URL + '/gerar_recomendacoes?user_id=' + usuarioId, { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+          if (d.sucesso) {
+            status.textContent = '✅ ' + d.mensagem;
+            status.className = 'upload-status success';
+            carregarDados();
+          } else {
+            status.textContent = '❌ ' + (d.erro || 'Erro');
+            status.className = 'upload-status error';
+          }
+        })
+        .catch(() => {
+          status.textContent = '❌ Erro de conexão';
+          status.className = 'upload-status error';
+        })
+        .finally(() => {
+          btn.disabled = false;
+          btn.textContent = '⚡ Gerar Recomendações';
+        });
+    }
+
+    document.getElementById('upload-top').addEventListener('change', function() { uploadPlaylist('top', this); });
+    document.getElementById('upload-desc').addEventListener('change', function() { uploadPlaylist('desc', this); });
+    document.getElementById('upload-fav').addEventListener('change', function() { uploadPlaylist('fav', this); });
+    document.getElementById('upload-discogs').addEventListener('change', function() { uploadDiscogs(this); });
+    document.getElementById('btn-gerar').addEventListener('click', gerarRecomendacoes);
+    document.getElementById('btn-gerar').disabled = true;
+
     document.addEventListener('DOMContentLoaded', function() {
       renderNav('importar.html');
       verificarSessao();
