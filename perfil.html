@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Perfil · Discoteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== LOGIN ===== -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <div class="logo">Discoteca<span>.</span></div>
+      <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
+      <button class="login-btn" id="btnLogin">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Entrar com Google
+      </button>
+      <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="appScreen" style="display:none;">
+
+    <!-- BARRA DO USUÁRIO -->
+    <div class="user-bar">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">
+          <span id="userAvatarText">?</span>
+        </div>
+        <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
+      </div>
+      <button class="logout-btn" id="btnLogout">Sair</button>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero hero-state-perfil" id="heroSection">
+      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Perfil</div>
+      <h1 id="heroTitle">Meu <span id="heroHighlight">Perfil</span></h1>
+      <p class="hero-sub" id="heroSub">Edite seu perfil público.</p>
+      <div class="hero-meter" id="heroMeter" style="display:none;">
+        <span style="background:var(--s-color)"></span>
+        <span style="background:var(--s-color)"></span>
+        <span style="background:var(--a-color)"></span>
+        <span style="background:var(--a-color)"></span>
+        <span style="background:var(--b-color)"></span>
+        <span style="background:var(--c-color)"></span>
+      </div>
+    </section>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <a href="colecao.html" class="tab-btn" data-tab="tab-colecao">💿 Coleção <span class="tab-badge" id="colecao-badge">0</span></a>
+        <a href="wishlist.html" class="tab-btn" data-tab="tab-wishlist">⭐ Wishlist <span class="tab-badge" id="wishlist-badge">0</span></a>
+        <a href="promocoes.html" class="tab-btn disabled" data-tab="tab-promocoes">🛒 Promoções <span class="badge-em-breve">em breve</span></a>
+        <a href="estatisticas.html" class="tab-btn" data-tab="tab-estatisticas">📊 Estatísticas</a>
+        <a href="perfil.html" class="tab-btn active" data-tab="tab-perfil">👤 Perfil</a>
+        <a href="importar.html" class="tab-btn" data-tab="tab-importar">📤 Importar</a>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <section class="section" style="--tier-color:var(--colecao-color)">
+      <div class="tier-head">
+        <div class="tier-stamp small">👤</div>
+        <div class="tier-info">
+          <h2 style="color:var(--colecao-color);">Perfil</h2>
+          <p>Edite seu perfil público.</p>
+        </div>
+      </div>
+      <div class="perfil-edit" id="perfil-container"></div>
+    </section>
+
+  </div>
+
+  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
+  <div class="modal-overlay" id="modalConfirm">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h2>⚠️ Confirmar</h2>
+        <button class="modal-close" id="btnFecharConfirm">✕</button>
+      </div>
+      <div class="modal-confirm-text" id="confirmMessage">Tem certeza?</div>
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
+        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Discoteca v0.10 — Sua coleção, suas recomendações.</footer>
+
+  <script src="app.js"></script>
+  <script>
+    // ================================================================
+    // PERFIL - JAVASCRIPT ESPECÍFICO
+    // ================================================================
+
+    function carregarPerfil() {
+      if (!usuarioId) return;
+
+      fetch(API_URL + '/perfil/' + usuarioId)
+        .then(r => r.json())
+        .then(data => renderPerfil(data))
+        .catch(() => {
+          document.getElementById('perfil-container').innerHTML = '<p style="opacity:0.5;">Erro ao carregar perfil.</p>';
+        });
+
+      // Atualizar badges
+      fetch(API_URL + '/colecao?user_id=' + usuarioId)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('colecao-badge').textContent = data.length || 0;
+        })
+        .catch(() => {});
+
+      fetch(API_URL + '/recomendacoes?user_id=' + usuarioId)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('wishlist-badge').textContent = (data || []).filter(r => r.comprado === 0).length || 0;
+        })
+        .catch(() => {});
+    }
+
+    function renderPerfil(data) {
+      const container = document.getElementById('perfil-container');
+      const fotoUrl = data.foto_url || '';
+      const avatarHtml = fotoUrl ? `<img src="${fotoUrl}" alt="Avatar">` : data.nome.charAt(0).toUpperCase();
+
+      container.innerHTML = `
+        <div class="perfil-edit">
+          <div class="perfil-foto">
+            <div class="avatar">${avatarHtml}</div>
+            <div class="info">
+              <div><strong>${data.nome}</strong></div>
+              <div>${data.email}</div>
+              <div style="font-size:11px;opacity:0.4;">Colecionando desde ${data.data_criacao ? data.data_criacao.split('-')[0] : '2024'}</div>
+            </div>
+          </div>
+          <form id="form-perfil">
+            <div class="form-group">
+              <label>Bio</label>
+              <textarea id="perfil-bio" placeholder="Ex: Sou colecionador de Metal desde 2004...">${data.bio || ''}</textarea>
+            </div>
+            <div class="form-group">
+              <label>🎵 Spotify</label>
+              <input type="url" id="perfil-spotify" placeholder="https://open.spotify.com/user/..." value="${data.spotify_url || ''}">
+            </div>
+            <div class="form-group">
+              <label>💿 Discogs</label>
+              <input type="url" id="perfil-discogs" placeholder="https://www.discogs.com/user/..." value="${data.discogs_url || ''}">
+            </div>
+            <div class="form-group">
+              <label>📷 Instagram</label>
+              <input type="url" id="perfil-instagram" placeholder="https://instagram.com/..." value="${data.instagram_url || ''}">
+            </div>
+            <button type="submit" class="form-btn" id="btn-salvar-perfil">💾 Salvar Perfil</button>
+            <div id="perfil-msg" class="form-msg"></div>
+          </form>
+          <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--card-line);">
+            <p style="font-size:12px;opacity:0.4;">🔗 Perfil público:</p>
+            <code style="font-size:12px;word-break:break-all;opacity:0.6;">${window.location.origin}/perfil-publico.html?id=${usuarioId}</code>
+            <button class="btn" style="margin-top:8px;font-size:12px;padding:6px 16px;" onclick="copiarLinkPerfil()">📋 Copiar link</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('form-perfil').addEventListener('submit', function(e) {
+        e.preventDefault();
+        salvarPerfil();
+      });
+    }
+
+    function salvarPerfil() {
+      const btn = document.getElementById('btn-salvar-perfil');
+      const msg = document.getElementById('perfil-msg');
+      btn.disabled = true;
+      msg.textContent = '⏳ Salvando...';
+      msg.className = 'form-msg';
+
+      const dados = {
+        bio: document.getElementById('perfil-bio').value.trim(),
+        spotify_url: document.getElementById('perfil-spotify').value.trim(),
+        discogs_url: document.getElementById('perfil-discogs').value.trim(),
+        instagram_url: document.getElementById('perfil-instagram').value.trim()
+      };
+
+      fetch(API_URL + '/perfil?user_id=' + usuarioId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.sucesso) {
+          msg.textContent = '✅ ' + data.mensagem;
+          msg.className = 'form-msg success';
+          carregarPerfil();
+        } else {
+          msg.textContent = '❌ ' + (data.erro || 'Erro ao salvar');
+          msg.className = 'form-msg error';
+          btn.disabled = false;
+        }
+      })
+      .catch(() => {
+        msg.textContent = '❌ Erro de conexão';
+        msg.className = 'form-msg error';
+        btn.disabled = false;
+      });
+    }
+
+    // ================================================================
+    // INICIALIZAR
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      initApp();
+      carregarPerfil();
+
+      // Marcar aba ativa
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.getAttribute('href') === 'perfil.html') {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
