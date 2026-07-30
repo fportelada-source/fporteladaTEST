@@ -48,14 +48,6 @@
       <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Importar</div>
       <h1 id="heroTitle">Importar <span id="heroHighlight">Dados</span></h1>
       <p class="hero-sub" id="heroSub">Traga suas playlists e descubra quais discos você precisa comprar.</p>
-      <div class="hero-meter" id="heroMeter" style="display:none;">
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--b-color)"></span>
-        <span style="background:var(--c-color)"></span>
-      </div>
     </section>
 
     <!-- TABS -->
@@ -156,7 +148,7 @@
     </div>
   </div>
 
-  <footer>Discoteca v0.10 — Sua coleção, suas recomendações.</footer>
+  <footer>Discoteca v0.9.1 — Sua coleção, suas recomendações.</footer>
 
   <script src="app.js"></script>
   <script>
@@ -241,8 +233,7 @@
             status.textContent = '✅ ' + d.mensagem;
             status.className = 'upload-status success';
             if (d.ajuste_necessario && d.artistas_para_ajuste) {
-              // Ajuste fino será chamado no index.html original
-              alert('🎵 Ajuste fino necessário! Vá para a aba "Compras" para responder as perguntas.');
+              alert('🎵 Ajuste fino necessário! Vá para a aba "Wishlist" para responder as perguntas.');
             }
           } else {
             status.textContent = '❌ ' + (d.erro || 'Erro');
@@ -310,38 +301,15 @@
     // INICIALIZAR
     // ================================================================
     document.addEventListener('DOMContentLoaded', function() {
-      initApp();
-
-      document.getElementById('upload-top').addEventListener('change', function() { uploadPlaylist('top', this); });
-      document.getElementById('upload-desc').addEventListener('change', function() { uploadPlaylist('desc', this); });
-      document.getElementById('upload-fav').addEventListener('change', function() { uploadPlaylist('fav', this); });
-      document.getElementById('upload-discogs').addEventListener('change', function() { uploadDiscogs(this); });
-      document.getElementById('btn-gerar').addEventListener('click', gerarRecomendacoes);
-      document.getElementById('btn-gerar').disabled = true;
-
-      // Atualizar badges
-      fetch(API_URL + '/colecao?user_id=' + usuarioId)
-        .then(r => r.json())
-        .then(data => {
-          document.getElementById('colecao-badge').textContent = data.length || 0;
-        })
-        .catch(() => {});
-
-      fetch(API_URL + '/recomendacoes?user_id=' + usuarioId)
-        .then(r => r.json())
-        .then(data => {
-          document.getElementById('wishlist-badge').textContent = (data || []).filter(r => r.comprado === 0).length || 0;
-        })
-        .catch(() => {});
-
-      // Marcar aba ativa
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        if (btn.getAttribute('href') === 'importar.html') {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
+      const logado = initApp();
+      if (logado) {
+        document.getElementById('upload-top').addEventListener('change', function() { uploadPlaylist('top', this); });
+        document.getElementById('upload-desc').addEventListener('change', function() { uploadPlaylist('desc', this); });
+        document.getElementById('upload-fav').addEventListener('change', function() { uploadPlaylist('fav', this); });
+        document.getElementById('upload-discogs').addEventListener('change', function() { uploadDiscogs(this); });
+        document.getElementById('btn-gerar').addEventListener('click', gerarRecomendacoes);
+        document.getElementById('btn-gerar').disabled = true;
+      }
     });
   </script>
 </body>
