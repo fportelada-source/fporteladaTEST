@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Estatísticas · Discoteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== LOGIN ===== -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <div class="logo">Discoteca<span>.</span></div>
+      <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
+      <button class="login-btn" id="btnLogin">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Entrar com Google
+      </button>
+      <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="appScreen" style="display:none;">
+
+    <!-- BARRA DO USUÁRIO -->
+    <div class="user-bar">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">
+          <span id="userAvatarText">?</span>
+        </div>
+        <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
+      </div>
+      <button class="logout-btn" id="btnLogout">Sair</button>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero hero-state-estatisticas" id="heroSection">
+      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Estatísticas</div>
+      <h1 id="heroTitle">Estatísticas <span id="heroHighlight">da Coleção</span></h1>
+      <p class="hero-sub" id="heroSub">O que você ouve e o que você tem.</p>
+      <div class="hero-meter" id="heroMeter" style="display:none;">
+        <span style="background:var(--s-color)"></span>
+        <span style="background:var(--s-color)"></span>
+        <span style="background:var(--a-color)"></span>
+        <span style="background:var(--a-color)"></span>
+        <span style="background:var(--b-color)"></span>
+        <span style="background:var(--c-color)"></span>
+      </div>
+    </section>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <a href="colecao.html" class="tab-btn" data-tab="tab-colecao">💿 Coleção <span class="tab-badge" id="colecao-badge">0</span></a>
+        <a href="wishlist.html" class="tab-btn" data-tab="tab-wishlist">⭐ Wishlist <span class="tab-badge" id="wishlist-badge">0</span></a>
+        <a href="promocoes.html" class="tab-btn disabled" data-tab="tab-promocoes">🛒 Promoções <span class="badge-em-breve">em breve</span></a>
+        <a href="estatisticas.html" class="tab-btn active" data-tab="tab-estatisticas">📊 Estatísticas</a>
+        <a href="perfil.html" class="tab-btn" data-tab="tab-perfil">👤 Perfil</a>
+        <a href="importar.html" class="tab-btn" data-tab="tab-importar">📤 Importar</a>
+      </div>
+    </div>
+
+    <!-- ESTATÍSTICAS -->
+    <section class="section" style="--tier-color:var(--e-color)">
+      <div class="tier-head">
+        <div class="tier-stamp small">📊</div>
+        <div class="tier-info">
+          <h2 style="color:var(--e-color);">Estatísticas</h2>
+          <p>O que você ouve e o que você tem.</p>
+        </div>
+      </div>
+      <div id="estatisticas-player"></div>
+      <div id="estatisticas-estante"></div>
+    </section>
+
+  </div>
+
+  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
+  <div class="modal-overlay" id="modalConfirm">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h2>⚠️ Confirmar</h2>
+        <button class="modal-close" id="btnFecharConfirm">✕</button>
+      </div>
+      <div class="modal-confirm-text" id="confirmMessage">Tem certeza?</div>
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
+        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Discoteca v0.10 — Sua coleção, suas recomendações.</footer>
+
+  <script src="app.js"></script>
+  <script>
+    // ================================================================
+    // ESTATISTICAS - JAVASCRIPT ESPECÍFICO
+    // ================================================================
+
+    function carregarEstatisticas() {
+      if (!usuarioId) return;
+
+      fetch(API_URL + '/estatisticas?user_id=' + usuarioId)
+        .then(r => r.json())
+        .then(data => {
+          renderEstatisticasPlayer(data);
+        })
+        .catch(() => {});
+
+      fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId)
+        .then(r => r.json())
+        .then(data => {
+          renderEstatisticasEstante(data);
+        })
+        .catch(() => {});
+
+      // Atualizar badges
+      fetch(API_URL + '/colecao?user_id=' + usuarioId)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('colecao-badge').textContent = data.length || 0;
+        })
+        .catch(() => {});
+
+      fetch(API_URL + '/recomendacoes?user_id=' + usuarioId)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('wishlist-badge').textContent = (data || []).filter(r => r.comprado === 0).length || 0;
+        })
+        .catch(() => {});
+    }
+
+    // ================================================================
+    // RENDER ESTATÍSTICAS
+    // ================================================================
+    function renderEstatisticasPlayer(dados) {
+      const container = document.getElementById('estatisticas-player');
+      if (!container) return;
+      const estado = localStorage.getItem('secao_player') || 'aberta';
+
+      let resumoHtml = '';
+      if (dados && !dados.erro && dados.total_musicas > 0) {
+        resumoHtml = `
+          <div class="resumo-cards" id="resumo-player">
+            <div class="resumo-item"><span class="num">${dados.total_musicas || 0}</span><span class="label">Músicas</span></div>
+            <div class="resumo-item"><span class="num">${dados.artistas_unicos || 0}</span><span class="label">Artistas</span></div>
+            <div class="resumo-item"><span class="num">${dados.albuns_unicos || 0}</span><span class="label">Álbuns</span></div>
+            <div class="resumo-item"><span class="num">${dados.duracao_horas || 0}h</span><span class="label">Duração</span></div>
+          </div>
+        `;
+      }
+
+      if (!dados || dados.erro || dados.total_musicas === 0) {
+        container.innerHTML = `
+          <div class="estatistica-secao player">
+            <div class="secao-header" onclick="toggleSecao('player')">
+              <h3>🎧 No seu player</h3>
+              <span class="toggle-icon" id="secao-player-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
+            </div>
+            ${resumoHtml}
+            <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-player-content">
+              <div class="empty-state" style="padding:40px 20px;">
+                <div class="icon" style="font-size:40px;">🎧</div>
+                <h3 style="font-size:20px;">Ainda não dividimos o fone</h3>
+                <p style="font-size:13px;">Faça upload da sua playlist para começar a análise.</p>
+              </div>
+            </div>
+          </div>
+        `;
+        aplicarEstadoSecao('player', estado);
+        return;
+      }
+
+      let html = `
+        <div class="estatistica-secao player">
+          <div class="secao-header" onclick="toggleSecao('player')">
+            <h3>🎧 No seu player</h3>
+            <span class="toggle-icon" id="secao-player-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
+          </div>
+          ${resumoHtml}
+          <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-player-content">
+            <div class="stat-grid">
+              <div class="stat-card"><div class="stat-number">${dados.total_musicas || 0}</div><div class="stat-label">Total</div></div>
+              <div class="stat-card"><div class="stat-number">${dados.artistas_unicos || 0}</div><div class="stat-label">Artistas</div></div>
+              <div class="stat-card"><div class="stat-number">${dados.albuns_unicos || 0}</div><div class="stat-label">Álbuns</div></div>
+              <div class="stat-card"><div class="stat-number">${dados.duracao_horas || 0}h</div><div class="stat-label">Duração</div></div>
+            </div>
+      `;
+
+      if (dados.top_artistas && dados.top_artistas.length > 0) {
+        html += `<div class="stat-subtitle">🎤 Top 10 Artistas</div><div class="stat-list">`;
+        dados.top_artistas.forEach(item => {
+          html += `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (dados.top_albuns && dados.top_albuns.length > 0) {
+        html += `<div class="stat-subtitle">💿 Top 10 Álbuns</div><div class="stat-list">`;
+        dados.top_albuns.forEach(item => {
+          html += `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (dados.decadas && dados.decadas.length > 0) {
+        html += `<div class="stat-subtitle">📅 Décadas</div><div class="stat-list">`;
+        dados.decadas.forEach(item => {
+          html += `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      html += `</div></div>`;
+      container.innerHTML = html;
+      aplicarEstadoSecao('player', estado);
+    }
+
+    function renderEstatisticasEstante(dados) {
+      const container = document.getElementById('estatisticas-estante');
+      if (!container) return;
+      const estado = localStorage.getItem('secao_estante') || 'aberta';
+
+      let resumoHtml = '';
+      if (dados && !dados.erro && dados.total_discos > 0) {
+        resumoHtml = `
+          <div class="resumo-cards" id="resumo-estante">
+            <div class="resumo-item"><span class="num">${dados.total_discos || 0}</span><span class="label">Discos</span></div>
+            <div class="resumo-item"><span class="num">${dados.lps || 0}</span><span class="label">🎵 LPs</span></div>
+            <div class="resumo-item"><span class="num">${dados.cds || 0}</span><span class="label">💿 CDs</span></div>
+            <div class="resumo-item"><span class="num">${dados.cassetes || 0}</span><span class="label">📼 Cassetes</span></div>
+            <div class="resumo-item"><span class="num">${dados.dvd || 0}</span><span class="label">📀 DVD</span></div>
+            ${dados.valor_total ? `<div class="resumo-item"><span class="num">R$ ${dados.valor_total}</span><span class="label">Valor</span></div>` : ''}
+          </div>
+        `;
+      }
+
+      if (!dados || dados.erro || dados.total_discos === 0) {
+        container.innerHTML = `
+          <div class="estatistica-secao estante">
+            <div class="secao-header" onclick="toggleSecao('estante')">
+              <h3>📀 Na sua estante</h3>
+              <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
+            </div>
+            ${resumoHtml}
+            <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
+              <div class="empty-state" style="padding:40px 20px;">
+                <div class="icon" style="font-size:40px;">📀</div>
+                <h3 style="font-size:20px;">Sua estante está vazia</h3>
+                <p style="font-size:13px;">Adicione discos à sua coleção.</p>
+              </div>
+            </div>
+          </div>
+        `;
+        aplicarEstadoSecao('estante', estado);
+        return;
+      }
+
+      let html = `
+        <div class="estatistica-secao estante">
+          <div class="secao-header" onclick="toggleSecao('estante')">
+            <h3>📀 Na sua estante</h3>
+            <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
+          </div>
+          ${resumoHtml}
+          <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
+            <div class="stat-grid">
+              <div class="stat-card"><div class="stat-number">${dados.total_discos || 0}</div><div class="stat-label">Total</div></div>
+              <div class="stat-card" style="border-top-color:var(--vinil-color);"><div class="stat-number">${dados.lps || 0}</div><div class="stat-label">🎵 LPs</div></div>
+              <div class="stat-card" style="border-top-color:var(--cd-color);"><div class="stat-number">${dados.cds || 0}</div><div class="stat-label">💿 CDs</div></div>
+              <div class="stat-card" style="border-top-color:var(--cassete-color);"><div class="stat-number">${dados.cassetes || 0}</div><div class="stat-label">📼 Cassetes</div></div>
+              <div class="stat-card" style="border-top-color:var(--dvd-color);"><div class="stat-number">${dados.dvd || 0}</div><div class="stat-label">📀 DVD</div></div>
+              ${dados.valor_total ? `<div class="stat-card" style="border-top-color:#4CAF50;"><div class="stat-number">R$ ${dados.valor_total}</div><div class="stat-label">Valor</div></div>` : ''}
+            </div>
+
+            ${dados.top_artistas && dados.top_artistas.length > 0 ? `
+              <div class="stat-subtitle" style="color:var(--colecao-color);">🎤 Top 5 Artistas</div>
+              <div class="stat-list">
+                ${dados.top_artistas.map(item => `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`).join('')}
+              </div>
+            ` : ''}
+
+            ${dados.top_generos && dados.top_generos.length > 0 ? `
+              <div class="stat-subtitle" style="color:var(--colecao-color);">🎸 Top Gêneros</div>
+              <div class="stat-list">
+                ${dados.top_generos.map(item => `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`).join('')}
+              </div>
+            ` : ''}
+
+            ${dados.decadas && dados.decadas.length > 0 ? `
+              <div class="stat-subtitle" style="color:var(--colecao-color);">📅 Décadas</div>
+              <div class="stat-list">
+                ${dados.decadas.map(item => `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`).join('')}
+              </div>
+            ` : ''}
+
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+      aplicarEstadoSecao('estante', estado);
+    }
+
+    function aplicarEstadoSecao(secao, estado) {
+      const content = document.getElementById('secao-' + secao + '-content');
+      const toggle = document.getElementById('secao-' + secao + '-toggle');
+      const resumo = document.getElementById('resumo-' + secao);
+      if (!content || !toggle) return;
+      if (estado === 'fechada') {
+        content.classList.add('fechada');
+        toggle.textContent = '▶';
+        if (resumo) resumo.style.display = 'flex';
+      } else {
+        content.classList.remove('fechada');
+        toggle.textContent = '▼';
+        if (resumo) resumo.style.display = 'none';
+      }
+    }
+
+    function toggleSecao(secao) {
+      const content = document.getElementById('secao-' + secao + '-content');
+      const toggle = document.getElementById('secao-' + secao + '-toggle');
+      const resumo = document.getElementById('resumo-' + secao');
+      if (!content || !toggle) return;
+      if (content.classList.contains('fechada')) {
+        content.classList.remove('fechada');
+        toggle.textContent = '▼';
+        localStorage.setItem('secao_' + secao, 'aberta');
+        if (resumo) resumo.style.display = 'none';
+      } else {
+        content.classList.add('fechada');
+        toggle.textContent = '▶';
+        localStorage.setItem('secao_' + secao, 'fechada');
+        if (resumo) resumo.style.display = 'flex';
+      }
+    }
+
+    window.toggleSecao = toggleSecao;
+
+    // ================================================================
+    // INICIALIZAR
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      initApp();
+      carregarEstatisticas();
+
+      // Marcar aba ativa
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.getAttribute('href') === 'estatisticas.html') {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
