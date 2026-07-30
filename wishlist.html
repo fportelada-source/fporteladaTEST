@@ -1,584 +1,174 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Wishlist · Discoteca</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-</head>
-<body>
+// ================================================================
+// PÁGINA: COMPRAS (WISHLIST) — index.html
+// ================================================================
+function onPaginaPronta() {
+  carregarDados();
+  sincronizarBadge();
+}
 
-  <!-- ===== LOGIN ===== -->
-  <div id="loginScreen" class="login-container">
-    <div class="login-box">
-      <div class="logo">Discoteca<span>.</span></div>
-      <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
-      <button class="login-btn" id="btnLogin">
-        <svg viewBox="0 0 24 24" width="20" height="20">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Entrar com Google
-      </button>
-      <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
-    </div>
-  </div>
+function carregarDados() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/recomendacoes?user_id=' + usuarioId)
+    .then(r => r.json())
+    .then(data => {
+      recomendacoes = Array.isArray(data) ? data : [];
+      renderRecomendacoes(recomendacoes);
+    })
+    .catch(() => {});
+}
 
-  <!-- ===== APP ===== -->
-  <div id="appScreen" style="display:none;">
+    function renderRecomendacoes(dados) {
+      const container = document.getElementById('compras-container');
 
-    <!-- BARRA DO USUÁRIO -->
-    <div class="user-bar">
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar">
-          <span id="userAvatarText">?</span>
-        </div>
-        <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
-      </div>
-      <button class="logout-btn" id="btnLogout">Sair</button>
-    </div>
+      const hasActiveRecommendations = dados && dados.some(item => item.comprado === 0);
 
-    <!-- HERO -->
-    <section class="hero hero-state-wishlist" id="heroSection">
-      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Wishlist</div>
-      <h1 id="heroTitle">Lista de <span id="heroHighlight">Compras</span></h1>
-      <p class="hero-sub" id="heroSub">Discos que você quer comprar. Prioridade S → C.</p>
-      <div class="hero-meter" id="heroMeter">
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--b-color)"></span>
-        <span style="background:var(--c-color)"></span>
-      </div>
-    </section>
-
-    <!-- TABS -->
-    <div class="tabs-container">
-      <div class="tabs">
-        <a href="colecao.html" class="tab-btn" data-tab="tab-colecao">💿 Coleção <span class="tab-badge" id="colecao-badge">0</span></a>
-        <a href="wishlist.html" class="tab-btn active" data-tab="tab-wishlist">⭐ Wishlist <span class="tab-badge" id="wishlist-badge">0</span></a>
-        <a href="promocoes.html" class="tab-btn disabled" data-tab="tab-promocoes">🛒 Promoções <span class="badge-em-breve">em breve</span></a>
-        <a href="estatisticas.html" class="tab-btn" data-tab="tab-estatisticas">📊 Estatísticas</a>
-        <a href="perfil.html" class="tab-btn" data-tab="tab-perfil">👤 Perfil</a>
-        <a href="importar.html" class="tab-btn" data-tab="tab-importar">📤 Importar</a>
-      </div>
-    </div>
-
-    <!-- WISHLIST -->
-    <section class="section" style="--tier-color:var(--a-color)">
-      <div class="tier-head">
-        <div class="tier-stamp small">⭐</div>
-        <div class="tier-info">
-          <h2 style="color:var(--a-color);">Wishlist</h2>
-          <p>Discos que você quer comprar. Prioridade S → C.</p>
-        </div>
-        <div class="add-btn-wrap">
-          <button class="add-btn" onclick="abrirWishlist()" title="Adicionar manual">+</button>
-        </div>
-      </div>
-
-      <!-- CONTROLES -->
-      <div class="colecao-controls" style="margin-bottom:16px;">
-        <div class="view-toggle" id="wishlistViewToggle">
-          <button class="active" data-view="cards" onclick="setWishlistView('cards')">🎴</button>
-          <button data-view="list" onclick="setWishlistView('list')">📋</button>
-        </div>
-        <div style="flex:1;"></div>
-        <button class="btn-icon" onclick="copiarLinkPerfil()" title="Compartilhar wishlist">🔗</button>
-      </div>
-
-      <!-- WISHLIST -->
-      <div id="wishlist-container"></div>
-      <div class="list-view" id="wishlistListView"></div>
-
-      <!-- ANÁLISE INTELIGENTE -->
-      <div id="wishlist-analise" class="wishlist-analise"></div>
-    </section>
-
-  </div>
-
-  <!-- ===== MODAL: ADICIONAR À WISHLIST ===== -->
-  <div class="modal-overlay" id="modalAddWishlist">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>➕ Adicionar à Wishlist</h2>
-        <button class="modal-close" id="btnFecharWishlist">✕</button>
-      </div>
-      <form id="form-wishlist">
-        <div class="form-group">
-          <label>Artista *</label>
-          <input type="text" id="wish-artista" placeholder="Ex: Metallica" required>
-        </div>
-        <div class="form-group">
-          <label>Álbum *</label>
-          <input type="text" id="wish-album" placeholder="Ex: Master of Puppets" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Prioridade</label>
-            <select id="wish-tier">
-              <option value="S">S (Máxima)</option>
-              <option value="A">A (Alta)</option>
-              <option value="B">B (Média)</option>
-              <option value="C">C (Baixa)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Notas</label>
-            <input type="text" id="wish-notas" placeholder="Ex: Versão japonesa">
-          </div>
-        </div>
-        <button type="submit" class="form-btn" id="btn-wish-submit">Adicionar</button>
-        <div class="form-msg" id="wish-msg"></div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===== MODAL: EDITAR TIER ===== -->
-  <div class="modal-overlay" id="modalEditTier">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>✎ Editar Tier</h2>
-        <button class="modal-close" id="btnFecharEditTier">✕</button>
-      </div>
-      <form id="form-edit-tier">
-        <input type="hidden" id="edit-tier-id" value="">
-        <div class="form-group">
-          <label>Artista</label>
-          <input type="text" id="edit-tier-artista" disabled style="opacity:0.6;">
-        </div>
-        <div class="form-group">
-          <label>Álbum</label>
-          <input type="text" id="edit-tier-album" disabled style="opacity:0.6;">
-        </div>
-        <div class="form-group">
-          <label>Nova Prioridade</label>
-          <select id="edit-tier-select">
-            <option value="S">S (Máxima)</option>
-            <option value="A">A (Alta)</option>
-            <option value="B">B (Média)</option>
-            <option value="C">C (Baixa)</option>
-          </select>
-        </div>
-        <button type="submit" class="form-btn" id="btn-edit-tier-submit">Salvar</button>
-        <div class="form-msg" id="edit-tier-msg"></div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
-  <div class="modal-overlay" id="modalConfirm">
-    <div class="modal" style="max-width:420px;">
-      <div class="modal-header">
-        <h2>⚠️ Confirmar</h2>
-        <button class="modal-close" id="btnFecharConfirm">✕</button>
-      </div>
-      <div class="modal-confirm-text" id="confirmMessage">Tem certeza?</div>
-      <div style="display:flex; gap:10px; margin-top:16px;">
-        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
-        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <footer>Discoteca v0.9.1 — Sua coleção, suas recomendações.</footer>
-
-  <script src="app.js"></script>
-  <script>
-    // ================================================================
-    // WISHLIST - JAVASCRIPT ESPECÍFICO
-    // ================================================================
-    let recomendacoes = [];
-    let wishlistView = localStorage.getItem('discoteca_wishlist_view') || 'cards';
-    let dadosAnalise = null;
-
-    // ================================================================
-    // CARREGAR WISHLIST
-    // ================================================================
-    function carregarWishlist() {
-      if (!usuarioId) return;
-
-      fetch(API_URL + '/recomendacoes?user_id=' + usuarioId)
-        .then(r => r.json())
-        .then(data => {
-          recomendacoes = Array.isArray(data) ? data : [];
-          renderWishlist(recomendacoes);
-          const badge = document.getElementById('wishlist-badge');
-          if (badge) badge.textContent = recomendacoes.filter(r => r.comprado === 0).length;
-        })
-        .catch(() => {});
-
-      fetch(API_URL + '/wishlist/estatisticas?user_id=' + usuarioId)
-        .then(r => r.json())
-        .then(data => {
-          dadosAnalise = data;
-          renderAnalise();
-        })
-        .catch(() => {});
-
-      fetch(API_URL + '/orcamento?user_id=' + usuarioId)
-        .then(r => r.json())
-        .then(data => {
-          renderOrcamento(data);
-        })
-        .catch(() => {});
-    }
-
-    // ================================================================
-    // WISHLIST VIEW
-    // ================================================================
-    function setWishlistView(view) {
-      wishlistView = view;
-      localStorage.setItem('discoteca_wishlist_view', view);
-      document.querySelectorAll('#wishlistViewToggle button').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.view === view);
-      });
-      renderWishlist(recomendacoes);
-    }
-
-    // ================================================================
-    // RENDER: WISHLIST
-    // ================================================================
-    function renderWishlist(dados) {
-      const container = document.getElementById('wishlist-container');
-      const listContainer = document.getElementById('wishlistListView');
-      if (!container) return;
-
-      const active = dados.filter(item => item.comprado === 0);
-
-      if (!active || active.length === 0) {
+      if (!dados || dados.length === 0 || !hasActiveRecommendations) {
         container.innerHTML = `
-          <div class="empty-state-full" style="padding:60px 20px;">
+          <div class="empty-state-full" style="padding:80px 20px;">
             <div class="icon">💰</div>
             <h3>Sua carteira está cheia... de expectativas!</h3>
-            <p>Adicione discos manualmente ou gere recomendações.</p>
+            <p>Faça upload da sua playlist para gerar recomendações personalizadas.</p>
             <p class="empty-hint">Vá para a aba "Importar" e comece agora 🚀</p>
           </div>
         `;
-        listContainer.innerHTML = '';
-        listContainer.style.display = 'none';
         return;
       }
 
       const tiers = { S: [], A: [], B: [], C: [] };
-      active.forEach(item => {
-        if (tiers[item.tier]) tiers[item.tier].push(item);
+      dados.forEach(item => {
+        if (item.comprado === 0 && tiers[item.tier]) {
+          tiers[item.tier].push(item);
+        }
       });
 
-      // Cards View
       let html = '';
       ['S', 'A', 'B', 'C'].forEach(tier => {
         const items = tiers[tier] || [];
-        const tierColor = tier === 'S' ? '#D6432F' : tier === 'A' ? '#E39A2E' : tier === 'B' ? '#4E7A8C' : '#8A8378';
-        const tierDesc = tier === 'S' ? 'Prioridade Máxima' : tier === 'A' ? 'Alta Prioridade' : tier === 'B' ? 'Sem Urgência' : 'Baixa Prioridade';
+        const tierColor = tier === 'S' ? '#D6432F' : tier === 'A' ? '#E39A2E' : tier === 'B' ? '#4E7A8C' :
+          '#8A8378';
+        const tierDesc = tier === 'S' ? 'Prioridade Máxima' : tier === 'A' ? 'Alta Prioridade' : tier === 'B' ?
+          'Sem Urgência' : 'Baixa Prioridade';
+        const tierDetail = tier === 'S' ?
+          'Comprar assim que aparecer. Fecham trilogias, completam tríades e representam o auge da coleção.' :
+          tier === 'A' ?
+          'Comprar na sequência — bons preços, boas edições, ou entrada de banda importante na coleção.' :
+          tier === 'B' ?
+          'Pegar em promoção ou naturalmente, sem pressa de garimpo.' :
+          'Só entram se aparecer oportunidade excepcional (preço/edição).';
 
         html += `
-          <div style="margin-bottom:20px;">
-            <div class="tier-head" style="--tier-color:${tierColor};padding-bottom:8px;margin-bottom:12px;">
-              <div class="tier-stamp tiny" style="background:${tierColor};color:var(--ink);">${tier}</div>
+          <section class="section" style="--tier-color:${tierColor}">
+            <div class="tier-head">
+              <div class="tier-stamp">${tier}</div>
               <div class="tier-info">
-                <h2 style="color:${tierColor};">${tierDesc}</h2>
-                <p style="opacity:0.4;font-size:12px;">${items.length} discos</p>
+                <h2>${tierDesc}</h2>
+                <p>${tierDetail}</p>
               </div>
-              ${items.length > 4 ? `<span style="font-size:12px;opacity:0.4;cursor:pointer;margin-left:auto;" onclick="expandirTier('${tier}')" id="expand-link-${tier}">+${items.length - 4} →</span>` : ''}
+              ${tier === 'S' ? `<div class="add-btn-wrap"><button class="add-btn" onclick="abrirWishlist()" title="Adicionar manual à lista">+</button></div>` : ''}
             </div>
-            <div class="grid" style="grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));" id="tier-grid-${tier}">
+            <div class="grid">
         `;
 
         if (items.length === 0) {
-          html += `<div class="empty-state" style="padding:20px;"><p style="font-size:12px;opacity:0.4;">Nenhum disco ${tier}</p></div>`;
-        } else {
-          const showItems = items.slice(0, 4);
-          const hidden = items.length - 4;
-          showItems.forEach((item, idx) => {
-            html += renderWishlistCard(item, tierColor, idx);
-          });
-          if (hidden > 0) {
-            const hiddenItems = items.slice(4);
-            html += `<div id="expand-container-${tier}" style="display:grid;grid-column:1/-1;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:18px;margin-top:14px;display:none;">`;
-            hiddenItems.forEach((item, idx) => {
-              html += renderWishlistCard(item, tierColor, idx + 4);
-            });
-            html += `</div>`;
-          }
-        }
-
-        html += `</div></div>`;
-      });
-
-      container.innerHTML = html;
-
-      // Lista View
-      let listHtml = `
-        <table>
-          <thead><tr>
-            <th>Artista</th>
-            <th>Álbum</th>
-            <th>Tier</th>
-            <th>Motivo</th>
-            <th>Ações</th>
-          </tr></thead>
-          <tbody>
-      `;
-      active.forEach(item => {
-        const tierColor = item.tier === 'S' ? '#D6432F' : item.tier === 'A' ? '#E39A2E' : item.tier === 'B' ? '#4E7A8C' : '#8A8378';
-        const frase = item.frase || '';
-        listHtml += `
-          <tr>
-            <td><strong>${item.artista}</strong></td>
-            <td>${item.album}</td>
-            <td><span style="color:${tierColor};font-weight:700;">${item.tier}</span></td>
-            <td style="font-size:11px;opacity:0.6;">${frase}</td>
-            <td>
-              <div class="list-actions">
-                <button class="edit" onclick="abrirEditTier('${item.id}','${item.artista}','${item.album}','${item.tier}')">✎</button>
-                <button class="remove" onclick="removerDaWishlist('${item.id}','${item.artista}','${item.album}')">✕</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-      listHtml += `</tbody></table>`;
-      listContainer.innerHTML = listHtml;
-
-      // Aplica view
-      if (wishlistView === 'cards') {
-        container.style.display = 'block';
-        listContainer.style.display = 'none';
-        listContainer.classList.remove('active');
-      } else {
-        container.style.display = 'none';
-        listContainer.style.display = 'block';
-        listContainer.classList.add('active');
-      }
-
-      // Carregar capas
-      active.forEach((item) => {
-        setTimeout(() => {
-          const artWrap = document.getElementById(`wish-art-${item.id}`);
-          const fallback = document.getElementById(`wish-fallback-${item.id}`);
-          if (artWrap && fallback) {
-            fetchAlbumArt(item.artista, item.album, `wish-art-${item.id}`, `wish-fallback-${item.id}`);
-          }
-        }, 100);
-      });
-    }
-
-    function renderWishlistCard(item, tierColor, idx) {
-      const letter = item.album ? item.album.charAt(0) : '?';
-      const frase = item.frase || '';
-
-      return `
-        <div class="card" style="border-top-color:${tierColor};">
-          <div class="art-wrap" id="wish-art-${item.id}" style="background:${tierColor};">
-            <span class="priority-tag" style="background:${tierColor};color:var(--ink);">${item.tier}</span>
-            <div class="spine-letter">${letter}</div>
-            <div class="art-fallback" id="wish-fallback-${item.id}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
-          </div>
-          <div class="card-body">
-            <h3>${item.album || 'Álbum'}</h3>
-            <div class="artist" style="color:${tierColor};">${item.artista || 'Artista'}</div>
-            ${frase ? `<div class="wishlist-phrase">${frase}</div>` : ''}
-            <div class="card-actions">
-              <button class="btn-icon btn-tier" onclick="abrirEditTier('${item.id}','${item.artista}','${item.album}','${item.tier}')" title="Editar Tier">✎</button>
-              <button class="btn-icon btn-move" onclick="marcarComoTenho('${item.id}','${item.artista}','${item.album}')" title="Já tenho">✓</button>
-              <button class="btn-icon btn-remove" onclick="removerDaWishlist('${item.id}','${item.artista}','${item.album}')" title="Remover">✕</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function expandirTier(tier) {
-      const container = document.getElementById(`expand-container-${tier}`);
-      const link = document.getElementById(`expand-link-${tier}`);
-      if (container) {
-        if (container.style.display === 'none' || container.style.display === '') {
-          container.style.display = 'grid';
-          if (link) link.textContent = '− recolher';
-        } else {
-          container.style.display = 'none';
-          if (link) link.textContent = `+${container.children.length} →`;
-        }
-      }
-    }
-
-    // ================================================================
-    // WISHLIST ANALISE
-    // ================================================================
-    function renderAnalise() {
-      const container = document.getElementById('wishlist-analise');
-      if (!container) return;
-
-      if (!dadosAnalise) {
-        container.innerHTML = `
-          <div style="margin-top:24px;padding-top:20px;border-top:2px solid var(--card-line);">
-            <h3 style="font-family:'Anton',sans-serif;font-size:20px;color:var(--a-color);margin-bottom:12px;">📊 Análise da Wishlist</h3>
-            <p style="opacity:0.4;font-size:14px;">Carregando análise...</p>
-          </div>
-        `;
-        return;
-      }
-
-      const { total_wishlist, total_colecao, tiers, generos_wishlist, generos_colecao, trilogias } = dadosAnalise;
-
-      let html = `
-        <div style="margin-top:24px;padding-top:20px;border-top:2px solid var(--card-line);">
-          <h3 style="font-family:'Anton',sans-serif;font-size:20px;letter-spacing:0.02em;color:var(--a-color);margin-bottom:14px;">📊 Análise da Wishlist</h3>
-          <div class="analise-grid">
-            <div class="analise-card"><div class="num">${total_wishlist || 0}</div><div class="label">Wishlist</div></div>
-            <div class="analise-card"><div class="num">${total_colecao || 0}</div><div class="label">Coleção</div></div>
-      `;
-
-      if (tiers && tiers.length > 0) {
-        tiers.forEach(t => {
-          const colors = { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' };
-          html += `<div class="analise-card" style="border-top-color:${colors[t.tier] || 'var(--a-color)'};">
-            <div class="num" style="color:${colors[t.tier] || 'var(--a-color)'};">${t.count}</div>
-            <div class="label">Tier ${t.tier}</div>
-          </div>`;
-        });
-      }
-
-      html += `</div>`;
-
-      // TRILOGIAS
-      if (trilogias && trilogias.length > 0) {
-        html += `<div style="margin-bottom:14px;"><h4 style="font-family:'Anton',sans-serif;font-size:18px;letter-spacing:0.02em;color:var(--a-color);margin-bottom:8px;">🎯 Trilogias para fechar</h4>`;
-        trilogias.forEach(t => {
-          const statusClass = t.faltam === 0 ? 'alta' : t.faltam === 1 ? 'media' : 'baixa';
-          const statusText = t.faltam === 0 ? 'Complete!' : t.faltam === 1 ? 'Falta 1' : 'Falta 2';
           html += `
-            <div class="trilogia-item">
-              <div class="trilogia-header">
-                <span class="artista">${t.nome || t.artista}</span>
-                <span class="status ${statusClass}">${statusText}</span>
-              </div>
-              ${t.descricao ? `<div class="trilogia-descricao">${t.descricao}</div>` : ''}
-              <div class="trilogia-albuns">
-                ${t.albuns.map(a => `
-                  <span class="album-item">
-                    <span class="icon ${a.tem ? 'tem' : a.quer ? 'quer' : 'falta'}">${a.tem ? '✅' : a.quer ? '⭐' : '❌'}</span>
-                    ${a.album}
-                  </span>
-                `).join('')}
-              </div>
-              <div class="trilogia-acao">
-                ${t.albuns.filter(a => a.falta).map(a => `
-                  <button class="btn-adicionar" onclick="adicionarAlbumWishlist('${t.artista}','${a.album}')">⭐ Adicionar "${a.album}"</button>
-                `).join(' ')}
-              </div>
+            <div class="empty-state" style="padding:40px 20px;">
+              <div class="icon" style="font-size:32px;">📭</div>
+              <h3 style="font-size:18px;">Nenhum disco ${tier} ainda</h3>
+              <p style="font-size:13px;">Importe mais playlists ou adicione manualmente.</p>
             </div>
           `;
-        });
-        html += `</div>`;
-      }
+        } else {
+          items.forEach((item, idx) => {
+            const letter = item.album ? item.album.charAt(0) : '?';
+            const id = `rec-${tier}-${idx}`;
+            const origem = item.origem || 'algoritmo';
+            const frase = item.frase || `${item.album}: Álbum em destaque na sua coleção`;
 
-      // GÊNEROS
-      if (generos_wishlist && generos_wishlist.length > 0) {
-        html += `<div style="margin-bottom:14px;"><h4 style="font-family:'Anton',sans-serif;font-size:16px;letter-spacing:0.02em;color:var(--a-color);margin-bottom:8px;">🎸 Gêneros na wishlist</h4>
-        <div class="stat-list">`;
-        generos_wishlist.forEach(g => {
-          const colecaoCount = generos_colecao ? generos_colecao.find(c => c.nome === g.nome)?.total || 0 : 0;
-          const diff = g.total - colecaoCount;
-          const indicator = diff > 0 ? `+${diff}` : diff < 0 ? `${diff}` : '0';
-          html += `<div class="stat-list-item"><span class="name">${g.nome}</span><span class="count">${g.total} (${indicator})</span></div>`;
-        });
-        html += `</div></div>`;
-      }
-
-      container.innerHTML = html;
-    }
-
-    // ================================================================
-    // ORÇAMENTO
-    // ================================================================
-    function renderOrcamento(dados) {
-      const container = document.getElementById('wishlist-analise');
-      if (!container || !dados) return;
-
-      const { orcamento, plano, total_plano, sobra } = dados;
-
-      if (orcamento > 0) {
-        let html = `
-          <div style="background:var(--card);border:1px solid var(--card-line);border-radius:10px;padding:14px 16px;margin-bottom:14px;border-top:3px solid #4CAF50;">
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
-              <span style="font-weight:600;">💰 Orçamento do mês</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#4CAF50;">R$ ${orcamento}</span>
-            </div>
-        `;
-
-        if (plano && plano.length > 0) {
-          html += `<div style="font-size:12px;opacity:0.5;margin-bottom:6px;">Plano de compra (${plano.length} discos):</div>`;
-          plano.forEach(item => {
             html += `
-              <div class="plan-item">
-                <span class="disc">${item.artista} - ${item.album}</span>
-                <span class="preco">R$ ${item.preco}</span>
+              <div class="card" id="${id}" data-id="${item.id || ''}">
+                <div class="art-wrap" id="art-${id}" style="background: ${tierColor}; background-size: cover; background-position: center;">
+                  <span class="priority-tag" style="background:${tierColor};color:var(--ink);">${tier} ${origem === 'manual' ? '✏️' : ''}</span>
+                  <div class="spine-letter">${letter}</div>
+                  <div class="art-fallback" id="fallback-${id}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
+                </div>
+                <div class="card-body">
+                  <h3>${item.album || 'Álbum'}</h3>
+                  <div class="artist" style="color:${tierColor};">${item.artista || 'Artista'}</div>
+                  <div class="wishlist-phrase">${frase}</div>
+                  <div class="meta-block">
+                    <div class="meta-row"><span class="label">Estratégia</span><span class="val">${item.estrategia || ''}</span></div>
+                    ${item.justificativa ? `<div class="meta-row" style="flex-wrap:wrap;"><span class="label">Justificativa</span><span class="val" style="text-align:left; max-width:100%; font-size:11px; opacity:0.7; margin-top:4px;">${item.justificativa}</span></div>` : ''}
+                    ${item.nota ? `<div class="meta-row"><span class="label">Nota</span><span class="val">${item.nota}</span></div>` : ''}
+                    ${item.origem === 'manual' ? `<div class="meta-row"><span class="label">Origem</span><span class="val">Adicionado manualmente</span></div>` : ''}
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn-icon btn-tier" onclick="abrirEditTier('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}', '${item.tier || 'A'}')" title="Editar Tier">✎</button>
+                    <button class="btn-icon btn-move" onclick="marcarComoTenho('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Já tenho">✓</button>
+                    <button class="btn-icon btn-remove" onclick="removerDaWishlist('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Remover">✕</button>
+                  </div>
+                </div>
               </div>
             `;
           });
-          html += `
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--card-line);">
-              <span style="font-size:12px;opacity:0.6;">Total: R$ ${total_plano}</span>
-              <span style="font-size:12px;opacity:0.6;">Sobra: R$ ${sobra}</span>
-            </div>
-          `;
-        } else {
-          html += `<div style="font-size:13px;opacity:0.5;">Nenhum disco cabe no orçamento.</div>`;
         }
 
-        html += `</div>`;
-        container.innerHTML += html;
-      }
+        html += `</div></section>`;
+      });
+
+      container.innerHTML = html;
+
+      ['S', 'A', 'B', 'C'].forEach(tier => {
+        const items = tiers[tier] || [];
+        items.forEach((item, idx) => {
+          const id = `rec-${tier}-${idx}`;
+          fetchAlbumArt(item.artista, item.album, 'art-' + id, 'fallback-' + id);
+        });
+      });
     }
 
-    // ================================================================
-    // FUNÇÕES: WISHLIST
-    // ================================================================
     function marcarComoTenho(id, artista, album) {
-      if (!id) { alert('❌ ID não encontrado.'); return; }
+      if (!id) {
+        alert('❌ ID da recomendação não encontrado.');
+        return;
+      }
       abrirConfirm(`Marcar "${artista} - ${album}" como JÁ TENHO?`, function() {
         fetch(API_URL + `/marcar_como_tenho/${id}?user_id=${usuarioId}`, { method: 'POST' })
           .then(r => r.json())
           .then(data => {
-            if (data.sucesso) carregarWishlist();
-            else alert('❌ ' + (data.erro || 'Erro ao marcar'));
+            if (data.sucesso) {
+              carregarDados();
+            } else {
+              alert('❌ ' + (data.erro || 'Erro ao marcar'));
+            }
           })
           .catch(() => alert('❌ Erro de conexão'));
       });
     }
+    window.marcarComoTenho = marcarComoTenho;
 
     function removerDaWishlist(id, artista, album) {
-      if (!id) { alert('❌ ID não encontrado.'); return; }
-      abrirConfirm(`Remover "${artista} - ${album}" da wishlist?`, function() {
+      if (!id) {
+        alert('❌ ID não encontrado.');
+        return;
+      }
+      abrirConfirm(`Remover "${artista} - ${album}" da lista de compras?`, function() {
         fetch(API_URL + `/wishlist/remove/${id}?user_id=${usuarioId}`, { method: 'DELETE' })
           .then(r => r.json())
           .then(data => {
-            if (data.sucesso) carregarWishlist();
-            else alert('❌ ' + (data.erro || 'Erro ao remover'));
+            if (data.sucesso) {
+              carregarDados();
+            } else {
+              alert('❌ ' + (data.erro || 'Erro ao remover'));
+            }
           })
           .catch(() => alert('❌ Erro de conexão'));
       });
     }
+    window.removerDaWishlist = removerDaWishlist;
 
-    function abrirEditTier(id, artista, album, tierAtual) {
-      document.getElementById('edit-tier-id').value = id;
-      document.getElementById('edit-tier-artista').value = artista;
-      document.getElementById('edit-tier-album').value = album;
-      document.getElementById('edit-tier-select').value = tierAtual || 'A';
-      document.getElementById('edit-tier-msg').textContent = '';
-      document.getElementById('edit-tier-msg').className = 'form-msg';
-      document.getElementById('btn-edit-tier-submit').disabled = false;
-      document.getElementById('modalEditTier').classList.add('open');
-    }
+    const modalWish = document.getElementById('modalAddWishlist');
+    const btnFecharWish = document.getElementById('btnFecharWishlist');
+    const formWish = document.getElementById('form-wishlist');
 
     function abrirWishlist() {
       document.getElementById('wish-artista').value = '';
@@ -587,39 +177,14 @@
       document.getElementById('wish-notas').value = '';
       document.getElementById('wish-msg').textContent = '';
       document.getElementById('wish-msg').className = 'form-msg';
-      document.getElementById('modalAddWishlist').classList.add('open');
+      modalWish.classList.add('open');
     }
+    window.abrirWishlist = abrirWishlist;
 
-    function adicionarAlbumWishlist(artista, album) {
-      fetch(API_URL + '/adicionar_recomendacao?user_id=' + usuarioId, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artista, album, tier: 'B' })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.sucesso) {
-          alert('✅ ' + data.mensagem);
-          carregarWishlist();
-        } else {
-          alert('❌ ' + (data.erro || 'Erro ao adicionar'));
-        }
-      })
-      .catch(() => alert('❌ Erro de conexão'));
-    }
+    btnFecharWish.addEventListener('click', () => modalWish.classList.remove('open'));
+    modalWish.addEventListener('click', function(e) { if (e.target === this) modalWish.classList.remove('open'); });
 
-    // ================================================================
-    // EVENTOS DOS MODAIS
-    // ================================================================
-    document.getElementById('btnFecharWishlist').addEventListener('click', function() {
-      document.getElementById('modalAddWishlist').classList.remove('open');
-    });
-
-    document.getElementById('btnFecharEditTier').addEventListener('click', function() {
-      document.getElementById('modalEditTier').classList.remove('open');
-    });
-
-    document.getElementById('form-wishlist').addEventListener('submit', function(e) {
+    formWish.addEventListener('submit', function(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-wish-submit');
       const msg = document.getElementById('wish-msg');
@@ -642,32 +207,61 @@
       }
 
       fetch(API_URL + '/adicionar_recomendacao?user_id=' + usuarioId, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados)
-      })
-      .then(r => r.json())
-      .then(resultado => {
-        if (resultado.sucesso) {
-          msg.textContent = '✅ ' + resultado.mensagem;
-          msg.className = 'form-msg success';
-          carregarWishlist();
-          document.getElementById('form-wishlist').reset();
-          setTimeout(() => document.getElementById('modalAddWishlist').classList.remove('open'), 1000);
-        } else {
-          msg.textContent = '❌ ' + (resultado.erro || 'Erro ao adicionar');
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        })
+        .then(r => r.json())
+        .then(resultado => {
+          if (resultado.sucesso) {
+            msg.textContent = '✅ ' + resultado.mensagem;
+            msg.className = 'form-msg success';
+            carregarDados();
+            formWish.reset();
+            setTimeout(() => modalWish.classList.remove('open'), 1000);
+          } else {
+            msg.textContent = '❌ ' + (resultado.erro || 'Erro ao adicionar');
+            msg.className = 'form-msg error';
+            btn.disabled = false;
+          }
+        })
+        .catch(() => {
+          msg.textContent = '❌ Erro de conexão';
           msg.className = 'form-msg error';
           btn.disabled = false;
-        }
-      })
-      .catch(() => {
-        msg.textContent = '❌ Erro de conexão';
-        msg.className = 'form-msg error';
-        btn.disabled = false;
-      });
+        });
     });
 
-    document.getElementById('form-edit-tier').addEventListener('submit', function(e) {
+    const modalEditTier = document.getElementById('modalEditTier');
+    const btnFecharEditTier = document.getElementById('btnFecharEditTier');
+    const formEditTier = document.getElementById('form-edit-tier');
+
+    function abrirEditTier(id, artista, album, tierAtual) {
+      document.getElementById('edit-tier-id').value = '';
+      document.getElementById('edit-tier-artista').value = '';
+      document.getElementById('edit-tier-album').value = '';
+      document.getElementById('edit-tier-select').value = 'A';
+      document.getElementById('edit-tier-msg').textContent = '';
+      document.getElementById('edit-tier-msg').className = 'form-msg';
+      document.getElementById('btn-edit-tier-submit').disabled = false;
+      
+      document.getElementById('edit-tier-id').value = id;
+      document.getElementById('edit-tier-artista').value = artista;
+      document.getElementById('edit-tier-album').value = album;
+      document.getElementById('edit-tier-select').value = tierAtual || 'A';
+      
+      modalEditTier.classList.add('open');
+    }
+    window.abrirEditTier = abrirEditTier;
+
+    btnFecharEditTier.addEventListener('click', function() {
+      modalEditTier.classList.remove('open');
+    });
+    modalEditTier.addEventListener('click', function(e) {
+      if (e.target === this) modalEditTier.classList.remove('open');
+    });
+
+    formEditTier.addEventListener('submit', function(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-edit-tier-submit');
       const msg = document.getElementById('edit-tier-msg');
@@ -679,60 +273,27 @@
       msg.className = 'form-msg';
 
       fetch(API_URL + `/wishlist/update_tier/${id}?user_id=${usuarioId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier: novoTier })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.sucesso) {
-          msg.textContent = '✅ ' + data.mensagem;
-          msg.className = 'form-msg success';
-          carregarWishlist();
-          document.getElementById('form-edit-tier').reset();
-          setTimeout(() => document.getElementById('modalEditTier').classList.remove('open'), 800);
-        } else {
-          msg.textContent = '❌ ' + (data.erro || 'Erro ao atualizar');
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tier: novoTier })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.sucesso) {
+            msg.textContent = '✅ ' + data.mensagem;
+            msg.className = 'form-msg success';
+            carregarDados();
+            formEditTier.reset();
+            setTimeout(() => modalEditTier.classList.remove('open'), 800);
+          } else {
+            msg.textContent = '❌ ' + (data.erro || 'Erro ao atualizar');
+            msg.className = 'form-msg error';
+            btn.disabled = false;
+          }
+        })
+        .catch(() => {
+          msg.textContent = '❌ Erro de conexão';
           msg.className = 'form-msg error';
           btn.disabled = false;
-        }
-      })
-      .catch(() => {
-        msg.textContent = '❌ Erro de conexão';
-        msg.className = 'form-msg error';
-        btn.disabled = false;
-      });
-    });
-
-    document.getElementById('modalAddWishlist').addEventListener('click', function(e) {
-      if (e.target === this) document.getElementById('modalAddWishlist').classList.remove('open');
-    });
-
-    document.getElementById('modalEditTier').addEventListener('click', function(e) {
-      if (e.target === this) document.getElementById('modalEditTier').classList.remove('open');
-    });
-
-    window.marcarComoTenho = marcarComoTenho;
-    window.removerDaWishlist = removerDaWishlist;
-    window.abrirEditTier = abrirEditTier;
-    window.abrirWishlist = abrirWishlist;
-    window.adicionarAlbumWishlist = adicionarAlbumWishlist;
-    window.expandirTier = expandirTier;
-    window.setWishlistView = setWishlistView;
-
-    // ================================================================
-    // INICIALIZAR
-    // ================================================================
-    document.addEventListener('DOMContentLoaded', function() {
-      const logado = initApp();
-      if (logado) {
-        carregarWishlist();
-
-        document.querySelectorAll('#wishlistViewToggle button').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.view === wishlistView);
         });
-      }
     });
-  </script>
-</body>
-</html>
