@@ -1,218 +1,646 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Discoteca — Coleção</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+// ================================================================
+// PÁGINA: COLEÇÃO — colecao.html
+// ================================================================
+function onPaginaPronta() {
+  carregarDados();
+}
 
-  <!-- ===== LOGIN ===== -->
-  <div id="loginScreen" class="login-container">
-    <div class="login-box">
-      <div class="logo">Discoteca<span>.</span></div>
-      <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
-      <button class="login-btn" id="btnLogin">
-        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Entrar com Google
-      </button>
-      <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
-    </div>
-  </div>
+function carregarDados() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/colecao?user_id=' + usuarioId)
+    .then(r => r.json())
+    .then(data => {
+      colecao = Array.isArray(data) ? data : [];
+      colecaoFiltrada = [...colecao];
+      renderDashboard();
+      aplicarFiltros();
+      atualizarBadgeColecao(colecao.length);
+    })
+    .catch(() => {});
+}
 
-  <!-- ===== APP ===== -->
-  <div id="appScreen" style="display:none;">
+    function renderDashboard() {
+      const container = document.getElementById('dashboard-container');
+      if (!container) return;
 
-    <!-- BARRA DO USUÁRIO -->
-    <div class="user-bar">
-      <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
-      <button class="logout-btn" id="btnLogout">Sair</button>
-    </div>
+      const lps = colecao.filter(d => {
+        const f = d.formato || '';
+        return f.includes('LP') || f.includes('EP') || f.includes('Vinil');
+      }).length;
 
-    <!-- HERO -->
-    <section class="hero hero-state-colecao" id="heroSection">
-      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Coleção</div>
-      <h1 id="heroTitle">Minha <span id="heroHighlight">Coleção</span></h1>
-      <p class="hero-sub" id="heroSub">Gerencie todos os discos que fazem parte da sua coleção física.</p>
-    </section>
+      const cds = colecao.filter(d => {
+        const f = d.formato || '';
+        return f.includes('CD');
+      }).length;
 
-    <!-- TABS -->
-    <div class="tabs-container">
-      <div class="tabs" id="navContainer"></div>
-    </div>
+      const cassetes = colecao.filter(d => {
+        const f = d.formato || '';
+        return f.includes('Cassete') || f.toLowerCase().includes('cassette');
+      }).length;
 
-    <!-- ===== COLEÇÃO ===== -->
-    <div id="tab-colecao" class="tab-content active">
-      <section class="section" style="--tier-color:var(--colecao-color)">
-        <div class="tier-head">
-          <div class="tier-stamp small">💿</div>
-          <div class="tier-info">
-            <h2 style="color:var(--colecao-color);">Coleção</h2>
-            <p>Registro de todos os discos que já fazem parte da sua coleção física.</p>
+      const wishlist = recomendacoes.filter(r => r.comprado === 0).length;
+
+      container.innerHTML = `
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="number">${lps}</div>
+            <div class="label">🎵 LPs</div>
           </div>
-          <div class="add-btn-wrap">
-            <button class="add-btn" id="btnAbrirModal" title="Adicionar disco manualmente">+</button>
+          <div class="dashboard-card">
+            <div class="number">${cds}</div>
+            <div class="label">💿 CDs</div>
           </div>
-        </div>
-
-        <!-- DASHBOARD -->
-        <div id="dashboard-container"></div>
-
-        <!-- CONTROLES -->
-        <div class="colecao-controls" id="colecaoControls">
-          <div class="search-box">
-            <span class="icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="Buscar por artista ou álbum..." oninput="aplicarFiltros()">
+          <div class="dashboard-card">
+            <div class="number">${cassetes}</div>
+            <div class="label">📼 Cassetes</div>
           </div>
-          <select id="sortSelect" onchange="aplicarFiltros()">
-            <option value="data_mais_recente">📅 Mais recente</option>
-            <option value="data_mais_antiga">📅 Mais antigo</option>
-            <option value="preco_maior">💰 Maior preço</option>
-            <option value="preco_menor">💰 Menor preço</option>
-            <option value="alfabetica_a-z">🔤 A–Z (artista)</option>
-            <option value="alfabetica_z-a">🔤 Z–A (artista)</option>
-          </select>
-          <div class="view-toggle" id="viewToggle">
-            <button class="active" data-view="cards" onclick="setView('cards')">🎴 Cards</button>
-            <button data-view="list" onclick="setView('list')">📋 Lista</button>
+          <div class="dashboard-card wishlist">
+            <div class="number">${wishlist}</div>
+            <div class="label">⭐ Wishlist</div>
+          </div>
+          <div class="dashboard-card economia">
+            <div class="number">—</div>
+            <div class="label">💰 Economia</div>
+            <div class="sub">em promoções</div>
           </div>
         </div>
+      `;
+    }
 
-        <!-- AGRUPAMENTO -->
-        <div class="colecao-controls" id="groupControls" style="margin-top:-12px; display:none;">
-          <div class="group-toggle" id="groupToggle">
-            <button class="active" data-group="separado" onclick="setGroup('separado')">📂 Separado</button>
-            <button data-group="junto" onclick="setGroup('junto')">📚 Juntar</button>
-          </div>
-        </div>
+    function aplicarFiltros() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const sortType = document.getElementById('sortSelect').value;
 
-        <!-- COLEÇÃO -->
-        <div id="colecao-container"></div>
-        <div class="list-view" id="listView"></div>
-      </section>
-    </div>
+      let filtrados = colecao.filter(item => {
+        if (!searchTerm) return true;
+        const artista = (item.artista || '').toLowerCase();
+        const album = (item.album || '').toLowerCase();
+        return artista.includes(searchTerm) || album.includes(searchTerm);
+      });
 
-  </div><!-- /appScreen -->
+      switch (sortType) {
+        case 'data_mais_recente':
+          filtrados.sort((a, b) => (b.data_adicao || '').localeCompare(a.data_adicao || ''));
+          break;
+        case 'data_mais_antiga':
+          filtrados.sort((a, b) => (a.data_adicao || '').localeCompare(b.data_adicao || ''));
+          break;
+        case 'preco_maior':
+          filtrados.sort((a, b) => (b.preco || 0) - (a.preco || 0));
+          break;
+        case 'preco_menor':
+          filtrados.sort((a, b) => (a.preco || 0) - (b.preco || 0));
+          break;
+        case 'alfabetica_a-z':
+          filtrados.sort((a, b) => (a.artista || '').localeCompare(b.artista || ''));
+          break;
+        case 'alfabetica_z-a':
+          filtrados.sort((a, b) => (b.artista || '').localeCompare(a.artista || ''));
+          break;
+        default:
+          break;
+      }
 
-  <!-- ===== MODAL: ADICIONAR/EDITAR DISCO ===== -->
-  <div class="modal-overlay" id="modalAdicionar">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="modalTitle">➕ Adicionar Disco</h2>
-        <button class="modal-close" id="btnFecharModal">✕</button>
-      </div>
-      <form id="form-adicionar">
-        <input type="hidden" id="campo-id" value="">
-        <div class="form-group">
-          <label>Artista *</label>
-          <input type="text" id="campo-artista" placeholder="Ex: Metallica" required>
-        </div>
-        <div class="form-group">
-          <label>Álbum *</label>
-          <input type="text" id="campo-album" placeholder="Ex: Master of Puppets" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Formato</label>
-            <select id="campo-formato">
-              <option value="">Selecione</option>
-              <option value="LP">LP (Vinil)</option>
-              <option value="2xLP">2xLP (Vinil)</option>
-              <option value="EP">EP (Vinil)</option>
-              <option value="CD">CD</option>
-              <option value="2xCD">2xCD</option>
-              <option value="Cassete">Cassete</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Preço (R$)</label>
-            <input type="number" id="campo-preco" placeholder="0.00" step="0.01">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Condição da Mídia</label>
-            <select id="campo-condicao-midia">
-              <option value="">Selecione</option>
-              <option value="M">M (Mint)</option>
-              <option value="NM">NM (Near Mint)</option>
-              <option value="VG+">VG+ (Very Good Plus)</option>
-              <option value="VG">VG (Very Good)</option>
-              <option value="G">G (Good)</option>
-              <option value="F">F (Fair)</option>
-              <option value="P">P (Poor)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Condição da Capa</label>
-            <select id="campo-condicao-capa">
-              <option value="">Selecione</option>
-              <option value="M">M (Mint)</option>
-              <option value="NM">NM (Near Mint)</option>
-              <option value="VG+">VG+ (Very Good Plus)</option>
-              <option value="VG">VG (Very Good)</option>
-              <option value="G">G (Good)</option>
-              <option value="F">F (Fair)</option>
-              <option value="P">P (Poor)</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Data de Aquisição</label>
-          <input type="date" id="campo-data">
-        </div>
-        <div class="form-group">
-          <label>Notas</label>
-          <textarea id="campo-notas" placeholder="Ex: Edição limitada, prensagem alemã..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Código de Barras</label>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <input type="text" id="campo-codigo-barras" placeholder="Ex: 042284834181" style="flex:1;">
-            <button type="button" class="barcode-btn" id="btnBarcode">📷 Ler</button>
-          </div>
-          <div class="barcode-reader-container" id="barcode-reader-container">
-            <div id="barcode-reader"></div>
-            <button type="button" class="btn" style="margin-top:8px; background:var(--card-line); color:var(--paper);" id="btnBarcodeCancel">Cancelar</button>
-          </div>
-        </div>
-        <button type="submit" class="form-btn" id="btn-submit">Salvar Disco</button>
-        <div class="form-msg" id="form-msg"></div>
-      </form>
-    </div>
-  </div>
+      colecaoFiltrada = filtrados;
+      renderColecao();
+      renderLista();
+      aplicarView();
+    }
 
-  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
-  <div class="modal-overlay" id="modalConfirm">
-    <div class="modal" style="max-width:450px;">
-      <div class="modal-header">
-        <h2>⚠️ Confirmar</h2>
-        <button class="modal-close" id="btnFecharConfirm">✕</button>
-      </div>
-      <div class="modal-confirm-text" id="confirmMessage">Tem certeza que deseja fazer isso?</div>
-      <div style="display:flex; gap:12px; margin-top:20px;">
-        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
-        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
-      </div>
-    </div>
-  </div>
+    function setView(view) {
+      viewPreference = view;
+      localStorage.setItem('discoteca_view', view);
+      document.querySelectorAll('#viewToggle button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+      const groupControls = document.getElementById('groupControls');
+      if (view === 'list') {
+        groupControls.style.display = 'flex';
+      } else {
+        groupControls.style.display = 'none';
+      }
+      aplicarView();
+    }
 
-  <footer>Discoteca — Sua coleção, suas recomendações.</footer>
+    function setGroup(group) {
+      groupPreference = group;
+      localStorage.setItem('discoteca_group', group);
+      document.querySelectorAll('#groupToggle button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.group === group);
+      });
+      renderLista();
+      aplicarView();
+    }
 
-  <script src="app.js"></script>
-  <script src="colecao.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      renderNav('colecao.html');
-      setView(viewPreference);
-      setGroup(groupPreference);
-      verificarSessao();
+    function aplicarView() {
+      const cardsContainer = document.getElementById('colecao-container');
+      const listContainer = document.getElementById('listView');
+      if (!cardsContainer || !listContainer) return;
+
+      if (viewPreference === 'cards') {
+        cardsContainer.style.display = 'block';
+        listContainer.classList.remove('active');
+        listContainer.style.display = 'none';
+      } else {
+        cardsContainer.style.display = 'none';
+        listContainer.style.display = 'block';
+        listContainer.classList.add('active');
+      }
+    }
+
+    function renderColecao() {
+      const container = document.getElementById('colecao-container');
+      if (!container) return;
+
+      if (!colecaoFiltrada || colecaoFiltrada.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🎵</div>
+            <h3>Nenhum disco encontrado</h3>
+            <p>Tente ajustar os filtros ou adicione discos manualmente.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const vinil = [];
+      const cd = [];
+      const cassete = [];
+      const outros = [];
+      colecaoFiltrada.forEach(item => {
+        const f = item.formato || '';
+        if (f.includes('LP') || f.includes('EP') || f.includes('Vinil')) vinil.push(item);
+        else if (f.includes('CD')) cd.push(item);
+        else if (f.includes('Cassete') || f.toLowerCase().includes('cassette')) cassete.push(item);
+        else outros.push(item);
+      });
+
+      const secoes = [
+        { nome: 'Vinil', cor: 'var(--vinil-color)', icone: '🎵', items: vinil },
+        { nome: 'CD', cor: 'var(--cd-color)', icone: '💿', items: cd },
+        { nome: 'Cassete', cor: 'var(--cassete-color)', icone: '📼', items: cassete },
+        { nome: 'Outros', cor: 'var(--colecao-color)', icone: '📀', items: outros }
+      ];
+
+      let html = '';
+      secoes.forEach(secao => {
+        if (secao.items.length === 0) return;
+        html += `
+          <div style="margin-bottom: 32px;">
+            <div class="tier-head" style="border-bottom: 1px solid var(--card-line); padding-bottom: 12px; margin-bottom: 18px; --tier-color: ${secao.cor};">
+              <div class="tier-stamp tiny" style="background: ${secao.cor}; color: var(--ink);">${secao.icone}</div>
+              <div class="tier-info">
+                <h2 style="color: ${secao.cor};">${secao.nome}</h2>
+                <p style="opacity:0.5; font-size:13px;">${secao.items.length} discos</p>
+              </div>
+            </div>
+            <div class="grid">
+        `;
+
+        secao.items.forEach((item, i) => {
+          const letter = item.album ? item.album.charAt(0) : '?';
+          const uniqueId = `col-${secao.nome}-${i}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+          const tagColor = secao.cor;
+          const tagIcon = secao.icone;
+          const tagLabel = secao.nome;
+
+          html += `
+            <div class="card" data-artista="${item.artista || ''}" data-album="${item.album || ''}" data-id="${item.id || ''}">
+              <div class="art-wrap" id="art-${uniqueId}" style="background: ${tagColor}; background-size: cover; background-position: center;">
+                <span class="priority-tag" style="background:${tagColor};color:var(--ink);">${tagIcon} ${tagLabel}</span>
+                <div class="spine-letter">${letter}</div>
+                <div class="art-fallback" id="fallback-${uniqueId}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
+              </div>
+              <div class="card-body">
+                <h3>${item.album || '?'}</h3>
+                <div class="artist" style="color:${tagColor};">${item.artista || 'Artista'}</div>
+                <div class="meta-block">
+                  <div class="meta-row"><span class="label">Formato</span><span class="val">${tagLabel}</span></div>
+                  ${item.condicao_midia ? `<div class="meta-row"><span class="label">Mídia</span><span class="val">${item.condicao_midia}</span></div>` : ''}
+                  ${item.condicao_capa ? `<div class="meta-row"><span class="label">Capa</span><span class="val">${item.condicao_capa}</span></div>` : ''}
+                  ${item.preco ? `<div class="meta-row"><span class="label">Preço</span><span class="val">R$ ${item.preco}</span></div>` : ''}
+                  ${item.data_adicao ? `<div class="meta-row"><span class="label">Adicionado</span><span class="val">${item.data_adicao}</span></div>` : ''}
+                </div>
+                <div class="card-actions">
+                  <button class="btn-icon btn-edit" onclick="editarDisco('${item.id || ''}')" title="Editar">✎</button>
+                  <button class="btn-icon btn-remove" onclick="removerDisco('${item.id || ''}')" title="Remover">✕</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div></div>`;
+      });
+
+      container.innerHTML = html;
+
+      const cards = container.querySelectorAll('.card');
+      cards.forEach(card => {
+        const artista = card.dataset.artista;
+        const album = card.dataset.album;
+        const artWrap = card.querySelector('.art-wrap');
+        const fallback = card.querySelector('.art-fallback');
+        if (artista && album && artWrap && fallback) {
+          const artId = artWrap.id;
+          const fallbackId = fallback.id;
+          setTimeout(() => fetchAlbumArt(artista, album, artId, fallbackId), 100);
+        }
+      });
+    }
+
+    function renderLista() {
+      const container = document.getElementById('listView');
+      if (!container) return;
+
+      if (!colecaoFiltrada || colecaoFiltrada.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const group = groupPreference;
+      let html = '';
+
+      if (group === 'separado') {
+        const vinil = [];
+        const cd = [];
+        const cassete = [];
+        const outros = [];
+        colecaoFiltrada.forEach(item => {
+          const f = item.formato || '';
+          if (f.includes('LP') || f.includes('EP') || f.includes('Vinil')) vinil.push(item);
+          else if (f.includes('CD')) cd.push(item);
+          else if (f.includes('Cassete') || f.toLowerCase().includes('cassette')) cassete.push(item);
+          else outros.push(item);
+        });
+
+        const secoes = [
+          { nome: 'Vinil', icone: '🎵', items: vinil, cls: 'vinil' },
+          { nome: 'CD', icone: '💿', items: cd, cls: 'cd' },
+          { nome: 'Cassete', icone: '📼', items: cassete, cls: 'cassete' },
+          { nome: 'Outros', icone: '📀', items: outros, cls: '' }
+        ];
+
+        secoes.forEach(secao => {
+          if (secao.items.length === 0) return;
+          html += `<div class="secao-header">${secao.icone} ${secao.nome} (${secao.items.length})</div>`;
+          html += gerarTabelaLista(secao.items);
+        });
+      } else {
+        html += `<div class="secao-header">📀 Todos os discos (${colecaoFiltrada.length})</div>`;
+        html += gerarTabelaLista(colecaoFiltrada);
+      }
+
+      container.innerHTML = html;
+    }
+
+    function gerarTabelaLista(items) {
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Artista</th>
+              <th>Álbum</th>
+              <th>Formato</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      items.forEach(item => {
+        const f = item.formato || '';
+        let formatClass = '';
+        if (f.includes('LP') || f.includes('EP') || f.includes('Vinil')) formatClass = 'vinil';
+        else if (f.includes('CD')) formatClass = 'cd';
+        else if (f.includes('Cassete') || f.toLowerCase().includes('cassette')) formatClass = 'cassete';
+        else formatClass = '';
+
+        html += `
+          <tr>
+            <td><strong>${item.artista || '?'}</strong></td>
+            <td>${item.album || '?'}</td>
+            <td><span class="format-badge ${formatClass}">${formatClass ? formatClass.charAt(0).toUpperCase() + formatClass.slice(1) : '—'}</span></td>
+            <td>
+              <div class="list-actions">
+                <button class="edit" onclick="editarDisco('${item.id || ''}')" title="Editar">✎</button>
+                <button class="remove" onclick="removerDisco('${item.id || ''}')" title="Remover">✕</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      return html;
+    }
+
+    const LASTFM_KEY = 'b25b959554ed76058ac220b7b2e0a026';
+    const MANUAL_COVERS = {
+      'basttardz_brasil com z / auschwitz tropical': 'https://i.imgur.com/nlcvybH.jpeg',
+      'bullet for my valentine_bullet for my valentine': 'https://i.imgur.com/KaLt40C.jpeg'
+    };
+
+    async function getCoverUrl(artist, album) {
+      if (!artist || !album) return null;
+      const key = `${artist.toLowerCase()}_${album.toLowerCase()}`;
+      if (MANUAL_COVERS[key]) return MANUAL_COVERS[key];
+      try {
+        const url =
+          `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.album && data.album.image) {
+          const img = data.album.image.find(i => i.size === 'extralarge');
+          return img && img['#text'] ? img['#text'] : null;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchAlbumArt(artist, album, artId, fallbackId) {
+      const artWrap = document.getElementById(artId);
+      const fallback = document.getElementById(fallbackId);
+      if (!artWrap) return;
+      try {
+        const url = await getCoverUrl(artist, album);
+        if (url) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Timeout')), 10000);
+            img.onload = () => {
+              clearTimeout(timeout);
+              artWrap.style.backgroundImage = `url('${url}')`;
+              artWrap.style.backgroundSize = 'cover';
+              artWrap.style.backgroundPosition = 'center';
+              artWrap.classList.add('has-image');
+              if (fallback) fallback.style.opacity = '0';
+              resolve();
+            };
+            img.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error('Failed to load'));
+            };
+            img.src = url;
+          });
+        } else {
+          if (fallback) fallback.style.opacity = '0.8';
+        }
+      } catch {
+        if (fallback) fallback.style.opacity = '0.8';
+      }
+    }
+
+    const modal = document.getElementById('modalAdicionar');
+    const btnAbrirModal = document.getElementById('btnAbrirModal');
+    const btnFecharModal = document.getElementById('btnFecharModal');
+    const formAdicionar = document.getElementById('form-adicionar');
+    const btnSubmit = document.getElementById('btn-submit');
+
+    function abrirModal(discoId = null) {
+      editandoId = discoId;
+      document.getElementById('campo-id').value = discoId || '';
+      document.getElementById('form-msg').textContent = '';
+      document.getElementById('form-msg').className = 'form-msg';
+      btnSubmit.disabled = false;
+
+      if (discoId) {
+        document.getElementById('modalTitle').textContent = '✏️ Editar Disco';
+        btnSubmit.textContent = 'Atualizar Disco';
+        const disco = colecao.find(d => d.id == discoId);
+        if (disco) {
+          document.getElementById('campo-artista').value = disco.artista || '';
+          document.getElementById('campo-album').value = disco.album || '';
+          document.getElementById('campo-formato').value = disco.formato || '';
+          document.getElementById('campo-condicao-midia').value = disco.condicao_midia || '';
+          document.getElementById('campo-condicao-capa').value = disco.condicao_capa || '';
+          document.getElementById('campo-preco').value = disco.preco || '';
+          document.getElementById('campo-data').value = disco.data_adicao || '';
+          document.getElementById('campo-notas').value = '';
+          document.getElementById('campo-codigo-barras').value = '';
+        }
+      } else {
+        document.getElementById('modalTitle').textContent = '➕ Adicionar Disco';
+        btnSubmit.textContent = 'Salvar Disco';
+        document.getElementById('campo-artista').value = '';
+        document.getElementById('campo-album').value = '';
+        document.getElementById('campo-formato').value = '';
+        document.getElementById('campo-condicao-midia').value = '';
+        document.getElementById('campo-condicao-capa').value = '';
+        document.getElementById('campo-preco').value = '';
+        document.getElementById('campo-data').value = '';
+        document.getElementById('campo-notas').value = '';
+        document.getElementById('campo-codigo-barras').value = '';
+      }
+
+      modal.classList.add('open');
+      document.getElementById('barcode-reader-container').classList.remove('active');
+      if (barcodeScanner) {
+        barcodeScanner.stop().catch(() => {});
+        barcodeScanner = null;
+      }
+    }
+    window.abrirModal = abrirModal;
+
+    function fecharModal() {
+      modal.classList.remove('open');
+      document.getElementById('barcode-reader-container').classList.remove('active');
+      if (barcodeScanner) {
+        barcodeScanner.stop().catch(() => {});
+        barcodeScanner = null;
+      }
+    }
+
+    btnAbrirModal.addEventListener('click', () => abrirModal(null));
+    btnFecharModal.addEventListener('click', fecharModal);
+    modal.addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') fecharModal(); });
+
+    formAdicionar.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit');
+      const msg = document.getElementById('form-msg');
+      btn.disabled = true;
+      msg.textContent = '⏳ Salvando...';
+      msg.className = 'form-msg';
+
+      const id = document.getElementById('campo-id').value;
+      const dados = {
+        artista: document.getElementById('campo-artista').value.trim(),
+        album: document.getElementById('campo-album').value.trim(),
+        formato: document.getElementById('campo-formato').value,
+        condicao_midia: document.getElementById('campo-condicao-midia').value,
+        condicao_capa: document.getElementById('campo-condicao-capa').value,
+        preco: parseFloat(document.getElementById('campo-preco').value) || null,
+        data_aquisicao: document.getElementById('campo-data').value || null,
+        notas: document.getElementById('campo-notas').value.trim(),
+        codigo_barras: document.getElementById('campo-codigo-barras').value.trim()
+      };
+
+      if (!dados.artista || !dados.album) {
+        msg.textContent = '⚠️ Artista e álbum são obrigatórios!';
+        msg.className = 'form-msg error';
+        btn.disabled = false;
+        return;
+      }
+
+      let url, method;
+      if (id) {
+        url = API_URL + `/editar_disco/${id}?user_id=${usuarioId}`;
+        method = 'PUT';
+      } else {
+        url = API_URL + '/adicionar_disco?user_id=' + usuarioId;
+        method = 'POST';
+      }
+
+      fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        })
+        .then(r => r.json())
+        .then(resultado => {
+          if (resultado.sucesso) {
+            msg.textContent = '✅ ' + resultado.mensagem;
+            msg.className = 'form-msg success';
+            carregarDados();
+            formAdicionar.reset();
+            setTimeout(fecharModal, 1000);
+          } else {
+            msg.textContent = '❌ ' + (resultado.erro || 'Erro ao salvar');
+            msg.className = 'form-msg error';
+            btn.disabled = false;
+          }
+        })
+        .catch(() => {
+          msg.textContent = '❌ Erro de conexão';
+          msg.className = 'form-msg error';
+          btn.disabled = false;
+        });
     });
-  </script>
-</body>
-</html>
+
+    function editarDisco(id) {
+      abrirModal(id);
+    }
+    window.editarDisco = editarDisco;
+
+    function removerDisco(id) {
+      abrirConfirm('Tem certeza que deseja remover este disco da coleção?', function() {
+        fetch(API_URL + `/remover_disco/${id}?user_id=${usuarioId}`, { method: 'DELETE' })
+          .then(r => r.json())
+          .then(data => {
+            if (data.sucesso) {
+              carregarDados();
+            } else {
+              alert('❌ ' + (data.erro || 'Erro ao remover'));
+            }
+          })
+          .catch(() => alert('❌ Erro de conexão'));
+      });
+    }
+    window.removerDisco = removerDisco;
+
+    const btnBarcode = document.getElementById('btnBarcode');
+    const barcodeContainer = document.getElementById('barcode-reader-container');
+    const barcodeReaderDiv = document.getElementById('barcode-reader');
+
+    btnBarcode.addEventListener('click', function() {
+      if (barcodeContainer.classList.contains('active')) {
+        barcodeContainer.classList.remove('active');
+        if (barcodeScanner) {
+          barcodeScanner.stop().catch(() => {});
+          barcodeScanner = null;
+        }
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('❌ Seu navegador não suporta acesso à câmera.');
+        return;
+      }
+
+      barcodeContainer.classList.add('active');
+      if (barcodeScanner) {
+        barcodeScanner.stop().catch(() => {});
+        barcodeScanner = null;
+      }
+
+      const html5QrCode = new Html5Qrcode("barcode-reader");
+      barcodeScanner = html5QrCode;
+
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.ISBN
+        ]
+      };
+
+      html5QrCode.start({ facingMode: "environment" },
+        config,
+        (decodedText, decodedResult) => {
+          document.getElementById('campo-codigo-barras').value = decodedText;
+          barcodeContainer.classList.remove('active');
+          html5QrCode.stop().catch(() => {});
+          barcodeScanner = null;
+          buscarDiscoPorCodigo(decodedText);
+        },
+        (errorMessage) => {}
+      ).catch(err => {
+        alert('❌ Erro ao acessar a câmera: ' + err.message);
+        barcodeContainer.classList.remove('active');
+        barcodeScanner = null;
+      });
+    });
+
+    document.getElementById('btnBarcodeCancel').addEventListener('click', function() {
+      barcodeContainer.classList.remove('active');
+      if (barcodeScanner) {
+        barcodeScanner.stop().catch(() => {});
+        barcodeScanner = null;
+      }
+    });
+
+    function buscarDiscoPorCodigo(codigo) {
+      if (!codigo || codigo.length < 8) return;
+      fetch(API_URL + `/buscar_por_codigo_barras?codigo=${codigo}&user_id=${usuarioId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.sucesso && data.disco) {
+            const d = data.disco;
+            document.getElementById('campo-artista').value = d.artista || '';
+            document.getElementById('campo-album').value = d.album || '';
+            if (d.formato) {
+              const opts = document.getElementById('campo-formato').options;
+              for (let opt of opts) {
+                if (opt.value && d.formato.toLowerCase().includes(opt.value.toLowerCase())) {
+                  document.getElementById('campo-formato').value = opt.value;
+                  break;
+                }
+              }
+            }
+            if (d.ano) {
+              document.getElementById('campo-data').value = d.ano + '-01-01';
+            }
+            document.getElementById('campo-notas').value = (d.gravadora ? 'Gravadora: ' + d.gravadora : '');
+            document.getElementById('form-msg').textContent = '✅ Dados preenchidos automaticamente!';
+            document.getElementById('form-msg').className = 'form-msg success';
+          } else {
+            document.getElementById('form-msg').textContent = '⚠️ Código lido, mas não encontramos dados. Preencha manualmente.';
+            document.getElementById('form-msg').className = 'form-msg error';
+          }
+        })
+        .catch(() => {
+          document.getElementById('form-msg').textContent = '⚠️ Erro ao buscar dados. Preencha manualmente.';
+          document.getElementById('form-msg').className = 'form-msg error';
+        });
+    }
