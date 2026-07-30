@@ -1,3 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Discoteca — Coleção</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== LOGIN ===== -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <div class="logo">Discoteca<span>.</span></div>
+      <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
+      <button class="login-btn" id="btnLogin">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Entrar com Google
+      </button>
+      <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="appScreen" style="display:none;">
+
+    <!-- BARRA DO USUÁRIO -->
+    <div class="user-bar">
+      <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
+      <button class="logout-btn" id="btnLogout">Sair</button>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero hero-state-colecao" id="heroSection">
+      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Coleção</div>
+      <h1 id="heroTitle">Minha <span id="heroHighlight">Coleção</span></h1>
+      <p class="hero-sub" id="heroSub">Gerencie todos os discos que fazem parte da sua coleção física.</p>
+    </section>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+      <div class="tabs" id="navContainer"></div>
+    </div>
+
+    <!-- ===== COLEÇÃO ===== -->
+    <div id="tab-colecao" class="tab-content active">
+      <section class="section" style="--tier-color:var(--colecao-color)">
+        <div class="tier-head">
+          <div class="tier-stamp small">💿</div>
+          <div class="tier-info">
+            <h2 style="color:var(--colecao-color);">Coleção</h2>
+            <p>Registro de todos os discos que já fazem parte da sua coleção física.</p>
+          </div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" id="btnAbrirModal" title="Adicionar disco manualmente">+</button>
+          </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard-container"></div>
+
+        <!-- CONTROLES -->
+        <div class="colecao-controls" id="colecaoControls">
+          <div class="search-box">
+            <span class="icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Buscar por artista ou álbum..." oninput="aplicarFiltros()">
+          </div>
+          <select id="sortSelect" onchange="aplicarFiltros()">
+            <option value="data_mais_recente">📅 Mais recente</option>
+            <option value="data_mais_antiga">📅 Mais antigo</option>
+            <option value="preco_maior">💰 Maior preço</option>
+            <option value="preco_menor">💰 Menor preço</option>
+            <option value="alfabetica_a-z">🔤 A–Z (artista)</option>
+            <option value="alfabetica_z-a">🔤 Z–A (artista)</option>
+          </select>
+          <div class="view-toggle" id="viewToggle">
+            <button class="active" data-view="cards" onclick="setView('cards')">🎴 Cards</button>
+            <button data-view="list" onclick="setView('list')">📋 Lista</button>
+          </div>
+        </div>
+
+        <!-- AGRUPAMENTO -->
+        <div class="colecao-controls" id="groupControls" style="margin-top:-12px; display:none;">
+          <div class="group-toggle" id="groupToggle">
+            <button class="active" data-group="separado" onclick="setGroup('separado')">📂 Separado</button>
+            <button data-group="junto" onclick="setGroup('junto')">📚 Juntar</button>
+          </div>
+        </div>
+
+        <!-- COLEÇÃO -->
+        <div id="colecao-container"></div>
+        <div class="list-view" id="listView"></div>
+      </section>
+    </div>
+
+  </div><!-- /appScreen -->
+
+  <!-- ===== MODAL: ADICIONAR/EDITAR DISCO ===== -->
+  <div class="modal-overlay" id="modalAdicionar">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">➕ Adicionar Disco</h2>
+        <button class="modal-close" id="btnFecharModal">✕</button>
+      </div>
+      <form id="form-adicionar">
+        <input type="hidden" id="campo-id" value="">
+        <div class="form-group">
+          <label>Artista *</label>
+          <input type="text" id="campo-artista" placeholder="Ex: Metallica" required>
+        </div>
+        <div class="form-group">
+          <label>Álbum *</label>
+          <input type="text" id="campo-album" placeholder="Ex: Master of Puppets" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Formato</label>
+            <select id="campo-formato">
+              <option value="">Selecione</option>
+              <option value="LP">LP (Vinil)</option>
+              <option value="2xLP">2xLP (Vinil)</option>
+              <option value="EP">EP (Vinil)</option>
+              <option value="CD">CD</option>
+              <option value="2xCD">2xCD</option>
+              <option value="Cassete">Cassete</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Preço (R$)</label>
+            <input type="number" id="campo-preco" placeholder="0.00" step="0.01">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Condição da Mídia</label>
+            <select id="campo-condicao-midia">
+              <option value="">Selecione</option>
+              <option value="M">M (Mint)</option>
+              <option value="NM">NM (Near Mint)</option>
+              <option value="VG+">VG+ (Very Good Plus)</option>
+              <option value="VG">VG (Very Good)</option>
+              <option value="G">G (Good)</option>
+              <option value="F">F (Fair)</option>
+              <option value="P">P (Poor)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Condição da Capa</label>
+            <select id="campo-condicao-capa">
+              <option value="">Selecione</option>
+              <option value="M">M (Mint)</option>
+              <option value="NM">NM (Near Mint)</option>
+              <option value="VG+">VG+ (Very Good Plus)</option>
+              <option value="VG">VG (Very Good)</option>
+              <option value="G">G (Good)</option>
+              <option value="F">F (Fair)</option>
+              <option value="P">P (Poor)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Data de Aquisição</label>
+          <input type="date" id="campo-data">
+        </div>
+        <div class="form-group">
+          <label>Notas</label>
+          <textarea id="campo-notas" placeholder="Ex: Edição limitada, prensagem alemã..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Código de Barras</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="campo-codigo-barras" placeholder="Ex: 042284834181" style="flex:1;">
+            <button type="button" class="barcode-btn" id="btnBarcode">📷 Ler</button>
+          </div>
+          <div class="barcode-reader-container" id="barcode-reader-container">
+            <div id="barcode-reader"></div>
+            <button type="button" class="btn" style="margin-top:8px; background:var(--card-line); color:var(--paper);" id="btnBarcodeCancel">Cancelar</button>
+          </div>
+        </div>
+        <button type="submit" class="form-btn" id="btn-submit">Salvar Disco</button>
+        <div class="form-msg" id="form-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
+  <div class="modal-overlay" id="modalConfirm">
+    <div class="modal" style="max-width:450px;">
+      <div class="modal-header">
+        <h2>⚠️ Confirmar</h2>
+        <button class="modal-close" id="btnFecharConfirm">✕</button>
+      </div>
+      <div class="modal-confirm-text" id="confirmMessage">Tem certeza que deseja fazer isso?</div>
+      <div style="display:flex; gap:12px; margin-top:20px;">
+        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
+        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Discoteca — Sua coleção, suas recomendações.</footer>
+
+  <script>
+// ================================================================
+// CONFIGURAÇÕES
+// ================================================================
+// Ambiente de TESTE (fporteladaTEST). Trocar API_URL para o
+// dominio de producao (fportelada.pythonanywhere.com) quando for
+// promover essas paginas para o ambiente real.
+const API_URL = 'https://fporteladaTEST.pythonanywhere.com';
+
+// DEV_MODE: quando true, pula o login do Google inteiramente e usa
+// o usuario de teste (Teste ID 1). Usar SOMENTE no ambiente de teste.
+// Isso espelha o bypass que o back-end tambem precisa ter (ver app.py).
+const DEV_MODE = true;
+const DEV_USER_ID = 1;
+const DEV_USER_NOME = 'Teste ID 1';
+
+let usuarioId = null;
+let colecao = [];
+let recomendacoes = [];
+let editandoId = null;
+let barcodeScanner = null;
+let viewPreference = localStorage.getItem('discoteca_view') || 'cards';
+let groupPreference = localStorage.getItem('discoteca_group') || 'separado';
+let colecaoFiltrada = [];
+let confirmCallback = null;
+
+// ================================================================
+// NAVEGAÇÃO (abas viraram links entre paginas separadas)
+// ================================================================
+const NAV_ITEMS = [
+  { id: 'tab-compras', href: 'index.html', label: '📋 Compras' },
+  { id: 'tab-estatisticas', href: 'estatisticas.html', label: '📊 Estatísticas' },
+  { id: 'tab-colecao', href: 'colecao.html', label: '💿 Coleção', badge: true },
+  { id: 'tab-importar', href: 'importar.html', label: '📤 Importar' }
+];
+
+function renderNav(paginaAtiva) {
+  const container = document.getElementById('navContainer');
+  if (!container) return;
+  const html = NAV_ITEMS.map(item => {
+    const ativo = item.href === paginaAtiva ? ' active' : '';
+    const badge = item.badge ? ' <span class="tab-badge" id="colecao-badge">0</span>' : '';
+    return `<a class="tab-btn${ativo}" data-tab="${item.id}" href="${item.href}">${item.label}${badge}</a>`;
+  }).join('');
+  container.innerHTML = html;
+}
+
+// Atualiza o badge de contagem da coleção no menu, quando presente na página.
+function atualizarBadgeColecao(n) {
+  const el = document.getElementById('colecao-badge');
+  if (el) el.textContent = n;
+}
+
+// Usado pelas páginas que não carregam a coleção inteira, apenas para
+// manter o número no menu (badge) sincronizado.
+function sincronizarBadge() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/colecao?user_id=' + usuarioId)
+    .then(r => r.json())
+    .then(data => atualizarBadgeColecao(Array.isArray(data) ? data.length : 0))
+    .catch(() => {});
+}
+
+// ================================================================
+// LOGIN
+// ================================================================
+function salvarSessao(userId, nome) {
+  localStorage.setItem('discoteca_user_id', userId);
+  localStorage.setItem('discoteca_user_nome', nome);
+}
+
+function carregarSessao() {
+  const userId = localStorage.getItem('discoteca_user_id');
+  const nome = localStorage.getItem('discoteca_user_nome');
+  if (userId && nome) return { userId, nome };
+  return null;
+}
+
+function limparSessao() {
+  localStorage.removeItem('discoteca_user_id');
+  localStorage.removeItem('discoteca_user_nome');
+}
+
+function ativarTelaApp(nome) {
+  const loginScreen = document.getElementById('loginScreen');
+  const appScreen = document.getElementById('appScreen');
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (appScreen) appScreen.style.display = 'block';
+  const nomeDisplay = document.getElementById('userNameDisplay');
+  if (nomeDisplay) nomeDisplay.textContent = '👤 ' + nome;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btnLogin = document.getElementById('btnLogin');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', function() {
+      const btn = this;
+      const error = document.getElementById('loginError');
+      btn.disabled = true;
+      if (error) error.style.display = 'none';
+      fetch(API_URL + '/login')
+        .then(r => r.json())
+        .then(d => {
+          if (d.auth_url) window.location.href = d.auth_url;
+          else throw new Error('URL não recebida');
+        })
+        .catch(() => {
+          if (error) error.style.display = 'block';
+          btn.disabled = false;
+        });
+    });
+  }
+
+  const btnLogout = document.getElementById('btnLogout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', function() {
+      limparSessao();
+      window.location.href = 'index.html';
+    });
+  }
+});
+
+// ================================================================
+// VERIFICAR SESSÃO
+// ================================================================
+function verificarSessao() {
+  // Bypass de ambiente de teste: nao depende do Google OAuth.
+  if (DEV_MODE) {
+    usuarioId = DEV_USER_ID;
+    salvarSessao(DEV_USER_ID, DEV_USER_NOME);
+    ativarTelaApp(DEV_USER_NOME);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('user_id');
+  const nome = params.get('nome');
+
+  if (userId && nome) {
+    salvarSessao(userId, nome);
+    usuarioId = userId;
+    ativarTelaApp(nome);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+
+  const sessao = carregarSessao();
+  if (sessao) {
+    usuarioId = sessao.userId;
+    ativarTelaApp(sessao.nome);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+
+  fetch(API_URL + '/sessao')
+    .then(r => r.json())
+    .then(data => {
+      if (data.logado) {
+        usuarioId = data.usuario_id;
+        salvarSessao(data.usuario_id, data.nome || 'Usuário');
+        ativarTelaApp(data.nome || 'Usuário');
+        if (typeof onPaginaPronta === 'function') onPaginaPronta();
+      }
+    })
+    .catch(() => {});
+}
+
+// ================================================================
+// MODAL: CONFIRMAÇÃO (compartilhado entre páginas)
+// ================================================================
+function abrirConfirm(mensagem, callback) {
+  document.getElementById('confirmMessage').textContent = mensagem;
+  confirmCallback = callback;
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btnFecharConfirm = document.getElementById('btnFecharConfirm');
+  const btnConfirmCancel = document.getElementById('btnConfirmCancel');
+  const btnConfirmAction = document.getElementById('btnConfirmAction');
+
+  if (btnFecharConfirm) {
+    btnFecharConfirm.addEventListener('click', function() {
+      document.getElementById('modalConfirm').classList.remove('open');
+      confirmCallback = null;
+    });
+  }
+  if (btnConfirmCancel) {
+    btnConfirmCancel.addEventListener('click', function() {
+      document.getElementById('modalConfirm').classList.remove('open');
+      confirmCallback = null;
+    });
+  }
+  if (btnConfirmAction) {
+    btnConfirmAction.addEventListener('click', function() {
+      if (confirmCallback) {
+        confirmCallback();
+        confirmCallback = null;
+      }
+      document.getElementById('modalConfirm').classList.remove('open');
+    });
+  }
+});
+
 // ================================================================
 // PÁGINA: COLEÇÃO — colecao.html
 // ================================================================
@@ -644,3 +1056,13 @@ function carregarDados() {
           document.getElementById('form-msg').className = 'form-msg error';
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderNav('colecao.html');
+      setView(viewPreference);
+      setGroup(groupPreference);
+      verificarSessao();
+    });
+  </script>
+</body>
+</html>
