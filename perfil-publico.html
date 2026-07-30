@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Perfil · Discoteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .perfil-header .redes a { font-size: 20px; opacity: 0.5; transition: 0.2s; }
+    .perfil-header .redes a:hover { opacity: 1; }
+    .perfil-header .redes .sem-redes { font-size: 13px; opacity: 0.3; }
+    .grid-item .art .fallback { font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== PERFIL ===== -->
+  <div id="perfil-content">
+    <div class="loading">Carregando perfil...</div>
+  </div>
+
+  <footer class="perfil-footer">
+    <div class="social">
+      <a href="#">📷 Instagram</a>
+      <a href="#">🎵 Spotify</a>
+      <a href="#">💿 Discogs</a>
+    </div>
+    Discoteca · Sua coleção, suas recomendações.
+  </footer>
+
+  <script>
+    // ================================================================
+    // PERFIL PÚBLICO - JAVASCRIPT
+    // ================================================================
+    const API_URL = 'https://fporteladatest.pythonanywhere.com';
+    const CORES = ['#D6432F', '#E39A2E', '#4E7A8C', '#8A8378', '#5C6B7A', '#B8A88A', '#E8C87A', '#7AB8D8', '#A78BFA', '#9B59B6'];
+
+    function getCor(artista) {
+      const hash = artista.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+      return CORES[hash % CORES.length];
+    }
+
+    function getIniciais(artista, album) {
+      const a = artista.split(' ').map(w => w[0]).join('').slice(0, 3);
+      const b = album.split(' ').map(w => w[0]).join('').slice(0, 3);
+      return `${a}\n${b}`;
+    }
+
+    // ================================================================
+    // CARREGAR PERFIL
+    // ================================================================
+    function carregarPerfil() {
+      const params = new URLSearchParams(window.location.search);
+      const userId = params.get('id');
+
+      if (!userId) {
+        document.getElementById('perfil-content').innerHTML = `
+          <div class="error">❌ Usuário não especificado. Use ?id=123</div>
+        `;
+        return;
+      }
+
+      fetch(API_URL + `/perfil/${userId}`)
+        .then(r => {
+          if (!r.ok) throw new Error('Usuário não encontrado');
+          return r.json();
+        })
+        .then(data => renderPerfil(data))
+        .catch(err => {
+          document.getElementById('perfil-content').innerHTML = `
+            <div class="error">❌ ${err.message || 'Erro ao carregar perfil'}</div>
+          `;
+        });
+    }
+
+    // ================================================================
+    // RENDER PERFIL
+    // ================================================================
+    function renderPerfil(data) {
+      const container = document.getElementById('perfil-content');
+
+      const { id, nome, email, data_criacao, foto_url, bio, discogs_url, spotify_url, instagram_url, total_discos, total_wishlist, ultimos_discos, wishlist } = data;
+
+      const ano = data_criacao ? data_criacao.split('-')[0] : '2024';
+      const avatarHtml = foto_url ? `<img src="${foto_url}" alt="Avatar">` : nome.charAt(0).toUpperCase();
+
+      let redesHtml = '';
+      if (spotify_url) redesHtml += `<a href="${spotify_url}" target="_blank" title="Spotify">🎵</a>`;
+      if (discogs_url) redesHtml += `<a href="${discogs_url}" target="_blank" title="Discogs">💿</a>`;
+      if (instagram_url) redesHtml += `<a href="${instagram_url}" target="_blank" title="Instagram">📷</a>`;
+      if (!redesHtml) redesHtml = `<span class="sem-redes">Sem redes sociais adicionadas</span>`;
+
+      let metricsHtml = `
+        <div class="metric-item"><span class="num">${total_discos || 0}</span><span class="label">Discos</span></div>
+        <div class="metric-item"><span class="num s-color">${total_wishlist || 0}</span><span class="label">Wishlist</span></div>
+      `;
+
+      let html = `
+        <header class="perfil-header">
+          <div class="perfil-avatar">${avatarHtml}</div>
+          <div class="perfil-info">
+            <h1>${nome}</h1>
+            <div class="username">@${nome.toLowerCase().replace(/[^a-z0-9]/g, '')} · Colecionando desde ${ano}</div>
+            ${bio ? `<div class="bio">${bio}</div>` : ''}
+            <div class="redes">${redesHtml}</div>
+            <div class="perfil-actions">
+              <button class="btn-primary" onclick="copiarLink()">🔗 Copiar link</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="perfil-metrics">${metricsHtml}</div>
+      `;
+
+      // Coleção
+      if (ultimos_discos && ultimos_discos.length > 0) {
+        html += `
+          <section class="section">
+            <div class="section-header">
+              <h2>💿 Coleção <span>${total_discos || 0} discos</span></h2>
+              <span class="link">Ver todos →</span>
+            </div>
+            <div class="grid">
+        `;
+        ultimos_discos.slice(0, 12).forEach((item, idx) => {
+          const cor = getCor(item.artista);
+          const iniciais = getIniciais(item.artista, item.album);
+          const artId = `perfil-art-${idx}`;
+          const fallbackId = `perfil-fallback-${idx}`;
+          html += `
+            <div class="grid-item" data-artista="${item.artista}" data-album="${item.album}">
+              <div class="art" id="${artId}" style="background:${cor};">
+                <div class="fallback" id="${fallbackId}">${iniciais}</div>
+              </div>
+              <div class="info">
+                <div class="album">${item.album || 'Álbum'}</div>
+                <div class="artist">${item.artista || 'Artista'}</div>
+                <div class="year">${item.data_adicao ? item.data_adicao.split('-')[0] : ''}</div>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div></section>`;
+      } else {
+        html += `
+          <section class="section">
+            <div class="section-header">
+              <h2>💿 Coleção <span>0 discos</span></h2>
+            </div>
+            <div class="empty-state" style="padding:40px 20px;text-align:center;">
+              <div style="font-size:40px;margin-bottom:10px;">📀</div>
+              <p style="font-size:14px;opacity:0.5;">Este colecionador ainda não tem discos.</p>
+            </div>
+          </section>
+        `;
+      }
+
+      // Wishlist
+      if (wishlist && wishlist.length > 0) {
+        html += `
+          <section class="section">
+            <div class="section-header">
+              <h2>⭐ Wishlist <span>${total_wishlist || 0} discos</span></h2>
+              <span class="link s-color">Ver todos →</span>
+            </div>
+            <div class="grid">
+        `;
+        wishlist.slice(0, 8).forEach(item => {
+          const cor = item.tier === 'S' ? '#D6432F' : item.tier === 'A' ? '#E39A2E' : item.tier === 'B' ? '#4E7A8C' : '#8A8378';
+          const iniciais = getIniciais(item.artista, item.album);
+          html += `
+            <div class="grid-item">
+              <div class="art" style="background:${cor};">
+                <span class="tier-badge ${item.tier.toLowerCase()}">${item.tier}</span>
+                <div class="fallback">${iniciais}</div>
+              </div>
+              <div class="info">
+                <div class="album">${item.album || 'Álbum'}</div>
+                <div class="artist">${item.artista || 'Artista'}</div>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div></section>`;
+      } else {
+        html += `
+          <section class="section">
+            <div class="section-header">
+              <h2>⭐ Wishlist <span>0 discos</span></h2>
+            </div>
+            <div class="empty-state" style="padding:40px 20px;text-align:center;">
+              <div style="font-size:40px;margin-bottom:10px;">💰</div>
+              <p style="font-size:14px;opacity:0.5;">Este colecionador não tem discos na wishlist.</p>
+            </div>
+          </section>
+        `;
+      }
+
+      // Estatísticas mockadas (serão reais na próxima versão)
+      html += `
+        <section class="section">
+          <div class="section-header">
+            <h2>📊 Estatísticas</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-group">
+              <h3>📅 Por Década</h3>
+              <div class="stat-bar"><span class="label">1980s</span><div class="track"><div class="fill" style="width:60%;"></div></div><span class="value">18</span></div>
+              <div class="stat-bar"><span class="label">1990s</span><div class="track"><div class="fill" style="width:50%;"></div></div><span class="value">15</span></div>
+              <div class="stat-bar"><span class="label">2000s</span><div class="track"><div class="fill" style="width:35%;"></div></div><span class="value">10</span></div>
+            </div>
+            <div class="stat-group">
+              <h3>🎸 Por Gênero</h3>
+              <div class="stat-bar"><span class="label">Rock</span><div class="track"><div class="fill rock" style="width:55%;"></div></div><span class="value">45</span></div>
+              <div class="stat-bar"><span class="label">Metal</span><div class="track"><div class="fill metal" style="width:40%;"></div></div><span class="value">30</span></div>
+              <div class="stat-bar"><span class="label">Jazz</span><div class="track"><div class="fill jazz" style="width:20%;"></div></div><span class="value">12</span></div>
+            </div>
+          </div>
+        </section>
+      `;
+
+      container.innerHTML = html;
+
+      // Carregar capas da coleção
+      document.querySelectorAll('.grid-item[data-artista]').forEach((item, idx) => {
+        const artista = item.dataset.artista;
+        const album = item.dataset.album;
+        const artWrap = item.querySelector('.art');
+        const fallback = item.querySelector('.fallback');
+        if (artista && album && artWrap && fallback) {
+          const artId = artWrap.id;
+          const fallbackId = fallback.id;
+          fetchAlbumArt(artista, album, artId, fallbackId);
+        }
+      });
+    }
+
+    // ================================================================
+    // LAST.FM - CAPAS
+    // ================================================================
+    const LASTFM_KEY = 'b25b959554ed76058ac220b7b2e0a026';
+    const MANUAL_COVERS = {
+      'basttardz_brasil com z / auschwitz tropical': 'https://i.imgur.com/nlcvybH.jpeg',
+      'bullet for my valentine_bullet for my valentine': 'https://i.imgur.com/KaLt40C.jpeg'
+    };
+
+    async function getCoverUrl(artist, album) {
+      if (!artist || !album) return null;
+      const key = `${artist.toLowerCase()}_${album.toLowerCase()}`;
+      if (MANUAL_COVERS[key]) return MANUAL_COVERS[key];
+      try {
+        const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.album && data.album.image) {
+          const img = data.album.image.find(i => i.size === 'extralarge');
+          return img && img['#text'] ? img['#text'] : null;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchAlbumArt(artist, album, artId, fallbackId) {
+      const artWrap = document.getElementById(artId);
+      const fallback = document.getElementById(fallbackId);
+      if (!artWrap) return;
+      try {
+        const url = await getCoverUrl(artist, album);
+        if (url) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Timeout')), 10000);
+            img.onload = () => {
+              clearTimeout(timeout);
+              artWrap.style.backgroundImage = `url('${url}')`;
+              artWrap.style.backgroundSize = 'cover';
+              artWrap.style.backgroundPosition = 'center';
+              artWrap.classList.add('has-image');
+              if (fallback) fallback.style.opacity = '0';
+              resolve();
+            };
+            img.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error('Failed to load'));
+            };
+            img.src = url;
+          });
+        } else {
+          if (fallback) fallback.style.opacity = '0.7';
+        }
+      } catch {
+        if (fallback) fallback.style.opacity = '0.7';
+      }
+    }
+
+    // ================================================================
+    // AÇÕES
+    // ================================================================
+    function copiarLink() {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => alert('✅ Link copiado!'));
+      } else {
+        prompt('Copie o link:', url);
+      }
+    }
+
+    // ================================================================
+    // INICIAR
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', carregarPerfil);
+  </script>
+</body>
+</html>
