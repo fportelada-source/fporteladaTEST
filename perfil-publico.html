@@ -13,6 +13,8 @@
     .perfil-header .redes a:hover { opacity: 1; }
     .perfil-header .redes .sem-redes { font-size: 13px; opacity: 0.3; }
     .grid-item .art .fallback { font-size: 12px; }
+    .perfil-actions .btn-primary { background: var(--s-color); color: var(--ink); border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px; }
+    .perfil-actions .btn-primary:hover { opacity: 0.8; }
   </style>
 </head>
 <body>
@@ -28,14 +30,17 @@
       <a href="#">🎵 Spotify</a>
       <a href="#">💿 Discogs</a>
     </div>
-    Discoteca · Sua coleção, suas recomendações.
+    Discoteca v0.9.1 · Sua coleção, suas recomendações.
   </footer>
 
   <script>
     // ================================================================
     // PERFIL PÚBLICO - JAVASCRIPT
     // ================================================================
-    const API_URL = 'https://fporteladatest.pythonanywhere.com';
+    const API_URL = window.location.hostname.includes('test') 
+        ? 'https://fporteladatest.pythonanywhere.com' 
+        : 'https://fportelada.pythonanywhere.com';
+
     const CORES = ['#D6432F', '#E39A2E', '#4E7A8C', '#8A8378', '#5C6B7A', '#B8A88A', '#E8C87A', '#7AB8D8', '#A78BFA', '#9B59B6'];
 
     function getCor(artista) {
@@ -47,6 +52,84 @@
       const a = artista.split(' ').map(w => w[0]).join('').slice(0, 3);
       const b = album.split(' ').map(w => w[0]).join('').slice(0, 3);
       return `${a}\n${b}`;
+    }
+
+    // ================================================================
+    // LAST.FM - CAPAS (via backend)
+    // ================================================================
+    const COVER_CACHE_KEY = 'discoteca_covers_v2';
+
+    function getCachedCover(artist, album) {
+      try {
+        const key = `${artist.toLowerCase().trim()}|${album.toLowerCase().trim()}`;
+        const cache = JSON.parse(localStorage.getItem(COVER_CACHE_KEY) || '{}');
+        return cache[key] || null;
+      } catch { return null; }
+    }
+
+    function setCachedCover(artist, album, url) {
+      try {
+        const key = `${artist.toLowerCase().trim()}|${album.toLowerCase().trim()}`;
+        const cache = JSON.parse(localStorage.getItem(COVER_CACHE_KEY) || '{}');
+        if (url) {
+          cache[key] = url;
+        } else {
+          delete cache[key];
+        }
+        localStorage.setItem(COVER_CACHE_KEY, JSON.stringify(cache));
+      } catch {}
+    }
+
+    async function getCoverUrl(artist, album) {
+      if (!artist || !album) return null;
+      const cached = getCachedCover(artist, album);
+      if (cached) return cached;
+      try {
+        const url = `${API_URL}/capa/${encodeURIComponent(artist)}/${encodeURIComponent(album)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.url) {
+          setCachedCover(artist, album, data.url);
+          return data.url;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchAlbumArt(artist, album, artId, fallbackId) {
+      const artWrap = document.getElementById(artId);
+      const fallback = document.getElementById(fallbackId);
+      if (!artWrap) return;
+      try {
+        const url = await getCoverUrl(artist, album);
+        if (url) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Timeout')), 10000);
+            img.onload = () => {
+              clearTimeout(timeout);
+              artWrap.style.backgroundImage = `url('${url}')`;
+              artWrap.style.backgroundSize = 'cover';
+              artWrap.style.backgroundPosition = 'center';
+              artWrap.classList.add('has-image');
+              if (fallback) fallback.style.opacity = '0';
+              resolve();
+            };
+            img.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error('Failed to load'));
+            };
+            img.src = url;
+          });
+        } else {
+          if (fallback) fallback.style.opacity = '0.7';
+        }
+      } catch {
+        if (fallback) fallback.style.opacity = '0.7';
+      }
     }
 
     // ================================================================
@@ -119,11 +202,10 @@
       if (ultimos_discos && ultimos_discos.length > 0) {
         html += `
           <section class="section">
-            <div class="section-header">
-              <h2>💿 Coleção <span>${total_discos || 0} discos</span></h2>
-              <span class="link">Ver todos →</span>
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--card-line);margin-bottom:14px;">
+              <h2 style="font-family:'Anton',sans-serif;font-size:22px;letter-spacing:0.02em;">💿 Coleção <span style="font-size:14px;opacity:0.4;font-family:'Inter',sans-serif;">${total_discos || 0} discos</span></h2>
             </div>
-            <div class="grid">
+            <div class="grid" style="grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));">
         `;
         ultimos_discos.slice(0, 12).forEach((item, idx) => {
           const cor = getCor(item.artista);
@@ -132,13 +214,13 @@
           const fallbackId = `perfil-fallback-${idx}`;
           html += `
             <div class="grid-item" data-artista="${item.artista}" data-album="${item.album}">
-              <div class="art" id="${artId}" style="background:${cor};">
-                <div class="fallback" id="${fallbackId}">${iniciais}</div>
+              <div class="art" id="${artId}" style="background:${cor};position:relative;width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;overflow:hidden;background-size:cover !important;background-position:center !important;">
+                <div class="fallback" id="${fallbackId}" style="font-family:'Inter',sans-serif;font-weight:700;font-size:12px;text-align:center;color:rgba(255,255,255,0.9);text-shadow:0 2px 8px rgba(0,0,0,0.5);padding:0 8px;white-space:pre-line;z-index:1;">${iniciais}</div>
               </div>
-              <div class="info">
-                <div class="album">${item.album || 'Álbum'}</div>
-                <div class="artist">${item.artista || 'Artista'}</div>
-                <div class="year">${item.data_adicao ? item.data_adicao.split('-')[0] : ''}</div>
+              <div class="info" style="padding:8px 4px;">
+                <div class="album" style="font-size:13px;font-weight:600;line-height:1.2;">${item.album || 'Álbum'}</div>
+                <div class="artist" style="font-size:12px;opacity:0.6;">${item.artista || 'Artista'}</div>
+                <div class="year" style="font-size:11px;opacity:0.3;">${item.data_adicao ? item.data_adicao.split('-')[0] : ''}</div>
               </div>
             </div>
           `;
@@ -147,8 +229,8 @@
       } else {
         html += `
           <section class="section">
-            <div class="section-header">
-              <h2>💿 Coleção <span>0 discos</span></h2>
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--card-line);margin-bottom:14px;">
+              <h2 style="font-family:'Anton',sans-serif;font-size:22px;letter-spacing:0.02em;">💿 Coleção <span style="font-size:14px;opacity:0.4;font-family:'Inter',sans-serif;">0 discos</span></h2>
             </div>
             <div class="empty-state" style="padding:40px 20px;text-align:center;">
               <div style="font-size:40px;margin-bottom:10px;">📀</div>
@@ -162,24 +244,23 @@
       if (wishlist && wishlist.length > 0) {
         html += `
           <section class="section">
-            <div class="section-header">
-              <h2>⭐ Wishlist <span>${total_wishlist || 0} discos</span></h2>
-              <span class="link s-color">Ver todos →</span>
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--card-line);margin-bottom:14px;">
+              <h2 style="font-family:'Anton',sans-serif;font-size:22px;letter-spacing:0.02em;">⭐ Wishlist <span style="font-size:14px;opacity:0.4;font-family:'Inter',sans-serif;">${total_wishlist || 0} discos</span></h2>
             </div>
-            <div class="grid">
+            <div class="grid" style="grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));">
         `;
         wishlist.slice(0, 8).forEach(item => {
           const cor = item.tier === 'S' ? '#D6432F' : item.tier === 'A' ? '#E39A2E' : item.tier === 'B' ? '#4E7A8C' : '#8A8378';
           const iniciais = getIniciais(item.artista, item.album);
           html += `
             <div class="grid-item">
-              <div class="art" style="background:${cor};">
-                <span class="tier-badge ${item.tier.toLowerCase()}">${item.tier}</span>
-                <div class="fallback">${iniciais}</div>
+              <div class="art" style="background:${cor};position:relative;width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                <span class="tier-badge ${item.tier.toLowerCase()}" style="position:absolute;top:6px;left:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--ink);background:${cor};padding:2px 6px;border-radius:3px;z-index:2;">${item.tier}</span>
+                <div class="fallback" style="font-family:'Inter',sans-serif;font-weight:700;font-size:12px;text-align:center;color:rgba(255,255,255,0.9);text-shadow:0 2px 8px rgba(0,0,0,0.5);padding:0 8px;white-space:pre-line;z-index:1;">${iniciais}</div>
               </div>
-              <div class="info">
-                <div class="album">${item.album || 'Álbum'}</div>
-                <div class="artist">${item.artista || 'Artista'}</div>
+              <div class="info" style="padding:8px 4px;">
+                <div class="album" style="font-size:13px;font-weight:600;line-height:1.2;">${item.album || 'Álbum'}</div>
+                <div class="artist" style="font-size:12px;opacity:0.6;">${item.artista || 'Artista'}</div>
               </div>
             </div>
           `;
@@ -188,8 +269,8 @@
       } else {
         html += `
           <section class="section">
-            <div class="section-header">
-              <h2>⭐ Wishlist <span>0 discos</span></h2>
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--card-line);margin-bottom:14px;">
+              <h2 style="font-family:'Anton',sans-serif;font-size:22px;letter-spacing:0.02em;">⭐ Wishlist <span style="font-size:14px;opacity:0.4;font-family:'Inter',sans-serif;">0 discos</span></h2>
             </div>
             <div class="empty-state" style="padding:40px 20px;text-align:center;">
               <div style="font-size:40px;margin-bottom:10px;">💰</div>
@@ -198,29 +279,6 @@
           </section>
         `;
       }
-
-      // Estatísticas mockadas (serão reais na próxima versão)
-      html += `
-        <section class="section">
-          <div class="section-header">
-            <h2>📊 Estatísticas</h2>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-group">
-              <h3>📅 Por Década</h3>
-              <div class="stat-bar"><span class="label">1980s</span><div class="track"><div class="fill" style="width:60%;"></div></div><span class="value">18</span></div>
-              <div class="stat-bar"><span class="label">1990s</span><div class="track"><div class="fill" style="width:50%;"></div></div><span class="value">15</span></div>
-              <div class="stat-bar"><span class="label">2000s</span><div class="track"><div class="fill" style="width:35%;"></div></div><span class="value">10</span></div>
-            </div>
-            <div class="stat-group">
-              <h3>🎸 Por Gênero</h3>
-              <div class="stat-bar"><span class="label">Rock</span><div class="track"><div class="fill rock" style="width:55%;"></div></div><span class="value">45</span></div>
-              <div class="stat-bar"><span class="label">Metal</span><div class="track"><div class="fill metal" style="width:40%;"></div></div><span class="value">30</span></div>
-              <div class="stat-bar"><span class="label">Jazz</span><div class="track"><div class="fill jazz" style="width:20%;"></div></div><span class="value">12</span></div>
-            </div>
-          </div>
-        </section>
-      `;
 
       container.innerHTML = html;
 
@@ -233,70 +291,11 @@
         if (artista && album && artWrap && fallback) {
           const artId = artWrap.id;
           const fallbackId = fallback.id;
-          fetchAlbumArt(artista, album, artId, fallbackId);
+          if (artId && fallbackId) {
+            fetchAlbumArt(artista, album, artId, fallbackId);
+          }
         }
       });
-    }
-
-    // ================================================================
-    // LAST.FM - CAPAS
-    // ================================================================
-    const LASTFM_KEY = 'b25b959554ed76058ac220b7b2e0a026';
-    const MANUAL_COVERS = {
-      'basttardz_brasil com z / auschwitz tropical': 'https://i.imgur.com/nlcvybH.jpeg',
-      'bullet for my valentine_bullet for my valentine': 'https://i.imgur.com/KaLt40C.jpeg'
-    };
-
-    async function getCoverUrl(artist, album) {
-      if (!artist || !album) return null;
-      const key = `${artist.toLowerCase()}_${album.toLowerCase()}`;
-      if (MANUAL_COVERS[key]) return MANUAL_COVERS[key];
-      try {
-        const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.album && data.album.image) {
-          const img = data.album.image.find(i => i.size === 'extralarge');
-          return img && img['#text'] ? img['#text'] : null;
-        }
-        return null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function fetchAlbumArt(artist, album, artId, fallbackId) {
-      const artWrap = document.getElementById(artId);
-      const fallback = document.getElementById(fallbackId);
-      if (!artWrap) return;
-      try {
-        const url = await getCoverUrl(artist, album);
-        if (url) {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Timeout')), 10000);
-            img.onload = () => {
-              clearTimeout(timeout);
-              artWrap.style.backgroundImage = `url('${url}')`;
-              artWrap.style.backgroundSize = 'cover';
-              artWrap.style.backgroundPosition = 'center';
-              artWrap.classList.add('has-image');
-              if (fallback) fallback.style.opacity = '0';
-              resolve();
-            };
-            img.onerror = () => {
-              clearTimeout(timeout);
-              reject(new Error('Failed to load'));
-            };
-            img.src = url;
-          });
-        } else {
-          if (fallback) fallback.style.opacity = '0.7';
-        }
-      } catch {
-        if (fallback) fallback.style.opacity = '0.7';
-      }
     }
 
     // ================================================================
