@@ -49,14 +49,6 @@
       <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Coleção</div>
       <h1 id="heroTitle">Minha <span id="heroHighlight">Coleção</span></h1>
       <p class="hero-sub" id="heroSub">Gerencie todos os discos que fazem parte da sua coleção física.</p>
-      <div class="hero-meter" id="heroMeter" style="display:none;">
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--b-color)"></span>
-        <span style="background:var(--c-color)"></span>
-      </div>
     </section>
 
     <!-- TABS -->
@@ -122,7 +114,7 @@
 
   </div>
 
-  <!-- ===== SCANNER ===== -->
+  <!-- ===== SCANNER FULLSCREEN ===== -->
   <div class="scanner-fullscreen" id="scannerFullscreen">
     <button class="scanner-close" id="scannerClose">✕</button>
     <div id="scanner-reader"></div>
@@ -231,7 +223,7 @@
     </div>
   </div>
 
-  <footer>Discoteca v0.10 — Sua coleção, suas recomendações.</footer>
+  <footer>Discoteca v0.9.1 — Sua coleção, suas recomendações.</footer>
 
   <script src="app.js"></script>
   <script>
@@ -244,7 +236,7 @@
     let viewPreference = localStorage.getItem('discoteca_view') || 'cards';
     let groupPreference = localStorage.getItem('discoteca_group') || 'separado';
     let opcoesGlobais = [];
-    let barcodeScanner = null;
+    let scannerFullscreenInstance = null;
 
     // ================================================================
     // CARREGAR COLEÇÃO
@@ -290,8 +282,6 @@
         const f = d.formato || '';
         return f.includes('DVD') || f.includes('Blu-ray');
       }).length;
-
-      const wishlist = 0; // Será atualizado na wishlist
 
       container.innerHTML = `
         <div class="dashboard-grid">
@@ -499,6 +489,7 @@
 
       container.innerHTML = html;
 
+      // Carregar capas
       const cards = container.querySelectorAll('.card');
       cards.forEach(card => {
         const artista = card.dataset.artista;
@@ -609,67 +600,6 @@
     }
 
     // ================================================================
-    // LAST.FM - CAPAS
-    // ================================================================
-    const LASTFM_KEY = 'b25b959554ed76058ac220b7b2e0a026';
-    const MANUAL_COVERS = {
-      'basttardz_brasil com z / auschwitz tropical': 'https://i.imgur.com/nlcvybH.jpeg',
-      'bullet for my valentine_bullet for my valentine': 'https://i.imgur.com/KaLt40C.jpeg'
-    };
-
-    async function getCoverUrl(artist, album) {
-      if (!artist || !album) return null;
-      const key = `${artist.toLowerCase()}_${album.toLowerCase()}`;
-      if (MANUAL_COVERS[key]) return MANUAL_COVERS[key];
-      try {
-        const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.album && data.album.image) {
-          const img = data.album.image.find(i => i.size === 'extralarge');
-          return img && img['#text'] ? img['#text'] : null;
-        }
-        return null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function fetchAlbumArt(artist, album, artId, fallbackId) {
-      const artWrap = document.getElementById(artId);
-      const fallback = document.getElementById(fallbackId);
-      if (!artWrap) return;
-      try {
-        const url = await getCoverUrl(artist, album);
-        if (url) {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Timeout')), 10000);
-            img.onload = () => {
-              clearTimeout(timeout);
-              artWrap.style.backgroundImage = `url('${url}')`;
-              artWrap.style.backgroundSize = 'cover';
-              artWrap.style.backgroundPosition = 'center';
-              artWrap.classList.add('has-image');
-              if (fallback) fallback.style.opacity = '0';
-              resolve();
-            };
-            img.onerror = () => {
-              clearTimeout(timeout);
-              reject(new Error('Failed to load'));
-            };
-            img.src = url;
-          });
-        } else {
-          if (fallback) fallback.style.opacity = '0.7';
-        }
-      } catch {
-        if (fallback) fallback.style.opacity = '0.7';
-      }
-    }
-
-    // ================================================================
     // MODAL: ADICIONAR / EDITAR DISCO
     // ================================================================
     const modal = document.getElementById('modalAdicionar');
@@ -731,6 +661,7 @@
 
     function abrirModal(discoId = null) {
       editandoId = discoId;
+      opcoesGlobais = [];
       document.getElementById('campo-id').value = discoId || '';
       document.getElementById('form-msg').textContent = '';
       document.getElementById('form-msg').className = 'form-msg';
@@ -771,17 +702,18 @@
       }
 
       modal.classList.add('open');
-      if (barcodeScanner) {
-        barcodeScanner.stop().catch(() => {});
-        barcodeScanner = null;
+      if (scannerFullscreenInstance) {
+        scannerFullscreenInstance.stop().catch(() => {});
+        scannerFullscreenInstance = null;
       }
     }
 
     function fecharModal() {
       modal.classList.remove('open');
-      if (barcodeScanner) {
-        barcodeScanner.stop().catch(() => {});
-        barcodeScanner = null;
+      opcoesGlobais = [];
+      if (scannerFullscreenInstance) {
+        scannerFullscreenInstance.stop().catch(() => {});
+        scannerFullscreenInstance = null;
       }
     }
 
@@ -890,35 +822,31 @@
     window.removerDisco = removerDisco;
 
     // ================================================================
-    // SCANNER
+    // SCANNER FULLSCREEN
     // ================================================================
-    let scannerFullscreenInstance = null;
     const scannerFullscreen = document.getElementById('scannerFullscreen');
     const scannerClose = document.getElementById('scannerClose');
 
     function abrirScannerFullscreen() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('❌ Seu navegador não suporta acesso à câmera. Digite o código manualmente.');
+        return;
+      }
+
       if (modal.classList.contains('open')) modal.classList.remove('open');
       scannerFullscreen.classList.add('active');
+      
       if (scannerFullscreenInstance) {
         scannerFullscreenInstance.stop().catch(() => {});
         scannerFullscreenInstance = null;
       }
+
       const html5QrCode = new Html5Qrcode("scanner-reader");
       scannerFullscreenInstance = html5QrCode;
-      const config = {
-        fps: 10,
-        qrbox: { width: 260, height: 260 },
-        formatsToSupport: [
-          Html5QrcodeSupportedFormats.EAN_13,
-          Html5QrcodeSupportedFormats.UPC_A,
-          Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.CODE_128,
-          Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.ISBN
-        ]
-      };
-      html5QrCode.start({ facingMode: "environment" }, config,
+
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 260, height: 260 } },
         (decodedText) => {
           document.getElementById('campo-codigo-barras').value = decodedText;
           fecharScannerFullscreen();
@@ -927,7 +855,15 @@
         },
         () => {}
       ).catch(err => {
-        alert('❌ Erro ao acessar a câmera: ' + err.message);
+        let msg = '❌ Erro ao acessar a câmera: ';
+        if (err.message && err.message.includes('Permission denied')) {
+          msg += 'Permissão negada. Permita o acesso à câmera nas configurações do navegador.';
+        } else if (err.message && err.message.includes('NotFoundError')) {
+          msg += 'Nenhuma câmera encontrada no dispositivo.';
+        } else {
+          msg += err.message || 'Erro desconhecido.';
+        }
+        alert(msg);
         fecharScannerFullscreen();
       });
     }
@@ -943,10 +879,6 @@
     scannerClose.addEventListener('click', fecharScannerFullscreen);
 
     document.getElementById('btnBarcode').addEventListener('click', function() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('❌ Seu navegador não suporta câmera.');
-        return;
-      }
       abrirScannerFullscreen();
     });
 
@@ -1008,20 +940,12 @@
     // INICIALIZAR
     // ================================================================
     document.addEventListener('DOMContentLoaded', function() {
-      initApp();
-      carregarColecao();
-
-      setView(viewPreference);
-      setGroup(groupPreference);
-
-      // Marcar aba ativa
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        if (btn.getAttribute('href') === 'colecao.html') {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
+      const logado = initApp();
+      if (logado) {
+        carregarColecao();
+        setView(viewPreference);
+        setGroup(groupPreference);
+      }
     });
   </script>
 </body>
