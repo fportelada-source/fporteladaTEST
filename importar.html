@@ -121,6 +121,23 @@
 
   </div><!-- /appScreen -->
 
+  <!-- ===== MODAL: AJUSTE FINO ===== -->
+  <div class="modal-overlay" id="modalAjusteFino">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <h2>🎯 Ajuste Fino</h2>
+        <button class="modal-close" id="btnFecharAjusteFino">✕</button>
+      </div>
+      <p style="font-size:13px; opacity:0.7; margin-bottom:20px;">Isso ajuda o algoritmo a acertar melhor suas prioridades.</p>
+      <div id="ajusteFinoContainer"></div>
+      <div style="display:flex; gap:12px; margin-top:24px;">
+        <button class="btn-confirm-cancel" id="btnPularAjusteFino">Pular</button>
+        <button class="form-btn" id="btnSalvarAjusteFino" style="margin:0;">Salvar Ajuste</button>
+      </div>
+      <div class="form-msg" id="ajuste-fino-msg"></div>
+    </div>
+  </div>
+
   <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
   <div class="modal-overlay" id="modalConfirm">
     <div class="modal" style="max-width:450px;">
@@ -468,6 +485,99 @@ function carregarDados() {
         });
     }
 
+    // ================================================================
+    // AJUSTE FINO
+    // ================================================================
+    // Perguntas com frases variadas, mas sempre com o mesmo sentido:
+    // entender qual é a relação atual do usuário com o artista.
+    const AJUSTE_PERGUNTAS = [
+      (artista) => `Ainda curte muito ${artista}?`,
+      (artista) => `Qual é a sua relação com ${artista} hoje?`,
+      (artista) => `${artista} apareceu bastante nas suas playlists — ainda faz sentido pra você?`
+    ];
+    // As 4 opções são sempre as mesmas, pra manter a resposta consistente.
+    const AJUSTE_OPCOES = [
+      { valor: 'amo', texto: 'Ainda curto muito' },
+      { valor: 'ok', texto: 'É bom, mas não ouço sempre' },
+      { valor: 'pouco', texto: 'Ainda gosto, mas bem menos' },
+      { valor: 'nao_quero', texto: 'Prefiro que não apareça' }
+    ];
+    let ajusteFinoRespostas = {};
+
+    function mostrarAjusteFino(artistas) {
+      const container = document.getElementById('ajusteFinoContainer');
+      if (!container || !artistas || artistas.length === 0) return;
+
+      ajusteFinoRespostas = {};
+      container.innerHTML = artistas.map((artista, i) => {
+        const pergunta = AJUSTE_PERGUNTAS[i % AJUSTE_PERGUNTAS.length](artista);
+        const opcoesHtml = AJUSTE_OPCOES.map(op =>
+          `<button type="button" data-artista="${artista}" data-valor="${op.valor}" onclick="selecionarAjuste(this)">${op.texto}</button>`
+        ).join('');
+        return `
+          <div class="ajuste-fino-item">
+            <div class="ajuste-fino-pergunta">${pergunta}</div>
+            <div class="ajuste-opcoes">${opcoesHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('modalAjusteFino').classList.add('open');
+    }
+
+    function selecionarAjuste(btn) {
+      ajusteFinoRespostas[btn.dataset.artista] = btn.dataset.valor;
+      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function enviarAjusteFino() {
+      const respostas = Object.keys(ajusteFinoRespostas).map(artista => ({
+        artista: artista,
+        relacao: ajusteFinoRespostas[artista]
+      }));
+
+      if (respostas.length === 0) {
+        document.getElementById('modalAjusteFino').classList.remove('open');
+        return;
+      }
+
+      fetch(API_URL + '/ajuste_fino?user_id=' + usuarioId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ respostas: respostas })
+      })
+        .then(r => r.json())
+        .then(d => {
+          document.getElementById('modalAjusteFino').classList.remove('open');
+          const status = document.getElementById('status-gerar');
+          if (d.sucesso && status) {
+            status.textContent = '✅ Ajuste fino aplicado! Suas prioridades foram atualizadas.';
+            status.className = 'upload-status success';
+          }
+        })
+        .catch(() => {
+          const msg = document.getElementById('ajuste-fino-msg');
+          if (msg) {
+            msg.textContent = 'Erro ao salvar ajuste. Tente novamente.';
+            msg.className = 'form-msg error';
+          }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const btnFechar = document.getElementById('btnFecharAjusteFino');
+      const btnPular = document.getElementById('btnPularAjusteFino');
+      const btnSalvar = document.getElementById('btnSalvarAjusteFino');
+      if (btnFechar) btnFechar.addEventListener('click', function() {
+        document.getElementById('modalAjusteFino').classList.remove('open');
+      });
+      if (btnPular) btnPular.addEventListener('click', function() {
+        document.getElementById('modalAjusteFino').classList.remove('open');
+      });
+      if (btnSalvar) btnSalvar.addEventListener('click', enviarAjusteFino);
+    });
+
     function gerarRecomendacoes() {
       const status = document.getElementById('status-gerar');
       const btn = document.getElementById('btn-gerar');
@@ -482,6 +592,9 @@ function carregarDados() {
             status.textContent = '✅ ' + d.mensagem;
             status.className = 'upload-status success';
             carregarDados();
+            if (d.ajuste_necessario && d.artistas_para_ajuste && d.artistas_para_ajuste.length > 0) {
+              mostrarAjusteFino(d.artistas_para_ajuste);
+            }
           } else {
             status.textContent = '❌ ' + (d.erro || 'Erro');
             status.className = 'upload-status error';
