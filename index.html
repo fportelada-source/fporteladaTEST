@@ -451,7 +451,6 @@ function carregarDados() {
                   <div class="wishlist-phrase">${frase}</div>
                   <div class="meta-block">
                     <div class="meta-row"><span class="label">Estratégia</span><span class="val">${item.estrategia || ''}</span></div>
-                    ${item.justificativa ? `<div class="meta-row" style="flex-wrap:wrap;"><span class="label">Justificativa</span><span class="val" style="text-align:left; max-width:100%; font-size:11px; opacity:0.7; margin-top:4px;">${item.justificativa}</span></div>` : ''}
                     ${item.nota ? `<div class="meta-row"><span class="label">Nota</span><span class="val">${item.nota}</span></div>` : ''}
                     ${item.origem === 'manual' ? `<div class="meta-row"><span class="label">Origem</span><span class="val">Adicionado manualmente</span></div>` : ''}
                   </div>
