@@ -430,15 +430,19 @@ function carregarDados() {
             </div>
             <div class="resumo-item">
               <span class="num">${dados.lps || 0}</span>
-              <span class="label">🎵 LPs</span>
+              <span class="label">LPs</span>
             </div>
             <div class="resumo-item">
               <span class="num">${dados.cds || 0}</span>
-              <span class="label">💿 CDs</span>
+              <span class="label">CDs</span>
             </div>
             <div class="resumo-item">
               <span class="num">${dados.cassetes || 0}</span>
-              <span class="label">📼 Cassetes</span>
+              <span class="label">Cassetes</span>
+            </div>
+            <div class="resumo-item">
+              <span class="num">${dados.dvd_bluray || 0}</span>
+              <span class="label">DVD/Blu-ray</span>
             </div>
             ${dados.valor_total ? `<div class="resumo-item">
               <span class="num">R$ ${dados.valor_total}</span>
@@ -452,13 +456,12 @@ function carregarDados() {
         container.innerHTML = `
           <div class="estatistica-secao estante">
             <div class="secao-header" onclick="toggleSecao('estante')">
-              <h3>📀 Na sua estante</h3>
+              <h3>Na sua estante</h3>
               <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
             </div>
             ${resumoHtml}
             <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
               <div class="empty-state" style="padding:40px 20px;">
-                <div class="icon" style="font-size:40px;">📀</div>
                 <h3 style="font-size:20px;">Sua estante está vazia</h3>
                 <p style="font-size:13px;">Adicione discos à sua coleção para ver as estatísticas.</p>
               </div>
@@ -472,29 +475,29 @@ function carregarDados() {
       let detalhesHtml = '';
       if (dados.album_mais_antigo) {
         detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">📅 Álbum mais antigo</span><span class="count">${dados.album_mais_antigo}</span></div>`;
+          `<div class="stat-list-item"><span class="name">Álbum mais antigo</span><span class="count">${dados.album_mais_antigo}</span></div>`;
       }
       if (dados.album_mais_recente) {
         detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">📅 Álbum mais recente</span><span class="count">${dados.album_mais_recente}</span></div>`;
+          `<div class="stat-list-item"><span class="name">Álbum mais recente</span><span class="count">${dados.album_mais_recente}</span></div>`;
       }
       if (dados.preco_medio && dados.preco_medio > 0) {
         detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">💰 Preço médio</span><span class="count">R$ ${dados.preco_medio}</span></div>`;
+          `<div class="stat-list-item"><span class="name">Preço médio</span><span class="count">R$ ${dados.preco_medio}</span></div>`;
       }
       if (dados.disco_mais_caro) {
         detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">🏆 Disco mais caro</span><span class="count">${dados.disco_mais_caro}</span></div>`;
+          `<div class="stat-list-item"><span class="name">Disco mais caro</span><span class="count">${dados.disco_mais_caro}</span></div>`;
       }
       if (dados.disco_mais_barato) {
         detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">🤑 Disco mais barato</span><span class="count">${dados.disco_mais_barato}</span></div>`;
+          `<div class="stat-list-item"><span class="name">Disco mais barato</span><span class="count">${dados.disco_mais_barato}</span></div>`;
       }
 
       let html = `
         <div class="estatistica-secao estante">
           <div class="secao-header" onclick="toggleSecao('estante')">
-            <h3>📀 Na sua estante</h3>
+            <h3>Na sua estante</h3>
             <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
           </div>
           ${resumoHtml}
@@ -506,15 +509,19 @@ function carregarDados() {
               </div>
               <div class="stat-card" style="border-top-color: var(--vinil-color);">
                 <div class="stat-number">${dados.lps || 0}</div>
-                <div class="stat-label">🎵 LPs</div>
+                <div class="stat-label">LPs</div>
               </div>
               <div class="stat-card" style="border-top-color: var(--cd-color);">
                 <div class="stat-number">${dados.cds || 0}</div>
-                <div class="stat-label">💿 CDs</div>
+                <div class="stat-label">CDs</div>
               </div>
               <div class="stat-card" style="border-top-color: var(--cassete-color);">
                 <div class="stat-number">${dados.cassetes || 0}</div>
-                <div class="stat-label">📼 Cassetes</div>
+                <div class="stat-label">Cassetes</div>
+              </div>
+              <div class="stat-card" style="border-top-color: var(--e-color);">
+                <div class="stat-number">${dados.dvd_bluray || 0}</div>
+                <div class="stat-label">DVD/Blu-ray</div>
               </div>
               ${dados.valor_total ? `<div class="stat-card" style="border-top-color: #4CAF50;">
                 <div class="stat-number">R$ ${dados.valor_total}</div>
@@ -523,7 +530,7 @@ function carregarDados() {
             </div>
 
             ${dados.top_artistas && dados.top_artistas.length > 0 ? `
-              <div class="stat-subtitle" style="color: var(--colecao-color);">🎤 Top 5 Artistas na Estante</div>
+              <div class="stat-subtitle" style="color: var(--colecao-color);">Top 5 Artistas na Estante</div>
               <div class="stat-list">
                 ${dados.top_artistas.map(item => `
                   <div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>
@@ -532,7 +539,7 @@ function carregarDados() {
             ` : ''}
 
             ${dados.decadas && dados.decadas.length > 0 ? `
-              <div class="stat-subtitle" style="color: var(--colecao-color);">📅 Distribuição por Década</div>
+              <div class="stat-subtitle" style="color: var(--colecao-color);">Distribuição por Década</div>
               <div class="stat-list">
                 ${dados.decadas.map(item => `
                   <div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>
@@ -541,7 +548,7 @@ function carregarDados() {
             ` : ''}
 
             ${detalhesHtml ? `
-              <div class="stat-subtitle" style="color: var(--colecao-color);">🔍 Detalhes da Coleção</div>
+              <div class="stat-subtitle" style="color: var(--colecao-color);">Detalhes da Coleção</div>
               <div class="stat-list">
                 ${detalhesHtml}
               </div>
