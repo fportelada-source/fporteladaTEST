@@ -136,6 +136,12 @@
         </div>
         <div class="form-row">
           <div class="form-group">
+            <label>Ano de Lançamento</label>
+            <input type="number" id="campo-ano" placeholder="Ex: 2017" min="1900" max="2100" step="1">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
             <label>Condição da Mídia</label>
             <select id="campo-condicao-midia">
               <option value="">Selecione</option>
@@ -624,7 +630,7 @@ function carregarDados() {
                 <div class="art-fallback" id="fallback-${uniqueId}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
               </div>
               <div class="card-body">
-                <h3>${item.album || '?'}</h3>
+                <h3>${item.album || '?'}${item.ano_lancamento ? ` <span style="opacity:0.5; font-weight:400;">(${item.ano_lancamento})</span>` : ''}</h3>
                 <div class="artist" style="color:${tagColor};">${item.artista || 'Artista'}</div>
                 <div class="meta-block">
                   <div class="meta-row"><span class="label">Formato</span><span class="val">${tagLabel}</span></div>
@@ -713,6 +719,7 @@ function carregarDados() {
             <tr>
               <th>Artista</th>
               <th>Álbum</th>
+              <th>Ano</th>
               <th>Formato</th>
               <th>Ações</th>
             </tr>
@@ -732,6 +739,7 @@ function carregarDados() {
           <tr>
             <td><strong>${item.artista || '?'}</strong></td>
             <td>${item.album || '?'}</td>
+            <td>${item.ano_lancamento || '—'}</td>
             <td><span class="format-badge ${formatClass}">${formatClass ? formatClass.charAt(0).toUpperCase() + formatClass.slice(1) : '—'}</span></td>
             <td>
               <div class="list-actions">
@@ -827,6 +835,7 @@ function carregarDados() {
           document.getElementById('campo-artista').value = disco.artista || '';
           document.getElementById('campo-album').value = disco.album || '';
           document.getElementById('campo-formato').value = disco.formato || '';
+          document.getElementById('campo-ano').value = disco.ano_lancamento || '';
           document.getElementById('campo-condicao-midia').value = disco.condicao_midia || '';
           document.getElementById('campo-condicao-capa').value = disco.condicao_capa || '';
           document.getElementById('campo-preco').value = disco.preco || '';
@@ -840,6 +849,7 @@ function carregarDados() {
         document.getElementById('campo-artista').value = '';
         document.getElementById('campo-album').value = '';
         document.getElementById('campo-formato').value = '';
+        document.getElementById('campo-ano').value = '';
         document.getElementById('campo-condicao-midia').value = '';
         document.getElementById('campo-condicao-capa').value = '';
         document.getElementById('campo-preco').value = '';
@@ -884,6 +894,7 @@ function carregarDados() {
         artista: document.getElementById('campo-artista').value.trim(),
         album: document.getElementById('campo-album').value.trim(),
         formato: document.getElementById('campo-formato').value,
+        ano_lancamento: parseInt(document.getElementById('campo-ano').value) || null,
         condicao_midia: document.getElementById('campo-condicao-midia').value,
         condicao_capa: document.getElementById('campo-condicao-capa').value,
         preco: parseFloat(document.getElementById('campo-preco').value) || null,
@@ -1022,6 +1033,24 @@ function carregarDados() {
       }
     });
 
+    // Busca o ano automaticamente quando o usuário digita artista + álbum
+    // na mão (sem usar o leitor de código de barras).
+    function tentarPreencherAno() {
+      const artista = document.getElementById('campo-artista').value.trim();
+      const album = document.getElementById('campo-album').value.trim();
+      const campoAno = document.getElementById('campo-ano');
+      if (!artista || !album || campoAno.value) return; // já tem ano, não sobrescreve
+      fetch(API_URL + `/buscar_por_artista_album?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}&user_id=${usuarioId}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.sucesso && d.ano && !campoAno.value) {
+            campoAno.value = d.ano;
+          }
+        })
+        .catch(() => {});
+    }
+    document.getElementById('campo-album').addEventListener('blur', tentarPreencherAno);
+
     function buscarDiscoPorCodigo(codigo) {
       if (!codigo || codigo.length < 8) return;
       fetch(API_URL + `/buscar_por_codigo_barras?codigo=${codigo}&user_id=${usuarioId}`)
@@ -1031,6 +1060,7 @@ function carregarDados() {
             const d = data.disco;
             document.getElementById('campo-artista').value = d.artista || '';
             document.getElementById('campo-album').value = d.album || '';
+            document.getElementById('campo-ano').value = d.ano || '';
             if (d.formato) {
               const opts = document.getElementById('campo-formato').options;
               for (let opt of opts) {
