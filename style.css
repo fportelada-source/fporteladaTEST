@@ -1,131 +1,4 @@
-
-Claude terminou a resposta
-https://fportelada-source.github.io/fporteladaTEST/index.html
-
-Se nao tem no código você pode implementar.
-
-Quero que quando eu adicine um disco, apareça o ANO de lançamento do álbum. Não precisa da data completa. É impossível.
-
-
-Fetched: Discoteca — Estatísticas
-Fetched: Discoteca — Estatísticas
-Achei o problema — não é bug no código, é um arquivo trocado no upload.
-
-
-Pesquisou na web
-Pesquisou na web
-Achei o problema real — não é bug de código, é o arquivo errado no ar. Confirmei ao vivo:
-
-
-Note diagnosis
-Note diagnosis
-Achei — não é bug, é arquivo trocado. Fui ver seu site ao vivo e o index.html publicado no GitHub Pages tem <title>Discoteca — Estatísticas</title> e o conteúdo é da página de Estatísticas, não da Wishlist. Alguém subiu o conteúdo errado dentro do arquivo index.html (bem provavelmente copiou o estatisticas.html por cima, ou renomeou errado na hora do upload).
-
-Como resolver: entra no seu repositório GitHub (fportelada-source/fporteladaTEST), abre o arquivo index.html e substitui o conteúdo dele pelo index.html que eu te mandei (o que começa com <title>Discoteca — Wishlist</title>). Isso deve resolver os pontos 1, 4, 5, 6 e 7 de uma vez, porque todos dependiam da Wishlist abrir.
-
-Agora, sobre o ano de lançamento — pode deixar, vou implementar agora mesmo (ano apenas, não a data completa). Deixa eu ver a tabela da wishlist primeiro pra fazer isso direito, incluindo o "já tenho" que também está perdendo essa informação:
-
-
-Executou 4 comandos, visualizou um arquivo
-Executou 4 comandos, visualizou um arquivo
-Agora tenho tudo mapeado. Vou implementar em 3 frentes: banco de dados, back-end e front-end.
-
-1. Banco: adicionar a coluna ano_lancamento
-
-Orchestrated database migration strategy para adicionar campo de ano
-Orchestrated database migration strategy para adicionar campo de ano
-Boa, ordem certa (cria tabelas → migra colunas → garante usuário de teste).
-
-2. Back-end: rotas de coleção com ano_lancamento + busca automática no Discogs
-
-Architected fallback search mechanism para recuperar ano de lançamento
-Architected fallback search mechanism para recuperar ano de lançamento
-Agora o marcar_como_tenho (o bug original que você reportou) — vai buscar o ano automaticamente no Discogs ao mover pra coleção:
-
-
-Executou 2 comandos, editou um arquivo
-Executou 2 comandos, editou um arquivo
-3. Front-end: campo "Ano" no formulário + exibição nos cards (colecao.html)
-
-Executou um comando, visualizou um arquivo, editou um arquivo
-Executou um comando, visualizou um arquivo, editou um arquivo
-Agora conectar o campo no JS — preencher ao editar, ao escanear código de barras, ao salvar, e buscar automaticamente quando o usuário digitar manualmente sem código de barras:
-
-
-Editou 3 arquivos, visualizou um arquivo
-Editou 3 arquivos, visualizou um arquivo
-Agora o preenchimento automático ao ler código de barras:
-
-
-Idealizou captura automática do ano ao sair do campo
-Idealizou captura automática do ano ao sair do campo
-Agora a busca automática quando o usuário digita manualmente (sem escanear):
-
-
-Auto-fetch release year from Discogs when user manually types artist+album without scanning a barcode
-Auto-fetch release year from Discogs when user manually types artist+album without scanning a barcode
-Agora exibir o ano no card e na lista da coleção:
-
-
-Executou um comando, visualizou um arquivo
-Executou um comando, visualizou um arquivo
-Continua
-
-
-Show release year next to album title on the card
-Show release year next to album title on the card
-Agora no modo lista:
-
-
-Orchestrated comprehensive validation and end-to-end testing procedures
-Orchestrated comprehensive validation and end-to-end testing procedures
-Agora validando tudo e testando o fluxo completo (adicionar disco → ano automático → marcar como tenho → ano preservado):
-
-
-Executou 2 comandos
-Executou 2 comandos
-Funcionou nos dois cenários: disco adicionado manualmente sem digitar ano veio com 2017 sozinho, e o item movido da wishlist via "já tenho" também veio com o ano preenchido — que era exatamente o bug que você reportou. Copiando pros outputs:
-
-
-Executou um comando, leu um arquivo
-Executou um comando, leu um arquivo
-Resumo do que mudou (todos os 6 arquivos são a versão completa):
-
-Ano de lançamento — implementado do zero:
-
-Banco: nova coluna ano_lancamento na tabela colecao (com migração automática pra não quebrar o banco que já existe no PythonAnywhere)
-Ao adicionar manualmente um disco sem digitar o ano, o back-end busca sozinho no Discogs por artista+álbum
-Ao ler o código de barras, o ano agora é preenchido no formulário (antes ele vinha do Discogs mas se perdia, ninguém usava)
-Ao marcar como "já tenho" na wishlist (o bug que você reportou), agora busca o ano no Discogs antes de mover pra coleção
-O ano aparece no card (Álbum (2017)) e como coluna na visualização em lista
-Sobre a Wishlist não abrir: isso ainda depende de você recolocar o index.html certo no lugar do que está publicado hoje (que é uma cópia da página de Estatísticas). Assim que fizer isso, testa de novo os passos 1, 4, 5, 6 e 7 — devem se resolver juntos, porque todos dependiam da Wishlist abrir.
-
-
-App
-PY 
-
-Colecao
-Código · HTML 
-
-Index
-Código · HTML 
-
-Estatisticas
-Código · HTML 
-
-Importar
-Código · HTML 
-
-Style
-Código · CSS 
-
-
-
-
-
-Claude é uma IA e pode cometer erros. Por favor, verifique as respostas.
-Style · CSS
-    * {
+* {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -1569,7 +1442,7 @@ Style · CSS
         font-size: 16px;
       }
     }
- 
+
     /* ===== AJUSTE FINO ===== */
     .ajuste-fino-item {
       margin-bottom: 24px;
@@ -1613,10 +1486,10 @@ Style · CSS
       border-color: var(--colecao-color);
       font-weight: 600;
     }
- 
 
-
-
-
-
-
+    /* ===== ANO DE LANÇAMENTO (Wishlist) ===== */
+    .ano-lancamento {
+      font-size: 12px;
+      font-weight: 400;
+      opacity: 0.5;
+    }
