@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Discoteca — Compras</title>
+  <title>Discoteca — Estatísticas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -34,18 +34,10 @@
     </div>
 
     <!-- HERO -->
-    <section class="hero hero-state-compras" id="heroSection">
-      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Curadoria</div>
-      <h1 id="heroTitle">Lista de <span id="heroHighlight">Compras</span></h1>
-      <p class="hero-sub" id="heroSub">Prioridade S → C, baseado nas suas playlists importadas.</p>
-      <div class="hero-meter" id="heroMeter">
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--s-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--a-color)"></span>
-        <span style="background:var(--b-color)"></span>
-        <span style="background:var(--c-color)"></span>
-      </div>
+    <section class="hero hero-state-estatisticas" id="heroSection">
+      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Estatísticas</div>
+      <h1 id="heroTitle">Estatísticas <span id="heroHighlight">da Playlist</span></h1>
+      <p class="hero-sub" id="heroSub">O que você ouve e o que você tem.</p>
     </section>
 
     <!-- TABS -->
@@ -53,96 +45,27 @@
       <div class="tabs" id="navContainer"></div>
     </div>
 
-    <!-- ===== COMPRAS ===== -->
-    <div id="tab-compras" class="tab-content active">
-      <div id="compras-container"></div>
+    <!-- ===== ESTATÍSTICAS ===== -->
+    <div id="tab-estatisticas" class="tab-content active">
+      <section class="section" style="--tier-color:var(--e-color)">
+        <div class="tier-head">
+          <div class="tier-stamp small">📊</div>
+          <div class="tier-info">
+            <h2 style="color:var(--e-color);">Estatísticas</h2>
+            <p>O que você ouve e o que você tem.</p>
+          </div>
+        </div>
+
+        <!-- PLAYER -->
+        <div id="estatisticas-player"></div>
+
+        <!-- ESTANTE -->
+        <div id="estatisticas-estante"></div>
+
+      </section>
     </div>
 
   </div><!-- /appScreen -->
-
-  <!-- ===== MODAL: ADICIONAR À WISHLIST ===== -->
-  <div class="modal-overlay" id="modalAddWishlist">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>➕ Adicionar à Lista de Compras</h2>
-        <button class="modal-close" id="btnFecharWishlist">✕</button>
-      </div>
-      <form id="form-wishlist">
-        <div class="form-group">
-          <label>Artista *</label>
-          <input type="text" id="wish-artista" placeholder="Ex: Metallica" required>
-        </div>
-        <div class="form-group">
-          <label>Álbum *</label>
-          <input type="text" id="wish-album" placeholder="Ex: Master of Puppets" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Prioridade</label>
-            <select id="wish-tier">
-              <option value="S">S (Prioridade Máxima)</option>
-              <option value="A">A (Alta)</option>
-              <option value="B">B (Média)</option>
-              <option value="C">C (Baixa)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Notas</label>
-            <input type="text" id="wish-notas" placeholder="Ex: Versão japonesa">
-          </div>
-        </div>
-        <button type="submit" class="form-btn" id="btn-wish-submit">Adicionar à Lista</button>
-        <div class="form-msg" id="wish-msg"></div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===== MODAL: EDITAR TIER ===== -->
-  <div class="modal-overlay" id="modalEditTier">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>✎ Editar Tier</h2>
-        <button class="modal-close" id="btnFecharEditTier">✕</button>
-      </div>
-      <form id="form-edit-tier">
-        <input type="hidden" id="edit-tier-id" value="">
-        <div class="form-group">
-          <label>Artista</label>
-          <input type="text" id="edit-tier-artista" disabled style="opacity:0.6;">
-        </div>
-        <div class="form-group">
-          <label>Álbum</label>
-          <input type="text" id="edit-tier-album" disabled style="opacity:0.6;">
-        </div>
-        <div class="form-group">
-          <label>Nova Prioridade</label>
-          <select id="edit-tier-select">
-            <option value="S">S (Prioridade Máxima)</option>
-            <option value="A">A (Alta)</option>
-            <option value="B">B (Média)</option>
-            <option value="C">C (Baixa)</option>
-          </select>
-        </div>
-        <button type="submit" class="form-btn" id="btn-edit-tier-submit">Salvar Tier</button>
-        <div class="form-msg" id="edit-tier-msg"></div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
-  <div class="modal-overlay" id="modalConfirm">
-    <div class="modal" style="max-width:450px;">
-      <div class="modal-header">
-        <h2>⚠️ Confirmar</h2>
-        <button class="modal-close" id="btnFecharConfirm">✕</button>
-      </div>
-      <div class="modal-confirm-text" id="confirmMessage">Tem certeza que deseja fazer isso?</div>
-      <div style="display:flex; gap:12px; margin-top:20px;">
-        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
-        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
-      </div>
-    </div>
-  </div>
 
   <footer>Discoteca — Sua coleção, suas recomendações.</footer>
 
@@ -176,7 +99,7 @@ let confirmCallback = null;
 // NAVEGAÇÃO (abas viraram links entre paginas separadas)
 // ================================================================
 const NAV_ITEMS = [
-  { id: 'tab-compras', href: 'index.html', label: '📋 Compras' },
+  { id: 'tab-compras', href: 'index.html', label: '📋 Wishlist' },
   { id: 'tab-estatisticas', href: 'estatisticas.html', label: '📊 Estatísticas' },
   { id: 'tab-colecao', href: 'colecao.html', label: '💿 Coleção', badge: true },
   { id: 'tab-importar', href: 'importar.html', label: '📤 Importar' }
@@ -353,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ================================================================
-// PÁGINA: COMPRAS (WISHLIST) — index.html
+// PÁGINA: ESTATÍSTICAS — estatisticas.html
 // ================================================================
 function onPaginaPronta() {
   carregarDados();
@@ -362,297 +285,315 @@ function onPaginaPronta() {
 
 function carregarDados() {
   if (!usuarioId) return;
-  fetch(API_URL + '/recomendacoes?user_id=' + usuarioId)
+  fetch(API_URL + '/estatisticas?user_id=' + usuarioId)
     .then(r => r.json())
-    .then(data => {
-      recomendacoes = Array.isArray(data) ? data : [];
-      renderRecomendacoes(recomendacoes);
-    })
+    .then(data => renderEstatisticasPlayer(data))
+    .catch(() => {});
+
+  fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId)
+    .then(r => r.json())
+    .then(data => renderEstatisticasEstante(data))
     .catch(() => {});
 }
 
-    function renderRecomendacoes(dados) {
-      const container = document.getElementById('compras-container');
+    function renderEstatisticasPlayer(dados) {
+      const container = document.getElementById('estatisticas-player');
+      if (!container) return;
+      const estado = localStorage.getItem('secao_player') || 'aberta';
 
-      const hasActiveRecommendations = dados && dados.some(item => item.comprado === 0);
-
-      if (!dados || dados.length === 0 || !hasActiveRecommendations) {
-        container.innerHTML = `
-          <div class="empty-state-full" style="padding:80px 20px;">
-            <div class="icon">💰</div>
-            <h3>Sua carteira está cheia... de expectativas!</h3>
-            <p>Faça upload da sua playlist para gerar recomendações personalizadas.</p>
-            <p class="empty-hint">Vá para a aba "Importar" e comece agora 🚀</p>
+      let resumoHtml = '';
+      if (dados && !dados.erro && dados.total_musicas > 0) {
+        resumoHtml = `
+          <div class="resumo-cards" id="resumo-player">
+            <div class="resumo-item">
+              <span class="num">${dados.total_musicas || 0}</span>
+              <span class="label">Músicas</span>
+            </div>
+            <div class="resumo-item">
+              <span class="num">${dados.artistas_unicos || 0}</span>
+              <span class="label">Artistas</span>
+            </div>
+            <div class="resumo-item">
+              <span class="num">${dados.albuns_unicos || 0}</span>
+              <span class="label">Álbuns</span>
+            </div>
+            <div class="resumo-item">
+              <span class="num">${dados.duracao_horas || 0}h</span>
+              <span class="label">Duração</span>
+            </div>
           </div>
         `;
+      }
+
+      if (!dados || dados.erro || dados.total_musicas === 0) {
+        container.innerHTML = `
+          <div class="estatistica-secao player">
+            <div class="secao-header" onclick="toggleSecao('player')">
+              <h3>🎧 No seu player</h3>
+              <span class="toggle-icon" id="secao-player-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
+            </div>
+            ${resumoHtml}
+            <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-player-content">
+              <div class="empty-state" style="padding:40px 20px;">
+                <div class="icon" style="font-size:40px;">🎧</div>
+                <h3 style="font-size:20px;">Ainda não dividimos o fone</h3>
+                <p style="font-size:13px;">Faça upload da sua playlist para começar a análise.</p>
+              </div>
+            </div>
+          </div>
+        `;
+        aplicarEstadoSecao('player', estado);
         return;
       }
 
-      const tiers = { S: [], A: [], B: [], C: [] };
-      dados.forEach(item => {
-        if (item.comprado === 0 && tiers[item.tier]) {
-          tiers[item.tier].push(item);
-        }
-      });
-
-      let html = '';
-      ['S', 'A', 'B', 'C'].forEach(tier => {
-        const items = tiers[tier] || [];
-        const tierColor = tier === 'S' ? '#D6432F' : tier === 'A' ? '#E39A2E' : tier === 'B' ? '#4E7A8C' :
-          '#8A8378';
-        const tierDesc = tier === 'S' ? 'Prioridade Máxima' : tier === 'A' ? 'Alta Prioridade' : tier === 'B' ?
-          'Sem Urgência' : 'Baixa Prioridade';
-        const tierDetail = tier === 'S' ?
-          'Comprar assim que aparecer. Fecham trilogias, completam tríades e representam o auge da coleção.' :
-          tier === 'A' ?
-          'Comprar na sequência — bons preços, boas edições, ou entrada de banda importante na coleção.' :
-          tier === 'B' ?
-          'Pegar em promoção ou naturalmente, sem pressa de garimpo.' :
-          'Só entram se aparecer oportunidade excepcional (preço/edição).';
-
-        html += `
-          <section class="section" style="--tier-color:${tierColor}">
-            <div class="tier-head">
-              <div class="tier-stamp">${tier}</div>
-              <div class="tier-info">
-                <h2>${tierDesc}</h2>
-                <p>${tierDetail}</p>
+      let html = `
+        <div class="estatistica-secao player">
+          <div class="secao-header" onclick="toggleSecao('player')">
+            <h3>🎧 No seu player</h3>
+            <span class="toggle-icon" id="secao-player-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
+          </div>
+          ${resumoHtml}
+          <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-player-content">
+            <div class="stat-grid">
+              <div class="stat-card">
+                <div class="stat-number">${dados.total_musicas || 0}</div>
+                <div class="stat-label">Total de Músicas</div>
               </div>
-              ${tier === 'S' ? `<div class="add-btn-wrap"><button class="add-btn" onclick="abrirWishlist()" title="Adicionar manual à lista">+</button></div>` : ''}
+              <div class="stat-card">
+                <div class="stat-number">${dados.artistas_unicos || 0}</div>
+                <div class="stat-label">Artistas Únicos</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">${dados.albuns_unicos || 0}</div>
+                <div class="stat-label">Álbuns Únicos</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">${dados.duracao_horas || 0}h</div>
+                <div class="stat-label">Duração Total</div>
+              </div>
             </div>
-            <div class="grid">
+      `;
+
+      if (dados.top_artistas && dados.top_artistas.length > 0) {
+        html += `<div class="stat-subtitle">🎤 Top 10 Artistas</div><div class="stat-list">`;
+        dados.top_artistas.forEach(item => {
+          html +=
+            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (dados.top_albuns && dados.top_albuns.length > 0) {
+        html += `<div class="stat-subtitle">💿 Top 10 Álbuns</div><div class="stat-list">`;
+        dados.top_albuns.forEach(item => {
+          html +=
+            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (dados.decadas && dados.decadas.length > 0) {
+        html += `<div class="stat-subtitle">📅 Distribuição por Década</div><div class="stat-list">`;
+        dados.decadas.forEach(item => {
+          html +=
+            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (dados.top_generos && dados.top_generos.length > 0) {
+        html += `<div class="stat-subtitle">🎸 Top 10 Gêneros</div><div class="stat-list">`;
+        dados.top_generos.forEach(item => {
+          html +=
+            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      html += `</div></div>`;
+      container.innerHTML = html;
+      aplicarEstadoSecao('player', estado);
+    }
+
+    function renderEstatisticasEstante(dados) {
+      const container = document.getElementById('estatisticas-estante');
+      if (!container) return;
+      const estado = localStorage.getItem('secao_estante') || 'aberta';
+
+      let resumoHtml = '';
+      if (dados && !dados.erro && dados.total_discos > 0) {
+        resumoHtml = `
+          <div class="resumo-cards" id="resumo-estante">
+            <div class="resumo-item">
+              <span class="num">${dados.total_discos || 0}</span>
+              <span class="label">Discos</span>
+            </div>
+            <div class="resumo-item">
+              <span class="num">${dados.lps || 0}</span>
+              <span class="label">🎵 LPs</span>
+            </div>
+            <div class="resumo-item">
+              <span class="num">${dados.cds || 0}</span>
+              <span class="label">💿 CDs</span>
+            </div>
+            <div class="resumo-item">
+              <span class="num">${dados.cassetes || 0}</span>
+              <span class="label">📼 Cassetes</span>
+            </div>
+            ${dados.valor_total ? `<div class="resumo-item">
+              <span class="num">R$ ${dados.valor_total}</span>
+              <span class="label">Valor</span>
+            </div>` : ''}
+          </div>
         `;
+      }
 
-        if (items.length === 0) {
-          html += `
-            <div class="empty-state" style="padding:40px 20px;">
-              <div class="icon" style="font-size:32px;">📭</div>
-              <h3 style="font-size:18px;">Nenhum disco ${tier} ainda</h3>
-              <p style="font-size:13px;">Importe mais playlists ou adicione manualmente.</p>
+      if (!dados || dados.erro || dados.total_discos === 0) {
+        container.innerHTML = `
+          <div class="estatistica-secao estante">
+            <div class="secao-header" onclick="toggleSecao('estante')">
+              <h3>📀 Na sua estante</h3>
+              <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
             </div>
-          `;
-        } else {
-          items.forEach((item, idx) => {
-            const letter = item.album ? item.album.charAt(0) : '?';
-            const id = `rec-${tier}-${idx}`;
-            const origem = item.origem || 'algoritmo';
-            const frase = item.frase || `${item.album}: Álbum em destaque na sua coleção`;
-
-            html += `
-              <div class="card" id="${id}" data-id="${item.id || ''}">
-                <div class="art-wrap" id="art-${id}" style="background: ${tierColor}; background-size: cover; background-position: center;">
-                  <span class="priority-tag" style="background:${tierColor};color:var(--ink);">${tier} ${origem === 'manual' ? '✏️' : ''}</span>
-                  <div class="spine-letter">${letter}</div>
-                  <div class="art-fallback" id="fallback-${id}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
-                </div>
-                <div class="card-body">
-                  <h3>${item.album || 'Álbum'}</h3>
-                  <div class="artist" style="color:${tierColor};">${item.artista || 'Artista'}</div>
-                  <div class="wishlist-phrase">${frase}</div>
-                  <div class="meta-block">
-                    <div class="meta-row"><span class="label">Estratégia</span><span class="val">${item.estrategia || ''}</span></div>
-                    ${item.nota ? `<div class="meta-row"><span class="label">Nota</span><span class="val">${item.nota}</span></div>` : ''}
-                    ${item.origem === 'manual' ? `<div class="meta-row"><span class="label">Origem</span><span class="val">Adicionado manualmente</span></div>` : ''}
-                  </div>
-                  <div class="card-actions">
-                    <button class="btn-icon btn-tier" onclick="abrirEditTier('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}', '${item.tier || 'A'}')" title="Editar Tier">✎</button>
-                    <button class="btn-icon btn-move" onclick="marcarComoTenho('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Já tenho">✓</button>
-                    <button class="btn-icon btn-remove" onclick="removerDaWishlist('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Remover">✕</button>
-                  </div>
-                </div>
+            ${resumoHtml}
+            <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
+              <div class="empty-state" style="padding:40px 20px;">
+                <div class="icon" style="font-size:40px;">📀</div>
+                <h3 style="font-size:20px;">Sua estante está vazia</h3>
+                <p style="font-size:13px;">Adicione discos à sua coleção para ver as estatísticas.</p>
               </div>
-            `;
-          });
-        }
+            </div>
+          </div>
+        `;
+        aplicarEstadoSecao('estante', estado);
+        return;
+      }
 
-        html += `</div></section>`;
-      });
+      let detalhesHtml = '';
+      if (dados.album_mais_antigo) {
+        detalhesHtml +=
+          `<div class="stat-list-item"><span class="name">📅 Álbum mais antigo</span><span class="count">${dados.album_mais_antigo}</span></div>`;
+      }
+      if (dados.album_mais_recente) {
+        detalhesHtml +=
+          `<div class="stat-list-item"><span class="name">📅 Álbum mais recente</span><span class="count">${dados.album_mais_recente}</span></div>`;
+      }
+      if (dados.preco_medio && dados.preco_medio > 0) {
+        detalhesHtml +=
+          `<div class="stat-list-item"><span class="name">💰 Preço médio</span><span class="count">R$ ${dados.preco_medio}</span></div>`;
+      }
+      if (dados.disco_mais_caro) {
+        detalhesHtml +=
+          `<div class="stat-list-item"><span class="name">🏆 Disco mais caro</span><span class="count">${dados.disco_mais_caro}</span></div>`;
+      }
+      if (dados.disco_mais_barato) {
+        detalhesHtml +=
+          `<div class="stat-list-item"><span class="name">🤑 Disco mais barato</span><span class="count">${dados.disco_mais_barato}</span></div>`;
+      }
+
+      let html = `
+        <div class="estatistica-secao estante">
+          <div class="secao-header" onclick="toggleSecao('estante')">
+            <h3>📀 Na sua estante</h3>
+            <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
+          </div>
+          ${resumoHtml}
+          <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
+            <div class="stat-grid">
+              <div class="stat-card" style="border-top-color: var(--colecao-color);">
+                <div class="stat-number">${dados.total_discos || 0}</div>
+                <div class="stat-label">Total de Discos</div>
+              </div>
+              <div class="stat-card" style="border-top-color: var(--vinil-color);">
+                <div class="stat-number">${dados.lps || 0}</div>
+                <div class="stat-label">🎵 LPs</div>
+              </div>
+              <div class="stat-card" style="border-top-color: var(--cd-color);">
+                <div class="stat-number">${dados.cds || 0}</div>
+                <div class="stat-label">💿 CDs</div>
+              </div>
+              <div class="stat-card" style="border-top-color: var(--cassete-color);">
+                <div class="stat-number">${dados.cassetes || 0}</div>
+                <div class="stat-label">📼 Cassetes</div>
+              </div>
+              ${dados.valor_total ? `<div class="stat-card" style="border-top-color: #4CAF50;">
+                <div class="stat-number">R$ ${dados.valor_total}</div>
+                <div class="stat-label">Valor Total Estimado</div>
+              </div>` : ''}
+            </div>
+
+            ${dados.top_artistas && dados.top_artistas.length > 0 ? `
+              <div class="stat-subtitle" style="color: var(--colecao-color);">🎤 Top 5 Artistas na Estante</div>
+              <div class="stat-list">
+                ${dados.top_artistas.map(item => `
+                  <div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            ${dados.decadas && dados.decadas.length > 0 ? `
+              <div class="stat-subtitle" style="color: var(--colecao-color);">📅 Distribuição por Década</div>
+              <div class="stat-list">
+                ${dados.decadas.map(item => `
+                  <div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            ${detalhesHtml ? `
+              <div class="stat-subtitle" style="color: var(--colecao-color);">🔍 Detalhes da Coleção</div>
+              <div class="stat-list">
+                ${detalhesHtml}
+              </div>
+            ` : ''}
+
+          </div>
+        </div>
+      `;
 
       container.innerHTML = html;
-
-      ['S', 'A', 'B', 'C'].forEach(tier => {
-        const items = tiers[tier] || [];
-        items.forEach((item, idx) => {
-          const id = `rec-${tier}-${idx}`;
-          fetchAlbumArt(item.artista, item.album, 'art-' + id, 'fallback-' + id);
-        });
-      });
+      aplicarEstadoSecao('estante', estado);
     }
 
-    function marcarComoTenho(id, artista, album) {
-      if (!id) {
-        alert('❌ ID da recomendação não encontrado.');
-        return;
+    function aplicarEstadoSecao(secao, estado) {
+      const content = document.getElementById('secao-' + secao + '-content');
+      const toggle = document.getElementById('secao-' + secao + '-toggle');
+      const resumo = document.getElementById('resumo-' + secao);
+
+      if (!content || !toggle) return;
+
+      if (estado === 'fechada') {
+        content.classList.add('fechada');
+        toggle.textContent = '▶';
+        if (resumo) resumo.style.display = 'flex';
+      } else {
+        content.classList.remove('fechada');
+        toggle.textContent = '▼';
+        if (resumo) resumo.style.display = 'none';
       }
-      abrirConfirm(`Marcar "${artista} - ${album}" como JÁ TENHO?`, function() {
-        fetch(API_URL + `/marcar_como_tenho/${id}?user_id=${usuarioId}`, { method: 'POST' })
-          .then(r => r.json())
-          .then(data => {
-            if (data.sucesso) {
-              carregarDados();
-            } else {
-              alert('❌ ' + (data.erro || 'Erro ao marcar'));
-            }
-          })
-          .catch(() => alert('❌ Erro de conexão'));
-      });
     }
-    window.marcarComoTenho = marcarComoTenho;
 
-    function removerDaWishlist(id, artista, album) {
-      if (!id) {
-        alert('❌ ID não encontrado.');
-        return;
+    function toggleSecao(secao) {
+      const content = document.getElementById('secao-' + secao + '-content');
+      const toggle = document.getElementById('secao-' + secao + '-toggle');
+      const resumo = document.getElementById('resumo-' + secao);
+      if (!content || !toggle) return;
+
+      if (content.classList.contains('fechada')) {
+        content.classList.remove('fechada');
+        toggle.textContent = '▼';
+        localStorage.setItem('secao_' + secao, 'aberta');
+        if (resumo) resumo.style.display = 'none';
+      } else {
+        content.classList.add('fechada');
+        toggle.textContent = '▶';
+        localStorage.setItem('secao_' + secao, 'fechada');
+        if (resumo) resumo.style.display = 'flex';
       }
-      abrirConfirm(`Remover "${artista} - ${album}" da lista de compras?`, function() {
-        fetch(API_URL + `/wishlist/remove/${id}?user_id=${usuarioId}`, { method: 'DELETE' })
-          .then(r => r.json())
-          .then(data => {
-            if (data.sucesso) {
-              carregarDados();
-            } else {
-              alert('❌ ' + (data.erro || 'Erro ao remover'));
-            }
-          })
-          .catch(() => alert('❌ Erro de conexão'));
-      });
     }
-    window.removerDaWishlist = removerDaWishlist;
-
-    const modalWish = document.getElementById('modalAddWishlist');
-    const btnFecharWish = document.getElementById('btnFecharWishlist');
-    const formWish = document.getElementById('form-wishlist');
-
-    function abrirWishlist() {
-      document.getElementById('wish-artista').value = '';
-      document.getElementById('wish-album').value = '';
-      document.getElementById('wish-tier').value = 'S';
-      document.getElementById('wish-notas').value = '';
-      document.getElementById('wish-msg').textContent = '';
-      document.getElementById('wish-msg').className = 'form-msg';
-      modalWish.classList.add('open');
-    }
-    window.abrirWishlist = abrirWishlist;
-
-    btnFecharWish.addEventListener('click', () => modalWish.classList.remove('open'));
-    modalWish.addEventListener('click', function(e) { if (e.target === this) modalWish.classList.remove('open'); });
-
-    formWish.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-wish-submit');
-      const msg = document.getElementById('wish-msg');
-      btn.disabled = true;
-      msg.textContent = '⏳ Salvando...';
-      msg.className = 'form-msg';
-
-      const dados = {
-        artista: document.getElementById('wish-artista').value.trim(),
-        album: document.getElementById('wish-album').value.trim(),
-        tier: document.getElementById('wish-tier').value,
-        notas: document.getElementById('wish-notas').value.trim()
-      };
-
-      if (!dados.artista || !dados.album) {
-        msg.textContent = '⚠️ Artista e álbum são obrigatórios!';
-        msg.className = 'form-msg error';
-        btn.disabled = false;
-        return;
-      }
-
-      fetch(API_URL + '/adicionar_recomendacao?user_id=' + usuarioId, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dados)
-        })
-        .then(r => r.json())
-        .then(resultado => {
-          if (resultado.sucesso) {
-            msg.textContent = '✅ ' + resultado.mensagem;
-            msg.className = 'form-msg success';
-            carregarDados();
-            formWish.reset();
-            setTimeout(() => modalWish.classList.remove('open'), 1000);
-          } else {
-            msg.textContent = '❌ ' + (resultado.erro || 'Erro ao adicionar');
-            msg.className = 'form-msg error';
-            btn.disabled = false;
-          }
-        })
-        .catch(() => {
-          msg.textContent = '❌ Erro de conexão';
-          msg.className = 'form-msg error';
-          btn.disabled = false;
-        });
-    });
-
-    const modalEditTier = document.getElementById('modalEditTier');
-    const btnFecharEditTier = document.getElementById('btnFecharEditTier');
-    const formEditTier = document.getElementById('form-edit-tier');
-
-    function abrirEditTier(id, artista, album, tierAtual) {
-      document.getElementById('edit-tier-id').value = '';
-      document.getElementById('edit-tier-artista').value = '';
-      document.getElementById('edit-tier-album').value = '';
-      document.getElementById('edit-tier-select').value = 'A';
-      document.getElementById('edit-tier-msg').textContent = '';
-      document.getElementById('edit-tier-msg').className = 'form-msg';
-      document.getElementById('btn-edit-tier-submit').disabled = false;
-      
-      document.getElementById('edit-tier-id').value = id;
-      document.getElementById('edit-tier-artista').value = artista;
-      document.getElementById('edit-tier-album').value = album;
-      document.getElementById('edit-tier-select').value = tierAtual || 'A';
-      
-      modalEditTier.classList.add('open');
-    }
-    window.abrirEditTier = abrirEditTier;
-
-    btnFecharEditTier.addEventListener('click', function() {
-      modalEditTier.classList.remove('open');
-    });
-    modalEditTier.addEventListener('click', function(e) {
-      if (e.target === this) modalEditTier.classList.remove('open');
-    });
-
-    formEditTier.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-edit-tier-submit');
-      const msg = document.getElementById('edit-tier-msg');
-      const id = document.getElementById('edit-tier-id').value;
-      const novoTier = document.getElementById('edit-tier-select').value;
-
-      btn.disabled = true;
-      msg.textContent = '⏳ Salvando...';
-      msg.className = 'form-msg';
-
-      fetch(API_URL + `/wishlist/update_tier/${id}?user_id=${usuarioId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tier: novoTier })
-        })
-        .then(r => r.json())
-        .then(data => {
-          if (data.sucesso) {
-            msg.textContent = '✅ ' + data.mensagem;
-            msg.className = 'form-msg success';
-            carregarDados();
-            formEditTier.reset();
-            setTimeout(() => modalEditTier.classList.remove('open'), 800);
-          } else {
-            msg.textContent = '❌ ' + (data.erro || 'Erro ao atualizar');
-            msg.className = 'form-msg error';
-            btn.disabled = false;
-          }
-        })
-        .catch(() => {
-          msg.textContent = '❌ Erro de conexão';
-          msg.className = 'form-msg error';
-          btn.disabled = false;
-        });
-    });
 
     document.addEventListener('DOMContentLoaded', function() {
-      renderNav('index.html');
+      renderNav('estatisticas.html');
       verificarSessao();
     });
   </script>
