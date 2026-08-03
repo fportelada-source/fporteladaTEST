@@ -433,6 +433,23 @@ async function fetchAlbumArt(artist, album, artId, fallbackId) {
   }
 }
 
+// Busca o ano de lançamento (via Discogs, mesmo endpoint usado na Coleção)
+// e preenche ao lado do título do álbum na Wishlist.
+async function fetchAnoLancamento(artist, album, spanId) {
+  const el = document.getElementById(spanId);
+  if (!el || !artist || !album) return;
+  try {
+    const url = API_URL + `/buscar_por_artista_album?artista=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&user_id=${usuarioId}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.sucesso && data.ano) {
+      el.textContent = `(${data.ano})`;
+    }
+  } catch {
+    // silencioso: sem ano, o título fica só sem o parêntese
+  }
+}
+
     function renderRecomendacoes(dados) {
       const container = document.getElementById('compras-container');
 
@@ -508,7 +525,7 @@ async function fetchAlbumArt(artist, album, artId, fallbackId) {
                   <div class="art-fallback" id="fallback-${id}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
                 </div>
                 <div class="card-body">
-                  <h3>${item.album || 'Álbum'}</h3>
+                  <h3>${item.album || 'Álbum'} <span class="ano-lancamento" id="ano-${id}"></span></h3>
                   <div class="artist" style="color:${tierColor};">${item.artista || 'Artista'}</div>
                   <div class="wishlist-phrase">${frase}</div>
                   <div class="meta-block">
@@ -535,6 +552,7 @@ async function fetchAlbumArt(artist, album, artId, fallbackId) {
         items.forEach((item, idx) => {
           const id = `rec-${tier}-${idx}`;
           fetchAlbumArt(item.artista, item.album, 'art-' + id, 'fallback-' + id);
+          fetchAnoLancamento(item.artista, item.album, 'ano-' + id);
         });
       });
     }
