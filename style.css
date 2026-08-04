@@ -98,6 +98,9 @@
     .hero-state-colecao .hero h1 span {
       color: var(--colecao-color);
     }
+    .hero-state-perfil .hero h1 span {
+      color: var(--vinil-color);
+    }
     .tabs-container {
       padding: 0 6vw;
       border-bottom: 1px solid var(--card-line);
@@ -1492,4 +1495,193 @@
       font-size: 12px;
       font-weight: 400;
       opacity: 0.5;
+    }
+
+    /* ===== PERFIL ===== */
+    .perfil-avatar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .perfil-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--colecao-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Anton', sans-serif;
+      font-size: 28px;
+      color: var(--ink);
+      flex-shrink: 0;
+    }
+    .perfil-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .perfil-avatar-info .nome {
+      font-family: 'Anton', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+    .perfil-avatar-info .desde {
+      font-size: 12px;
+      opacity: 0.5;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .char-count {
+      font-size: 11px;
+      opacity: 0.4;
+      text-align: right;
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .perfil-link-publico {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--colecao-color);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--colecao-color);
+    }
+    .perfil-link-publico:hover {
+      opacity: 0.8;
+    }
+
+    /* ===== PERFIL PÚBLICO ===== */
+    .pp-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 32px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .pp-avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--colecao-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Anton', sans-serif;
+      font-size: 36px;
+      color: var(--ink);
+      flex-shrink: 0;
+    }
+    .pp-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .pp-nome {
+      font-family: 'Anton', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.02em;
+    }
+    .pp-desde {
+      font-size: 12px;
+      opacity: 0.5;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 8px;
+    }
+    .pp-bio {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 10px;
+      max-width: 480px;
+    }
+    .pp-redes {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .pp-redes a {
+      font-size: 13px;
+      color: var(--colecao-color);
+      text-decoration: none;
+      border: 1px solid var(--card-line);
+      padding: 5px 12px;
+      border-radius: 5px;
+    }
+    .pp-redes a:hover {
+      border-color: var(--colecao-color);
+    }
+    .pp-redes .sem-redes {
+      font-size: 12px;
+      opacity: 0.35;
+    }
+    .pp-metrics {
+      display: flex;
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto 32px auto;
+      padding: 0 20px;
+    }
+    .pp-metric-item .num {
+      font-family: 'Anton', sans-serif;
+      font-size: 26px;
+      display: block;
+    }
+    .pp-metric-item .label {
+      font-size: 11px;
+      opacity: 0.5;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+    }
+    .pp-item .art {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-size: cover;
+      background-position: center;
+    }
+    .pp-item .fallback {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      padding: 0 8px;
+      white-space: pre-line;
+    }
+    .pp-item .tier-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .pp-item .info {
+      padding: 8px 2px;
+    }
+    .pp-item .album {
+      font-size: 12.5px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .pp-item .artist {
+      font-size: 11.5px;
+      opacity: 0.6;
     }
