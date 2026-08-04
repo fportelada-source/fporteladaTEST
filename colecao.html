@@ -62,6 +62,10 @@
 
         <!-- DASHBOARD -->
         <div id="dashboard-container"></div>
+        <div id="preencher-anos-wrap" style="text-align:right; margin-bottom:12px; display:none;">
+          <button class="btn" id="btnPreencherAnos" style="font-size:12px; padding:8px 14px;">Preencher anos faltantes</button>
+          <div id="preencher-anos-msg" style="font-size:12px; opacity:0.7; margin-top:6px;"></div>
+        </div>
 
         <!-- CONTROLES -->
         <div class="colecao-controls" id="colecaoControls">
@@ -240,7 +244,8 @@ const NAV_ITEMS = [
   { id: 'tab-compras', href: 'index.html', label: '📋 Wishlist' },
   { id: 'tab-estatisticas', href: 'estatisticas.html', label: '📊 Estatísticas' },
   { id: 'tab-colecao', href: 'colecao.html', label: '💿 Coleção', badge: true },
-  { id: 'tab-importar', href: 'importar.html', label: '📤 Importar' }
+  { id: 'tab-importar', href: 'importar.html', label: '📤 Importar' },
+  { id: 'tab-perfil', href: 'perfil.html', label: '👤 Perfil' }
 ];
 
 function renderNav(paginaAtiva) {
@@ -430,9 +435,43 @@ function carregarDados() {
       renderDashboard();
       aplicarFiltros();
       atualizarBadgeColecao(colecao.length);
+
+      const wrap = document.getElementById('preencher-anos-wrap');
+      if (wrap) {
+        const faltando = colecao.some(d => !d.ano_lancamento);
+        wrap.style.display = faltando ? 'block' : 'none';
+      }
     })
     .catch(() => {});
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('btnPreencherAnos');
+  if (btn) {
+    btn.addEventListener('click', function() {
+      const msg = document.getElementById('preencher-anos-msg');
+      btn.disabled = true;
+      btn.textContent = 'Buscando...';
+      if (msg) msg.textContent = '';
+      fetch(API_URL + '/preencher_anos_faltantes?user_id=' + usuarioId, { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+          btn.disabled = false;
+          btn.textContent = 'Preencher anos faltantes';
+          if (msg) {
+            msg.textContent = `${d.atualizados} de ${d.total_verificados} discos atualizados.` +
+              (d.nao_encontrados && d.nao_encontrados.length ? ` Não encontrados: ${d.nao_encontrados.join(', ')}` : '');
+          }
+          carregarDados();
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.textContent = 'Preencher anos faltantes';
+          if (msg) msg.textContent = 'Erro ao buscar. Tente novamente.';
+        });
+    });
+  }
+});
 
     function renderDashboard() {
       const container = document.getElementById('dashboard-container');
@@ -627,7 +666,7 @@ function carregarDados() {
                 <div class="art-fallback" id="fallback-${uniqueId}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
               </div>
               <div class="card-body">
-                <h3>${item.album || '?'}${item.ano_lancamento ? ` <span style="opacity:0.5; font-weight:400;">(${item.ano_lancamento})</span>` : ''}</h3>
+                <h3>${item.album || '?'}</h3>
                 <div class="artist" style="color:${tagColor};">${item.artista || 'Artista'}</div>
                 <div class="meta-block">
                   <div class="meta-row"><span class="label">Formato</span><span class="val">${tagLabel}</span></div>
@@ -635,6 +674,7 @@ function carregarDados() {
                   ${item.condicao_capa ? `<div class="meta-row"><span class="label">Capa</span><span class="val">${item.condicao_capa}</span></div>` : ''}
                   ${item.preco ? `<div class="meta-row"><span class="label">Preço</span><span class="val">R$ ${item.preco}</span></div>` : ''}
                   ${item.data_adicao ? `<div class="meta-row"><span class="label">Adicionado</span><span class="val">${item.data_adicao}</span></div>` : ''}
+                  ${item.ano_lancamento ? `<div class="meta-row"><span class="label">Lançamento</span><span class="val">${item.ano_lancamento}</span></div>` : ''}
                 </div>
                 <div class="card-actions">
                   <button class="btn-icon btn-edit" onclick="editarDisco('${item.id || ''}')" title="Editar">✎</button>
