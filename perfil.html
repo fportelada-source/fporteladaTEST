@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Perfil · Discoteca</title>
+  <title>Discoteca — Perfil</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -17,12 +17,7 @@
       <div class="logo">Discoteca<span>.</span></div>
       <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
       <button class="login-btn" id="btnLogin">
-        <svg viewBox="0 0 24 24" width="20" height="20">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Entrar com Google
       </button>
       <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
@@ -34,12 +29,7 @@
 
     <!-- BARRA DO USUÁRIO -->
     <div class="user-bar">
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar">
-          <span id="userAvatarText">?</span>
-        </div>
-        <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
-      </div>
+      <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
       <button class="logout-btn" id="btnLogout">Sair</button>
     </div>
 
@@ -47,171 +37,301 @@
     <section class="hero hero-state-perfil" id="heroSection">
       <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Perfil</div>
       <h1 id="heroTitle">Meu <span id="heroHighlight">Perfil</span></h1>
-      <p class="hero-sub" id="heroSub">Edite seu perfil público.</p>
+      <p class="hero-sub" id="heroSub">Como os outros colecionadores veem você.</p>
     </section>
 
     <!-- TABS -->
     <div class="tabs-container">
-      <div class="tabs">
-        <a href="colecao.html" class="tab-btn" data-tab="tab-colecao">💿 Coleção <span class="tab-badge" id="colecao-badge">0</span></a>
-        <a href="wishlist.html" class="tab-btn" data-tab="tab-wishlist">⭐ Wishlist <span class="tab-badge" id="wishlist-badge">0</span></a>
-        <a href="promocoes.html" class="tab-btn disabled" data-tab="tab-promocoes">🛒 Promoções <span class="badge-em-breve">em breve</span></a>
-        <a href="estatisticas.html" class="tab-btn" data-tab="tab-estatisticas">📊 Estatísticas</a>
-        <a href="perfil.html" class="tab-btn active" data-tab="tab-perfil">👤 Perfil</a>
-        <a href="importar.html" class="tab-btn" data-tab="tab-importar">📤 Importar</a>
-      </div>
+      <div class="tabs" id="navContainer"></div>
     </div>
 
-    <!-- PERFIL -->
-    <section class="section" style="--tier-color:var(--colecao-color)">
-      <div class="tier-head">
-        <div class="tier-stamp small">👤</div>
-        <div class="tier-info">
-          <h2 style="color:var(--colecao-color);">Perfil</h2>
-          <p>Edite seu perfil público.</p>
+    <!-- ===== PERFIL ===== -->
+    <div id="tab-perfil" class="tab-content active">
+      <section class="section" style="--tier-color:var(--vinil-color)">
+        <div class="tier-head">
+          <div class="tier-stamp small">👤</div>
+          <div class="tier-info">
+            <h2 style="color:var(--vinil-color);">Perfil</h2>
+            <p>Nome e foto vêm da sua conta Google. Bio e redes são editáveis.</p>
+          </div>
         </div>
-        <div style="margin-left:auto;">
-          <a href="perfil-publico.html?id=1" target="_blank" style="background:var(--card-line);color:var(--paper);padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;transition:0.2s;display:inline-block;">🔗 Ver perfil público</a>
-        </div>
-      </div>
-      <div class="perfil-edit" id="perfil-container"></div>
-    </section>
 
-  </div>
+        <div style="max-width:560px; margin:0 auto;">
 
-  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
-  <div class="modal-overlay" id="modalConfirm">
-    <div class="modal" style="max-width:420px;">
-      <div class="modal-header">
-        <h2>⚠️ Confirmar</h2>
-        <button class="modal-close" id="btnFecharConfirm">✕</button>
-      </div>
-      <div class="modal-confirm-text" id="confirmMessage">Tem certeza?</div>
-      <div style="display:flex; gap:10px; margin-top:16px;">
-        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
-        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <footer>Discoteca v0.9.1 — Sua coleção, suas recomendações.</footer>
-
-  <script src="app.js"></script>
-  <script>
-    // ================================================================
-    // PERFIL - JAVASCRIPT ESPECÍFICO
-    // ================================================================
-
-    function carregarPerfil() {
-      if (!usuarioId) {
-        document.getElementById('perfil-container').innerHTML = '<p style="opacity:0.5;">Usuário não logado.</p>';
-        return;
-      }
-
-      fetch(API_URL + '/perfil/' + usuarioId)
-        .then(r => r.json())
-        .then(data => renderPerfil(data))
-        .catch(() => {
-          document.getElementById('perfil-container').innerHTML = '<p style="opacity:0.5;">Erro ao carregar perfil.</p>';
-        });
-    }
-
-    function renderPerfil(data) {
-      const container = document.getElementById('perfil-container');
-      const fotoUrl = data.foto_url || '';
-      const avatarHtml = fotoUrl ? `<img src="${fotoUrl}" alt="Avatar">` : data.nome.charAt(0).toUpperCase();
-
-      container.innerHTML = `
-        <div class="perfil-edit">
-          <div class="perfil-foto">
-            <div class="avatar">${avatarHtml}</div>
-            <div class="info">
-              <div><strong>${data.nome}</strong></div>
-              <div>${data.email}</div>
-              <div style="font-size:11px;opacity:0.4;">Colecionando desde ${data.data_criacao ? data.data_criacao.split('-')[0] : '2024'}</div>
+          <div class="perfil-avatar-wrap">
+            <div class="perfil-avatar" id="perfilAvatar">?</div>
+            <div class="perfil-avatar-info">
+              <div class="nome" id="perfilNome">Carregando...</div>
+              <div class="desde" id="perfilDesde"></div>
+              <a href="#" target="_blank" class="perfil-link-publico" id="perfilLinkPublico">Ver meu perfil público →</a>
             </div>
           </div>
+
           <form id="form-perfil">
             <div class="form-group">
               <label>Bio</label>
-              <textarea id="perfil-bio" placeholder="Ex: Sou colecionador de Metal desde 2004...">${data.bio || ''}</textarea>
+              <textarea id="campo-bio" maxlength="280" placeholder="Conte um pouco sobre sua coleção..."></textarea>
+              <div class="char-count"><span id="bioCount">0</span>/280</div>
             </div>
             <div class="form-group">
-              <label>🎵 Spotify</label>
-              <input type="url" id="perfil-spotify" placeholder="https://open.spotify.com/user/..." value="${data.spotify_url || ''}">
+              <label>Spotify</label>
+              <input type="url" id="campo-spotify" placeholder="https://open.spotify.com/user/...">
             </div>
             <div class="form-group">
-              <label>💿 Discogs</label>
-              <input type="url" id="perfil-discogs" placeholder="https://www.discogs.com/user/..." value="${data.discogs_url || ''}">
+              <label>Discogs</label>
+              <input type="url" id="campo-discogs" placeholder="https://discogs.com/user/...">
             </div>
             <div class="form-group">
-              <label>📷 Instagram</label>
-              <input type="url" id="perfil-instagram" placeholder="https://instagram.com/..." value="${data.instagram_url || ''}">
+              <label>Instagram</label>
+              <input type="url" id="campo-instagram" placeholder="https://instagram.com/...">
             </div>
-            <button type="submit" class="form-btn" id="btn-salvar-perfil">💾 Salvar Perfil</button>
-            <div id="perfil-msg" class="form-msg"></div>
+            <button type="submit" class="form-btn" id="btn-salvar-perfil">Salvar Perfil</button>
+            <div class="form-msg" id="perfil-msg"></div>
           </form>
-          <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--card-line);">
-            <p style="font-size:12px;opacity:0.4;">🔗 Perfil público:</p>
-            <code style="font-size:12px;word-break:break-all;opacity:0.6;">${window.location.origin}/perfil-publico.html?id=${usuarioId}</code>
-            <button class="btn" style="margin-top:8px;font-size:12px;padding:6px 16px;" onclick="copiarLinkPerfil()">📋 Copiar link</button>
-          </div>
+
         </div>
-      `;
+      </section>
+    </div>
 
-      document.getElementById('form-perfil').addEventListener('submit', function(e) {
-        e.preventDefault();
-        salvarPerfil();
-      });
-    }
+  </div><!-- /appScreen -->
 
-    function salvarPerfil() {
+  <footer>Discoteca — Sua coleção, suas recomendações.</footer>
+
+  <script>
+// ================================================================
+// CONFIGURAÇÕES
+// ================================================================
+const API_URL = 'https://fporteladaTEST.pythonanywhere.com';
+const DEV_MODE = true;
+const DEV_USER_ID = 1;
+const DEV_USER_NOME = 'Teste ID 1';
+
+let usuarioId = null;
+let confirmCallback = null;
+
+// ================================================================
+// NAVEGAÇÃO
+// ================================================================
+const NAV_ITEMS = [
+  { id: 'tab-compras', href: 'index.html', label: '📋 Wishlist' },
+  { id: 'tab-estatisticas', href: 'estatisticas.html', label: '📊 Estatísticas' },
+  { id: 'tab-colecao', href: 'colecao.html', label: '💿 Coleção', badge: true },
+  { id: 'tab-importar', href: 'importar.html', label: '📤 Importar' },
+  { id: 'tab-perfil', href: 'perfil.html', label: '👤 Perfil' }
+];
+
+function renderNav(paginaAtiva) {
+  const container = document.getElementById('navContainer');
+  if (!container) return;
+  const html = NAV_ITEMS.map(item => {
+    const ativo = item.href === paginaAtiva ? ' active' : '';
+    const badge = item.badge ? ' <span class="tab-badge" id="colecao-badge">0</span>' : '';
+    return `<a class="tab-btn${ativo}" data-tab="${item.id}" href="${item.href}">${item.label}${badge}</a>`;
+  }).join('');
+  container.innerHTML = html;
+}
+
+function atualizarBadgeColecao(n) {
+  const el = document.getElementById('colecao-badge');
+  if (el) el.textContent = n;
+}
+
+function sincronizarBadge() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/colecao?user_id=' + usuarioId)
+    .then(r => r.json())
+    .then(data => atualizarBadgeColecao(Array.isArray(data) ? data.length : 0))
+    .catch(() => {});
+}
+
+// ================================================================
+// LOGIN
+// ================================================================
+function salvarSessao(userId, nome) {
+  localStorage.setItem('discoteca_user_id', userId);
+  localStorage.setItem('discoteca_user_nome', nome);
+}
+function carregarSessao() {
+  const userId = localStorage.getItem('discoteca_user_id');
+  const nome = localStorage.getItem('discoteca_user_nome');
+  if (userId && nome) return { userId, nome };
+  return null;
+}
+function limparSessao() {
+  localStorage.removeItem('discoteca_user_id');
+  localStorage.removeItem('discoteca_user_nome');
+}
+function ativarTelaApp(nome) {
+  const loginScreen = document.getElementById('loginScreen');
+  const appScreen = document.getElementById('appScreen');
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (appScreen) appScreen.style.display = 'block';
+  const nomeDisplay = document.getElementById('userNameDisplay');
+  if (nomeDisplay) nomeDisplay.textContent = '👤 ' + nome;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btnLogin = document.getElementById('btnLogin');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', function() {
+      const btn = this;
+      const error = document.getElementById('loginError');
+      btn.disabled = true;
+      if (error) error.style.display = 'none';
+      fetch(API_URL + '/login')
+        .then(r => r.json())
+        .then(d => {
+          if (d.auth_url) window.location.href = d.auth_url;
+          else throw new Error('URL não recebida');
+        })
+        .catch(() => {
+          if (error) error.style.display = 'block';
+          btn.disabled = false;
+        });
+    });
+  }
+  const btnLogout = document.getElementById('btnLogout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', function() {
+      limparSessao();
+      window.location.href = 'index.html';
+    });
+  }
+});
+
+// ================================================================
+// VERIFICAR SESSÃO
+// ================================================================
+function verificarSessao() {
+  if (DEV_MODE) {
+    usuarioId = DEV_USER_ID;
+    salvarSessao(DEV_USER_ID, DEV_USER_NOME);
+    ativarTelaApp(DEV_USER_NOME);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('user_id');
+  const nome = params.get('nome');
+  if (userId && nome) {
+    salvarSessao(userId, nome);
+    usuarioId = userId;
+    ativarTelaApp(nome);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+  const sessao = carregarSessao();
+  if (sessao) {
+    usuarioId = sessao.userId;
+    ativarTelaApp(sessao.nome);
+    if (typeof onPaginaPronta === 'function') onPaginaPronta();
+    return;
+  }
+  fetch(API_URL + '/sessao')
+    .then(r => r.json())
+    .then(data => {
+      if (data.logado) {
+        usuarioId = data.usuario_id;
+        salvarSessao(data.usuario_id, data.nome || 'Usuário');
+        ativarTelaApp(data.nome || 'Usuário');
+        if (typeof onPaginaPronta === 'function') onPaginaPronta();
+      }
+    })
+    .catch(() => {});
+}
+
+// ================================================================
+// PÁGINA: PERFIL
+// ================================================================
+function onPaginaPronta() {
+  carregarDados();
+  sincronizarBadge();
+}
+
+function carregarDados() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/perfil/' + usuarioId)
+    .then(r => r.json())
+    .then(data => preencherFormulario(data))
+    .catch(() => {
+      document.getElementById('perfil-msg').textContent = 'Erro ao carregar perfil.';
+      document.getElementById('perfil-msg').className = 'form-msg error';
+    });
+}
+
+function preencherFormulario(data) {
+  const avatar = document.getElementById('perfilAvatar');
+  if (data.foto_url) {
+    avatar.innerHTML = `<img src="${data.foto_url}" alt="Avatar">`;
+  } else {
+    avatar.textContent = (data.nome || '?').charAt(0).toUpperCase();
+  }
+  document.getElementById('perfilNome').textContent = data.nome || 'Usuário';
+  const ano = data.data_criacao ? data.data_criacao.split('-')[0] : '';
+  document.getElementById('perfilDesde').textContent = ano ? `Colecionando desde ${ano}` : '';
+  document.getElementById('perfilLinkPublico').href = `perfil-publico.html?id=${data.id}`;
+
+  document.getElementById('campo-bio').value = data.bio || '';
+  document.getElementById('bioCount').textContent = (data.bio || '').length;
+  document.getElementById('campo-spotify').value = data.spotify_url || '';
+  document.getElementById('campo-discogs').value = data.discogs_url || '';
+  document.getElementById('campo-instagram').value = data.instagram_url || '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const bio = document.getElementById('campo-bio');
+  if (bio) {
+    bio.addEventListener('input', function() {
+      document.getElementById('bioCount').textContent = this.value.length;
+    });
+  }
+
+  const form = document.getElementById('form-perfil');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
       const btn = document.getElementById('btn-salvar-perfil');
       const msg = document.getElementById('perfil-msg');
       btn.disabled = true;
-      msg.textContent = '⏳ Salvando...';
-      msg.className = 'form-msg';
+      btn.textContent = 'Salvando...';
 
       const dados = {
-        bio: document.getElementById('perfil-bio').value.trim(),
-        spotify_url: document.getElementById('perfil-spotify').value.trim(),
-        discogs_url: document.getElementById('perfil-discogs').value.trim(),
-        instagram_url: document.getElementById('perfil-instagram').value.trim()
+        bio: document.getElementById('campo-bio').value.trim(),
+        spotify_url: document.getElementById('campo-spotify').value.trim(),
+        discogs_url: document.getElementById('campo-discogs').value.trim(),
+        instagram_url: document.getElementById('campo-instagram').value.trim()
       };
 
-      fetch(API_URL + '/perfil?user_id=' + usuarioId, {
+      fetch(API_URL + '/editar_perfil?user_id=' + usuarioId, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
       })
-      .then(r => r.json())
-      .then(data => {
-        if (data.sucesso) {
-          msg.textContent = '✅ ' + data.mensagem;
-          msg.className = 'form-msg success';
-          carregarPerfil();
-        } else {
-          msg.textContent = '❌ ' + (data.erro || 'Erro ao salvar');
-          msg.className = 'form-msg error';
+        .then(r => r.json())
+        .then(d => {
           btn.disabled = false;
-        }
-      })
-      .catch(() => {
-        msg.textContent = '❌ Erro de conexão';
-        msg.className = 'form-msg error';
-        btn.disabled = false;
-      });
-    }
-
-    // ================================================================
-    // INICIALIZAR
-    // ================================================================
-    document.addEventListener('DOMContentLoaded', function() {
-      const logado = initApp();
-      if (logado) {
-        carregarPerfil();
-      }
+          btn.textContent = 'Salvar Perfil';
+          if (d.sucesso) {
+            msg.textContent = 'Perfil atualizado!';
+            msg.className = 'form-msg success';
+          } else {
+            msg.textContent = d.erro || 'Erro ao salvar.';
+            msg.className = 'form-msg error';
+          }
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.textContent = 'Salvar Perfil';
+          msg.textContent = 'Erro de conexão. Tente novamente.';
+          msg.className = 'form-msg error';
+        });
     });
+  }
+
+  renderNav('perfil.html');
+  verificarSessao();
+});
   </script>
 </body>
 </html>
