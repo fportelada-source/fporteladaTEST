@@ -1553,13 +1553,16 @@
     }
 
     /* ===== PERFIL PÚBLICO ===== */
+    #perfil-content {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 20px 60px 20px;
+    }
     .pp-header {
       display: flex;
       align-items: center;
       gap: 20px;
-      padding: 32px 20px;
-      max-width: 800px;
-      margin: 0 auto;
+      padding: 0 0 24px 0;
     }
     .pp-avatar {
       width: 96px;
@@ -1582,7 +1585,7 @@
     }
     .pp-nome {
       font-family: 'Anton', sans-serif;
-      font-size: 28px;
+      font-size: 26px;
       letter-spacing: 0.02em;
     }
     .pp-desde {
@@ -1595,12 +1598,12 @@
       font-size: 14px;
       opacity: 0.8;
       margin-bottom: 10px;
-      max-width: 480px;
     }
     .pp-redes {
       display: flex;
       gap: 14px;
       align-items: center;
+      flex-wrap: wrap;
     }
     .pp-redes a {
       font-size: 13px;
@@ -1620,9 +1623,10 @@
     .pp-metrics {
       display: flex;
       gap: 24px;
-      max-width: 800px;
-      margin: 0 auto 32px auto;
-      padding: 0 20px;
+      margin: 0 0 32px 0;
+      padding: 20px 0;
+      border-top: 1px solid var(--card-line);
+      border-bottom: 1px solid var(--card-line);
     }
     .pp-metric-item .num {
       font-family: 'Anton', sans-serif;
@@ -1649,7 +1653,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-size: cover;
+      background-size: contain;
+      background-repeat: no-repeat;
       background-position: center;
     }
     .pp-item .fallback {
@@ -1684,4 +1689,34 @@
     .pp-item .artist {
       font-size: 11.5px;
       opacity: 0.6;
+    }
+
+    /* ===== ESTATÍSTICAS DO PERFIL PÚBLICO (texto, sem cards) ===== */
+    .pp-stats-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .pp-stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--card-line);
+      font-size: 13px;
+    }
+    .pp-stats-row:last-child {
+      border-bottom: none;
+    }
+    .pp-stats-row .label {
+      opacity: 0.5;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .pp-stats-row .val {
+      text-align: right;
+      font-weight: 600;
     }
