@@ -149,7 +149,7 @@
         return `
           <section class="lb-row-section">
             <div class="lb-row-head"><h2>${titulo}</h2></div>
-            <div class="lb-empty">Nada por aqui ainda.</div>
+            <div class="lb-empty">Prateleira vazia.</div>
           </section>
         `;
       }
@@ -197,13 +197,19 @@
             <div class="lb-stat"><span class="num" style="color:var(--colecao-color);">${data.total_discos || 0}</span><span class="label">Itens na Estante</span></div>
             <div class="lb-stat"><span class="num" style="color:var(--s-color);">${data.total_wishlist || 0}</span><span class="label">Wishlist</span></div>
           </div>
+          <button class="lb-search-btn" id="btnBusca" title="Buscar na coleção">🔍</button>
         </header>
+
+        <div class="lb-search-wrap" id="buscaWrap">
+          <input type="text" id="campoBusca" class="lb-search-input" placeholder="Buscar artista ou álbum...">
+          <span class="lb-search-count" id="buscaContagem"></span>
+        </div>
       `;
 
       const substats = [];
-      if (data.genero_predominante) substats.push(`<strong>Gênero predominante:</strong> ${data.genero_predominante}`);
-      if (data.disco_mais_antigo) substats.push(`<strong>Mais antigo:</strong> ${data.disco_mais_antigo}`);
-      if (data.disco_mais_recente) substats.push(`<strong>Mais recente:</strong> ${data.disco_mais_recente}`);
+      if (data.genero_predominante) substats.push(`<span class="k">Gênero predominante</span> <span class="v" style="color:var(--e-color);">${data.genero_predominante}</span>`);
+      if (data.disco_mais_antigo) substats.push(`<span class="k">Mais antigo</span> <span class="v" style="color:var(--vinil-color);">${data.disco_mais_antigo}</span>`);
+      if (data.disco_mais_recente) substats.push(`<span class="k">Mais recente</span> <span class="v" style="color:var(--a-color);">${data.disco_mais_recente}</span>`);
       if (substats.length > 0) {
         html += `<div class="lb-substats">${substats.join('<span class="dot">·</span>')}</div>`;
       }
@@ -225,18 +231,40 @@
 
       container.innerHTML = html;
 
-      // Carrega as capas
-      document.querySelectorAll('.lb-item[data-artista]').forEach(el => {
-        const artista = el.dataset.artista;
-        const album = el.dataset.album;
-        const artEl = el.querySelector('.art');
-        const fallbackEl = el.querySelector('.fallback');
-        if (artista && album && artEl && fallbackEl) {
-          fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
-        }
-      });
-
+      // Carrega as capas sob demanda (lazy) — evita disparar 100+ chamadas
+      // ao Last.fm de uma vez só quando a coleção é grande.
+      configurarLazyLoadCapas();
       configurarSetas();
+      configurarBusca(data);
+    }
+
+    function configurarLazyLoadCapas() {
+      const itens = document.querySelectorAll('.lb-item[data-artista]');
+      if (!('IntersectionObserver' in window)) {
+        // Navegador sem suporte: volta pro comportamento antigo (carrega tudo)
+        itens.forEach(carregarCapaDoItem);
+        return;
+      }
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            carregarCapaDoItem(entry.target);
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '200px' });
+      itens.forEach(el => observer.observe(el));
+    }
+
+    function carregarCapaDoItem(el) {
+      const artista = el.dataset.artista;
+      const album = el.dataset.album;
+      const artEl = el.querySelector('.art');
+      const fallbackEl = el.querySelector('.fallback');
+      if (artista && album && artEl && fallbackEl && !el.dataset.capaCarregada) {
+        el.dataset.capaCarregada = '1';
+        fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
+      }
     }
 
     // ================================================================
@@ -261,6 +289,39 @@
           const passo = row.clientWidth * 0.85;
           row.scrollBy({ left: passo * parseInt(this.dataset.dir, 10), behavior: 'smooth' });
         });
+      });
+    }
+
+    function configurarBusca(data) {
+      const btn = document.getElementById('btnBusca');
+      const wrap = document.getElementById('buscaWrap');
+      const input = document.getElementById('campoBusca');
+      const contagem = document.getElementById('buscaContagem');
+      if (!btn || !wrap || !input) return;
+
+      btn.addEventListener('click', function() {
+        wrap.classList.toggle('open');
+        if (wrap.classList.contains('open')) input.focus();
+      });
+
+      input.addEventListener('input', function() {
+        const termo = this.value.trim().toLowerCase();
+        let totalVisivel = 0;
+
+        document.querySelectorAll('.lb-row-section').forEach(secao => {
+          const row = secao.querySelector('.lb-row-scroll');
+          if (!row) return;
+          let algumVisivel = false;
+          row.querySelectorAll('.lb-item').forEach(item => {
+            const texto = `${item.dataset.artista} ${item.dataset.album}`.toLowerCase();
+            const bate = !termo || texto.includes(termo);
+            item.style.display = bate ? '' : 'none';
+            if (bate) { algumVisivel = true; totalVisivel++; }
+          });
+          secao.style.display = algumVisivel ? '' : 'none';
+        });
+
+        contagem.textContent = termo ? `${totalVisivel} resultado${totalVisivel === 1 ? '' : 's'}` : '';
       });
     }
 
