@@ -69,6 +69,10 @@
 
           <form id="form-perfil">
             <div class="form-group">
+              <label>Nome de exibição</label>
+              <input type="text" id="campo-nome-exibicao" maxlength="60" placeholder="Como quer aparecer no seu perfil público (deixe em branco para usar o nome do Google)">
+            </div>
+            <div class="form-group">
               <label>Bio</label>
               <textarea id="campo-bio" maxlength="280" placeholder="Conte um pouco sobre sua coleção..."></textarea>
               <div class="char-count"><span id="bioCount">0</span>/280</div>
@@ -272,6 +276,7 @@ function preencherFormulario(data) {
   document.getElementById('perfilDesde').textContent = ano ? `Colecionando desde ${ano}` : '';
   document.getElementById('perfilLinkPublico').href = `perfil-publico.html?id=${data.id}`;
 
+  document.getElementById('campo-nome-exibicao').value = data.nome_exibicao || '';
   document.getElementById('campo-bio').value = data.bio || '';
   document.getElementById('bioCount').textContent = (data.bio || '').length;
   document.getElementById('campo-spotify').value = data.spotify_url || '';
@@ -297,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
       btn.textContent = 'Salvando...';
 
       const dados = {
+        nome_exibicao: document.getElementById('campo-nome-exibicao').value.trim(),
         bio: document.getElementById('campo-bio').value.trim(),
         spotify_url: document.getElementById('campo-spotify').value.trim(),
         discogs_url: document.getElementById('campo-discogs').value.trim(),
