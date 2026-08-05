@@ -21,6 +21,18 @@
     const API_URL = 'https://fporteladaTEST.pythonanywhere.com';
 
     // ================================================================
+    // FORMATO: cor + ícone (mesmo padrão usado na Coleção)
+    // ================================================================
+    const FORMATOS = {
+      vinil:      { nome: 'Vinil',       icone: '🎵', cor: 'var(--vinil-color)' },
+      cd:         { nome: 'CD',          icone: '💿', cor: 'var(--cd-color)' },
+      cassete:    { nome: 'Cassete',     icone: '📼', cor: 'var(--cassete-color)' },
+      dvd_bluray: { nome: 'DVD/Blu-ray', icone: '📀', cor: 'var(--e-color)' }
+    };
+    const ORDEM_FORMATOS = ['vinil', 'cd', 'cassete', 'dvd_bluray'];
+    const CORES_TIER = { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' };
+
+    // ================================================================
     // LAST.FM (capas dos álbuns) — mesmo mecanismo já usado no resto do site
     // ================================================================
     const LASTFM_KEY = 'b25b959554ed76058ac220b7b2e0a026';
@@ -85,7 +97,7 @@
     }
 
     // ================================================================
-    // CARREGAR E RENDERIZAR PERFIL
+    // CARREGAR PERFIL
     // ================================================================
     function carregarPerfil() {
       const params = new URLSearchParams(window.location.search);
@@ -109,6 +121,55 @@
         });
     }
 
+    // ================================================================
+    // MONTA UM ITEM (usado tanto na Wishlist quanto na Coleção)
+    // ================================================================
+    function montarItem(item, rowId, idx, opts) {
+      const artId = `${rowId}-art-${idx}`;
+      const fallbackId = `${rowId}-fallback-${idx}`;
+      const corFundo = opts.corFundo || getCor(item.artista);
+      const badge = opts.badge ? `<span class="priority-tag" style="background:${opts.badge.cor}; color:var(--ink);">${opts.badge.texto}</span>` : '';
+      return `
+        <div class="lb-item" data-artista="${item.artista || ''}" data-album="${item.album || ''}">
+          <div class="art" id="${artId}" style="background:${corFundo};">
+            ${badge}
+            <div class="fallback" id="${fallbackId}">${getIniciais(item.artista, item.album)}</div>
+          </div>
+          <div class="info">
+            <div class="album">${item.album || 'Álbum'}</div>
+            <div class="artist">${item.artista || 'Artista'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function montarLinha(rowId, titulo, items, opts) {
+      if (!items || items.length === 0) {
+        return `
+          <section class="lb-row-section">
+            <div class="lb-row-head"><h2>${titulo}</h2></div>
+            <div class="lb-empty">Nada por aqui ainda.</div>
+          </section>
+        `;
+      }
+      const itensHtml = items.map((item, idx) => montarItem(item, rowId, idx, opts(item))).join('');
+      return `
+        <section class="lb-row-section">
+          <div class="lb-row-head">
+            <h2>${titulo}<span class="count">${items.length}</span></h2>
+            <div class="lb-row-arrows">
+              <button class="lb-arrow disabled" data-row="${rowId}" data-dir="-1">‹</button>
+              <button class="lb-arrow" data-row="${rowId}" data-dir="1">›</button>
+            </div>
+          </div>
+          <div class="lb-row-scroll" id="${rowId}">${itensHtml}</div>
+        </section>
+      `;
+    }
+
+    // ================================================================
+    // RENDER PERFIL
+    // ================================================================
     function renderPerfil(data) {
       const container = document.getElementById('perfil-content');
       const nome = data.nome_exibicao || data.nome || 'Colecionador';
@@ -118,97 +179,53 @@
         : nome.charAt(0).toUpperCase();
 
       let redesHtml = '';
-      if (data.spotify_url) redesHtml += `<a href="${data.spotify_url}" target="_blank">Spotify</a>`;
-      if (data.discogs_url) redesHtml += `<a href="${data.discogs_url}" target="_blank">Discogs</a>`;
-      if (data.instagram_url) redesHtml += `<a href="${data.instagram_url}" target="_blank">Instagram</a>`;
-      if (!redesHtml) redesHtml = `<span class="sem-redes">Sem redes sociais adicionadas</span>`;
+      if (ano) redesHtml += `<span>Colecionando desde ${ano}</span>`;
+      if (data.spotify_url) redesHtml += `<span class="dot">·</span><a href="${data.spotify_url}" target="_blank">Spotify</a>`;
+      if (data.discogs_url) redesHtml += `<span class="dot">·</span><a href="${data.discogs_url}" target="_blank">Discogs</a>`;
+      if (data.instagram_url) redesHtml += `<span class="dot">·</span><a href="${data.instagram_url}" target="_blank">Instagram</a>`;
 
       let html = `
-        <header class="pp-header">
-          <div class="pp-avatar">${avatarHtml}</div>
-          <div>
-            <div class="pp-nome">${nome}</div>
-            ${ano ? `<div class="pp-desde">Colecionando desde ${ano}</div>` : ''}
-            ${data.bio ? `<div class="pp-bio">${data.bio}</div>` : ''}
-            <div class="pp-redes">${redesHtml}</div>
+        <header class="lb-header">
+          <div class="lb-avatar">${avatarHtml}</div>
+          <div class="lb-headerinfo">
+            <div class="lb-nome">${nome}</div>
+            ${data.bio ? `<div class="lb-bio">${data.bio}</div>` : ''}
+            <div class="lb-detailline">${redesHtml}</div>
+          </div>
+          <div class="lb-stats">
+            <div class="lb-stat"><span class="num">${data.total_discos || 0}</span><span class="label">Itens na Estante</span></div>
+            <div class="lb-stat"><span class="num">${data.total_wishlist || 0}</span><span class="label">Wishlist</span></div>
           </div>
         </header>
-
-        <div class="pp-metrics">
-          <div class="pp-metric-item"><span class="num">${data.total_discos || 0}</span><span class="label">Discos</span></div>
-          <div class="pp-metric-item"><span class="num" style="color:var(--s-color);">${data.total_wishlist || 0}</span><span class="label">Wishlist</span></div>
-        </div>
       `;
 
-      // Coleção
-      html += `<section class="section"><h2 style="font-family:'Anton',sans-serif; font-size:20px; margin-bottom:14px;">Coleção</h2>`;
-      if (data.ultimos_discos && data.ultimos_discos.length > 0) {
-        html += `<div class="pp-grid">`;
-        data.ultimos_discos.forEach((item, idx) => {
-          const cor = getCor(item.artista);
-          html += `
-            <div class="pp-item" data-artista="${item.artista}" data-album="${item.album}">
-              <div class="art" id="pp-art-${idx}" style="background:${cor};">
-                <div class="fallback" id="pp-fallback-${idx}">${getIniciais(item.artista, item.album)}</div>
-              </div>
-              <div class="info">
-                <div class="album">${item.album || 'Álbum'}</div>
-                <div class="artist">${item.artista || 'Artista'}</div>
-              </div>
-            </div>
-          `;
-        });
-        html += `</div>`;
-      } else {
-        html += `<p style="opacity:0.5; font-size:13px;">Este colecionador ainda não tem discos.</p>`;
+      const substats = [];
+      if (data.genero_predominante) substats.push(`<strong>Gênero predominante:</strong> ${data.genero_predominante}`);
+      if (data.disco_mais_antigo) substats.push(`<strong>Mais antigo:</strong> ${data.disco_mais_antigo}`);
+      if (data.disco_mais_recente) substats.push(`<strong>Mais recente:</strong> ${data.disco_mais_recente}`);
+      if (substats.length > 0) {
+        html += `<div class="lb-substats">${substats.join('<span class="dot">·</span>')}</div>`;
       }
-      html += `</section>`;
 
-      // Wishlist
-      html += `<section class="section" style="margin-top:24px;"><h2 style="font-family:'Anton',sans-serif; font-size:20px; margin-bottom:14px;">Wishlist</h2>`;
-      if (data.wishlist && data.wishlist.length > 0) {
-        html += `<div class="pp-grid">`;
-        data.wishlist.forEach((item, idx) => {
-          const corTier = { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' }[item.tier] || 'var(--c-color)';
-          html += `
-            <div class="pp-item" data-artista="${item.artista}" data-album="${item.album}">
-              <div class="art" id="pp-wish-art-${idx}" style="background:${corTier};">
-                <span class="tier-badge" style="background:${corTier};">${item.tier}</span>
-                <div class="fallback" id="pp-wish-fallback-${idx}">${getIniciais(item.artista, item.album)}</div>
-              </div>
-              <div class="info">
-                <div class="album">${item.album || 'Álbum'}</div>
-                <div class="artist">${item.artista || 'Artista'}</div>
-              </div>
-            </div>
-          `;
-        });
-        html += `</div>`;
-      } else {
-        html += `<p style="opacity:0.5; font-size:13px;">Sem itens na wishlist no momento.</p>`;
-      }
-      html += `</section>`;
+      // Wishlist — uma fileira só, ordenada S → C
+      html += montarLinha('row-wishlist', 'Wishlist', data.wishlist, item => ({
+        corFundo: CORES_TIER[item.tier] || 'var(--c-color)',
+        badge: { texto: item.tier, cor: CORES_TIER[item.tier] || 'var(--c-color)' }
+      }));
 
-      // Estatísticas (texto, sem cards)
-      const statsLinhas = [
-        ['Gênero predominante', data.genero_predominante],
-        ['Banda mais presente', data.banda_mais_presente],
-        ['Disco mais antigo', data.disco_mais_antigo],
-        ['Disco mais recente', data.disco_mais_recente]
-      ].filter(([, valor]) => valor);
-      if (statsLinhas.length > 0) {
-        html += `<section class="section pp-stats" style="margin-top:24px;">`;
-        html += `<h2 style="font-family:'Anton',sans-serif; font-size:20px; margin-bottom:14px;">Estatísticas</h2>`;
-        html += `<div class="pp-stats-list">`;
-        statsLinhas.forEach(([label, valor]) => {
-          html += `<div class="pp-stats-row"><span class="label">${label}</span><span class="val">${valor}</span></div>`;
-        });
-        html += `</div></section>`;
-      }
+      // Coleção — uma fileira por formato, sempre na ordem Vinil > CD > Cassete > DVD/Blu-ray
+      ORDEM_FORMATOS.forEach(chave => {
+        const f = FORMATOS[chave];
+        const items = (data.colecao_por_formato && data.colecao_por_formato[chave]) || [];
+        html += montarLinha('row-' + chave, f.nome, items, () => ({
+          badge: { texto: `${f.icone} ${f.nome}`, cor: f.cor }
+        }));
+      });
 
       container.innerHTML = html;
 
-      document.querySelectorAll('.pp-item[data-artista]').forEach((el) => {
+      // Carrega as capas
+      document.querySelectorAll('.lb-item[data-artista]').forEach(el => {
         const artista = el.dataset.artista;
         const album = el.dataset.album;
         const artEl = el.querySelector('.art');
@@ -216,6 +233,33 @@
         if (artista && album && artEl && fallbackEl) {
           fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
         }
+      });
+
+      configurarSetas();
+    }
+
+    // ================================================================
+    // SETAS DE ROLAGEM HORIZONTAL
+    // ================================================================
+    function configurarSetas() {
+      document.querySelectorAll('.lb-row-scroll').forEach(row => {
+        const atualizarEstadoSetas = () => {
+          const prev = document.querySelector(`.lb-arrow[data-row="${row.id}"][data-dir="-1"]`);
+          const next = document.querySelector(`.lb-arrow[data-row="${row.id}"][data-dir="1"]`);
+          if (prev) prev.classList.toggle('disabled', row.scrollLeft <= 4);
+          if (next) next.classList.toggle('disabled', row.scrollLeft + row.clientWidth >= row.scrollWidth - 4);
+        };
+        row.addEventListener('scroll', atualizarEstadoSetas);
+        atualizarEstadoSetas();
+      });
+
+      document.querySelectorAll('.lb-arrow').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const row = document.getElementById(this.dataset.row);
+          if (!row) return;
+          const passo = row.clientWidth * 0.85;
+          row.scrollBy({ left: passo * parseInt(this.dataset.dir, 10), behavior: 'smooth' });
+        });
       });
     }
 
