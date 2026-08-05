@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
@@ -128,9 +128,10 @@
       const artId = `${rowId}-art-${idx}`;
       const fallbackId = `${rowId}-fallback-${idx}`;
       const corFundo = opts.corFundo || getCor(item.artista);
+      const corAccent = opts.badge ? opts.badge.cor : corFundo;
       const badge = opts.badge ? `<span class="priority-tag" style="background:${opts.badge.cor}; color:var(--ink);">${opts.badge.texto}</span>` : '';
       return `
-        <div class="lb-item" data-artista="${item.artista || ''}" data-album="${item.album || ''}">
+        <div class="lb-item" style="--item-accent:${corAccent};" data-artista="${item.artista || ''}" data-album="${item.album || ''}">
           <div class="art" id="${artId}" style="background:${corFundo};">
             ${badge}
             <div class="fallback" id="${fallbackId}">${getIniciais(item.artista, item.album)}</div>
@@ -193,8 +194,8 @@
             <div class="lb-detailline">${redesHtml}</div>
           </div>
           <div class="lb-stats">
-            <div class="lb-stat"><span class="num">${data.total_discos || 0}</span><span class="label">Itens na Estante</span></div>
-            <div class="lb-stat"><span class="num">${data.total_wishlist || 0}</span><span class="label">Wishlist</span></div>
+            <div class="lb-stat"><span class="num" style="color:var(--colecao-color);">${data.total_discos || 0}</span><span class="label">Itens na Estante</span></div>
+            <div class="lb-stat"><span class="num" style="color:var(--s-color);">${data.total_wishlist || 0}</span><span class="label">Wishlist</span></div>
           </div>
         </header>
       `;
