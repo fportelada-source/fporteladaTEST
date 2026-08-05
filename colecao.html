@@ -62,10 +62,6 @@
 
         <!-- DASHBOARD -->
         <div id="dashboard-container"></div>
-        <div id="preencher-anos-wrap" style="text-align:right; margin-bottom:12px; display:none;">
-          <button class="btn" id="btnPreencherAnos" style="font-size:12px; padding:8px 14px;">Preencher anos faltantes</button>
-          <div id="preencher-anos-msg" style="font-size:12px; opacity:0.7; margin-top:6px;"></div>
-        </div>
 
         <!-- CONTROLES -->
         <div class="colecao-controls" id="colecaoControls">
@@ -435,43 +431,9 @@ function carregarDados() {
       renderDashboard();
       aplicarFiltros();
       atualizarBadgeColecao(colecao.length);
-
-      const wrap = document.getElementById('preencher-anos-wrap');
-      if (wrap) {
-        const faltando = colecao.some(d => !d.ano_lancamento);
-        wrap.style.display = faltando ? 'block' : 'none';
-      }
     })
     .catch(() => {});
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  const btn = document.getElementById('btnPreencherAnos');
-  if (btn) {
-    btn.addEventListener('click', function() {
-      const msg = document.getElementById('preencher-anos-msg');
-      btn.disabled = true;
-      btn.textContent = 'Buscando...';
-      if (msg) msg.textContent = '';
-      fetch(API_URL + '/preencher_anos_faltantes?user_id=' + usuarioId, { method: 'POST' })
-        .then(r => r.json())
-        .then(d => {
-          btn.disabled = false;
-          btn.textContent = 'Preencher anos faltantes';
-          if (msg) {
-            msg.textContent = `${d.atualizados} de ${d.total_verificados} discos atualizados.` +
-              (d.nao_encontrados && d.nao_encontrados.length ? ` Não encontrados: ${d.nao_encontrados.join(', ')}` : '');
-          }
-          carregarDados();
-        })
-        .catch(() => {
-          btn.disabled = false;
-          btn.textContent = 'Preencher anos faltantes';
-          if (msg) msg.textContent = 'Erro ao buscar. Tente novamente.';
-        });
-    });
-  }
-});
 
     function renderDashboard() {
       const container = document.getElementById('dashboard-container');
