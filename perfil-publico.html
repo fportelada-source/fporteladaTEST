@@ -111,7 +111,7 @@
 
     function renderPerfil(data) {
       const container = document.getElementById('perfil-content');
-      const nome = data.nome || 'Colecionador';
+      const nome = data.nome_exibicao || data.nome || 'Colecionador';
       const ano = data.data_criacao ? data.data_criacao.split('-')[0] : '';
       const avatarHtml = data.foto_url
         ? `<img src="${data.foto_url}" alt="${nome}">`
@@ -168,13 +168,13 @@
       html += `<section class="section" style="margin-top:24px;"><h2 style="font-family:'Anton',sans-serif; font-size:20px; margin-bottom:14px;">Wishlist</h2>`;
       if (data.wishlist && data.wishlist.length > 0) {
         html += `<div class="pp-grid">`;
-        data.wishlist.forEach(item => {
+        data.wishlist.forEach((item, idx) => {
           const corTier = { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' }[item.tier] || 'var(--c-color)';
           html += `
-            <div class="pp-item">
-              <div class="art" style="background:${corTier};">
+            <div class="pp-item" data-artista="${item.artista}" data-album="${item.album}">
+              <div class="art" id="pp-wish-art-${idx}" style="background:${corTier};">
                 <span class="tier-badge" style="background:${corTier};">${item.tier}</span>
-                <div class="fallback">${getIniciais(item.artista, item.album)}</div>
+                <div class="fallback" id="pp-wish-fallback-${idx}">${getIniciais(item.artista, item.album)}</div>
               </div>
               <div class="info">
                 <div class="album">${item.album || 'Álbum'}</div>
@@ -189,13 +189,32 @@
       }
       html += `</section>`;
 
+      // Estatísticas (texto, sem cards)
+      const statsLinhas = [
+        ['Gênero predominante', data.genero_predominante],
+        ['Banda mais presente', data.banda_mais_presente],
+        ['Disco mais antigo', data.disco_mais_antigo],
+        ['Disco mais recente', data.disco_mais_recente]
+      ].filter(([, valor]) => valor);
+      if (statsLinhas.length > 0) {
+        html += `<section class="section pp-stats" style="margin-top:24px;">`;
+        html += `<h2 style="font-family:'Anton',sans-serif; font-size:20px; margin-bottom:14px;">Estatísticas</h2>`;
+        html += `<div class="pp-stats-list">`;
+        statsLinhas.forEach(([label, valor]) => {
+          html += `<div class="pp-stats-row"><span class="label">${label}</span><span class="val">${valor}</span></div>`;
+        });
+        html += `</div></section>`;
+      }
+
       container.innerHTML = html;
 
-      document.querySelectorAll('.pp-item[data-artista]').forEach((el, idx) => {
+      document.querySelectorAll('.pp-item[data-artista]').forEach((el) => {
         const artista = el.dataset.artista;
         const album = el.dataset.album;
-        if (artista && album) {
-          fetchAlbumArt(artista, album, `pp-art-${idx}`, `pp-fallback-${idx}`);
+        const artEl = el.querySelector('.art');
+        const fallbackEl = el.querySelector('.fallback');
+        if (artista && album && artEl && fallbackEl) {
+          fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
         }
       });
     }
