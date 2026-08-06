@@ -130,8 +130,9 @@
       const corFundo = opts.corFundo || getCor(item.artista);
       const corAccent = opts.badge ? opts.badge.cor : corFundo;
       const badge = opts.badge ? `<span class="priority-tag" style="background:${opts.badge.cor}; color:var(--ink);">${opts.badge.texto}</span>` : '';
+      const capaAttr = item.capa_url ? ` data-capa="${item.capa_url}"` : '';
       return `
-        <div class="lb-item" style="--item-accent:${corAccent};" data-artista="${item.artista || ''}" data-album="${item.album || ''}">
+        <div class="lb-item" style="--item-accent:${corAccent};" data-artista="${item.artista || ''}" data-album="${item.album || ''}"${capaAttr}>
           <div class="art" id="${artId}" style="background:${corFundo};">
             ${badge}
             <div class="fallback" id="${fallbackId}">${getIniciais(item.artista, item.album)}</div>
@@ -256,15 +257,48 @@
       itens.forEach(el => observer.observe(el));
     }
 
+    function aplicarCapa(url, artEl, fallbackEl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        artEl.style.backgroundImage = `url('${url}')`;
+        if (fallbackEl) fallbackEl.style.opacity = '0';
+      };
+      img.onerror = () => {
+        if (fallbackEl) fallbackEl.style.opacity = '0.8';
+      };
+      img.src = url;
+    }
+
     function carregarCapaDoItem(el) {
       const artista = el.dataset.artista;
       const album = el.dataset.album;
+      const capaSalva = el.dataset.capa;
       const artEl = el.querySelector('.art');
       const fallbackEl = el.querySelector('.fallback');
-      if (artista && album && artEl && fallbackEl && !el.dataset.capaCarregada) {
-        el.dataset.capaCarregada = '1';
-        fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
+      if (!artista || !album || !artEl || !fallbackEl || el.dataset.capaCarregada) return;
+      el.dataset.capaCarregada = '1';
+
+      // 1) Já veio do banco (Discogs, sem crop) — usa direto, sem nenhuma chamada.
+      if (capaSalva) {
+        aplicarCapa(capaSalva, artEl, fallbackEl);
+        return;
       }
+
+      // 2) Não tinha salva ainda (item mais antigo) — tenta Discogs ao vivo.
+      fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.sucesso && d.capa_url) {
+            aplicarCapa(d.capa_url, artEl, fallbackEl);
+          } else {
+            // 3) Último recurso: Last.fm (pode vir cortado em algumas capas).
+            fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
+          }
+        })
+        .catch(() => {
+          fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
+        });
     }
 
     // ================================================================
