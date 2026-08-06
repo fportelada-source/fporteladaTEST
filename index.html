@@ -1,1 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Discoteca — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+<body>
 
+  <!-- ===== LOGIN ===== -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <div class="logo">Discoteca<span>.</span></div>
+      <p class="sub">Sua coleção de discos, organizada com recomendações personalizadas.</p>
+      <button class="login-btn" id="btnLogin">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Entrar com Google
+      </button>
+      <div id="loginError" class="login-error">Erro ao fazer login. Tente novamente.</div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="appScreen" style="display:none;">
+    <div class="app-shell">
+
+      <!-- SIDEBAR -->
+      <aside class="app-sidebar">
+        <a href="index.html" class="logo">D<span>.</span></a>
+        <nav class="nav-icons">
+          <a href="index.html" class="active" title="Dashboard">🏠</a>
+          <a href="wishlist.html" title="Wishlist">📋<span class="badge-count" id="navWishlistCount" style="display:none;">0</span></a>
+          <a href="colecao.html" title="Coleção">💿</a>
+          <a href="estatisticas.html" title="Estatísticas">📊</a>
+          <a href="importar.html" title="Importar">📤</a>
+        </nav>
+        <a href="perfil.html" class="bottom-icon" title="Perfil">⚙</a>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="app-main">
+
+        <!-- TOP BAR -->
+        <div class="app-topbar">
+          <div class="search" style="position:relative;">
+            <span>⌕</span>
+            <input type="text" id="dashSearch" placeholder="Buscar álbuns, artistas, coleção...">
+            <div id="dashSearchResults" class="dash-search-results"></div>
+          </div>
+          <a href="perfil.html" class="user">
+            <span class="name" id="userNameDisplay">Carregando...</span>
+            <div class="avatar" id="userAvatar">?</div>
+          </a>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="dash" id="dashContent">
+          <div style="opacity:0.4; font-size:13px;">Carregando seu painel...</div>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /appScreen -->
+
+  <footer>Discoteca — Sua coleção, suas recomendações.</footer>
+
+  <script>
+// ================================================================
+// CONFIGURAÇÕES
+// ================================================================
+const API_URL = 'https://fporteladaTEST.pythonanywhere.com';
+const DEV_MODE = true;
+const DEV_USER_ID = 1;
+const DEV_USER_NOME = 'Teste ID 1';
+
+let usuarioId = null;
+let confirmCallback = null;
+let dashColecao = [];
+let dashWishlist = [];
+
+// ================================================================
+// LOGIN
+// ================================================================
+function salvarSessao(userId, nome) {
+  localStorage.setItem('discoteca_user_id', userId);
+  localStorage.setItem('discoteca_user_nome', nome);
+}
+function carregarSessao() {
+  const userId = localStorage.getItem('discoteca_user_id');
+  const nome = localStorage.getItem('discoteca_user_nome');
+  if (userId && nome) return { userId, nome };
+  return null;
+}
+function limparSessao() {
+  localStorage.removeItem('discoteca_user_id');
+  localStorage.removeItem('discoteca_user_nome');
+}
+function ativarTelaApp(nome) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  document.getElementById('userNameDisplay').textContent = nome;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btnLogin = document.getElementById('btnLogin');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', function() {
+      const btn = this;
+      const error = document.getElementById('loginError');
+      btn.disabled = true;
+      if (error) error.style.display = 'none';
+      fetch(API_URL + '/login')
+        .then(r => r.json())
+        .then(d => {
+          if (d.auth_url) window.location.href = d.auth_url;
+          else throw new Error('URL não recebida');
+        })
+        .catch(() => {
+          if (error) error.style.display = 'block';
+          btn.disabled = false;
+        });
+    });
+  }
+});
+
+// ================================================================
+// VERIFICAR SESSÃO
+// ================================================================
+function verificarSessao() {
+  if (DEV_MODE) {
+    usuarioId = DEV_USER_ID;
+    salvarSessao(DEV_USER_ID, DEV_USER_NOME);
+    ativarTelaApp(DEV_USER_NOME);
+    carregarDashboard();
+    return;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('user_id');
+  const nome = params.get('nome');
+  if (userId && nome) {
+    salvarSessao(userId, nome);
+    usuarioId = userId;
+    ativarTelaApp(nome);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    carregarDashboard();
+    return;
+  }
+  const sessao = carregarSessao();
+  if (sessao) {
+    usuarioId = sessao.userId;
+    ativarTelaApp(sessao.nome);
+    carregarDashboard();
+    return;
+  }
+  fetch(API_URL + '/sessao')
+    .then(r => r.json())
+    .then(data => {
+      if (data.logado) {
+        usuarioId = data.usuario_id;
+        salvarSessao(data.usuario_id, data.nome || 'Usuário');
+        ativarTelaApp(data.nome || 'Usuário');
+        carregarDashboard();
+      }
+    })
+    .catch(() => {});
+}
+
+// ================================================================
+// SEÇÕES AINDA SEM DADOS REAIS (arquitetura pronta pra V0.11+)
+// Trocar o corpo destas duas funções quando as features existirem
+// (scraper de preços, motor de descoberta) — o resto do dashboard
+// não precisa mudar.
+// ================================================================
+function buscarOportunidadesMercado() {
+  return Promise.resolve([
+    { tag: 'em breve', nome: 'Monitoramento de preços', sub: 'Chega na V0.11', preco: null, precoAntigo: null }
+  ]);
+}
+function buscarDescobertas() {
+  return Promise.resolve([]);
+}
+
+// ================================================================
+// CARREGAR DASHBOARD
+// ================================================================
+function carregarDashboard() {
+  Promise.all([
+    fetch(API_URL + '/colecao?user_id=' + usuarioId).then(r => r.json()),
+    fetch(API_URL + '/recomendacoes?user_id=' + usuarioId).then(r => r.json()),
+    fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId).then(r => r.json()),
+    fetch(API_URL + '/perfil/' + usuarioId).then(r => r.json())
+  ]).then(([colecao, wishlist, stats, perfil]) => {
+    dashColecao = Array.isArray(colecao) ? colecao : [];
+    dashWishlist = Array.isArray(wishlist) ? wishlist : [];
+    renderDashboard(
+      dashColecao,
+      dashWishlist,
+      stats && !stats.erro ? stats : {},
+      perfil && !perfil.erro ? perfil : {}
+    );
+    configurarBuscaDashboard();
+  }).catch(() => {
+    document.getElementById('dashContent').innerHTML =
+      '<div style="opacity:0.5; font-size:13px;">Não consegui carregar o dashboard. Tenta recarregar a página.</div>';
+  });
+}
+
+function corTier(tier) {
+  return { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' }[tier] || 'var(--c-color)';
+}
+
+// O dashboard só mostra ~7 itens no máximo (hero + 3 compras + 3 wishlist),
+// então buscar a capa que ainda não veio salva é seguro aqui — diferente
+// da geração em massa de recomendações, que evita isso de propósito.
+function carregarCapasFaltantesDashboard() {
+  document.querySelectorAll('.dash-hero .cover[data-artista], .dash-purchase-card .thumb[data-artista], .dash-wishlist-item .cover[data-artista]').forEach(el => {
+    if (el.style.backgroundImage) return; // já tem capa
+    const artista = el.dataset.artista;
+    const album = el.dataset.album;
+    if (!artista || !album) return;
+    fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.sucesso && d.capa_url) {
+          el.style.backgroundImage = `url('${d.capa_url}')`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          const icone = el.querySelector('.fallback-icon');
+          if (icone) icone.style.display = 'none';
+          else el.textContent = '';
+        }
+      })
+      .catch(() => {});
+  });
+}
+
+function renderDashboard(colecao, wishlist, stats, perfil) {
+  const avatarEl = document.getElementById('userAvatar');
+  const nomeExibicao = perfil.nome_exibicao || perfil.nome || DEV_USER_NOME;
+  document.getElementById('userNameDisplay').textContent = nomeExibicao;
+  if (perfil.foto_url) {
+    avatarEl.innerHTML = `<img src="${perfil.foto_url}" alt="${nomeExibicao}">`;
+  } else {
+    avatarEl.textContent = nomeExibicao.charAt(0).toUpperCase();
+  }
+
+  const badge = document.getElementById('navWishlistCount');
+  if (wishlist.length > 0) {
+    badge.textContent = wishlist.length;
+    badge.style.display = 'flex';
+  }
+
+  const artistasUnicos = new Set(colecao.map(d => d.artista).filter(Boolean));
+  const hero = wishlist[0]; // já vem ordenado S → C do back-end
+
+  let html = '';
+
+  // ===== HERO RECOMMENDATION =====
+  if (hero) {
+    const capaHero = hero.capa_url ? `style="background-image:url('${hero.capa_url}'); background-size:cover; background-position:center;"` : '';
+    html += `
+      <div class="dash-hero">
+        <div class="cover" id="dashHeroCover" data-artista="${hero.artista || ''}" data-album="${hero.album || ''}" ${capaHero}>${hero.capa_url ? '' : '♬'}</div>
+        <div class="info">
+          <div class="badge">★ Prioridade ${hero.tier}</div>
+          <h2>${hero.album || 'Álbum'}</h2>
+          <div class="artist">${hero.artista || 'Artista'}</div>
+          <div class="desc">${hero.nota || hero.estrategia || 'Complementa bem sua coleção atual.'}</div>
+          <a href="wishlist.html" class="btn">Ver na Wishlist →</a>
+        </div>
+      </div>
+    `;
+  }
+
+  // ===== STATS ROW =====
+  html += `
+    <div class="dash-stats">
+      <div class="dash-stat-item"><div class="number">${stats.total_discos || colecao.length}</div><div class="label">Discos</div></div>
+      <div class="dash-stat-item"><div class="number">${stats.lps || 0}</div><div class="label">Vinil</div></div>
+      <div class="dash-stat-item"><div class="number">${stats.cds || 0}</div><div class="label">CDs</div></div>
+      <div class="dash-stat-item"><div class="number">${stats.cassetes || 0}</div><div class="label">Cassete</div></div>
+      <div class="dash-stat-item"><div class="number">${artistasUnicos.size}</div><div class="label">Artistas</div></div>
+      <div class="dash-stat-item"><div class="number">${wishlist.length}</div><div class="label">Wishlist</div></div>
+    </div>
+  `;
+
+  // ===== NEXT PURCHASES + MARKET OPPORTUNITIES =====
+  html += `<div class="dash-two-col">`;
+  html += `<div><div class="dash-section-title">Próximas compras <a href="wishlist.html" class="see-all">ver todas</a></div>`;
+  if (wishlist.length > 0) {
+    wishlist.slice(0, 3).forEach((item, idx) => {
+      const thumbStyle = item.capa_url ? `background-image:url('${item.capa_url}');` : `background:${corTier(item.tier)};`;
+      html += `
+        <div class="dash-purchase-card">
+          <div class="thumb" id="dashPurchase-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}" style="${thumbStyle}"></div>
+          <div class="info">
+            <div class="title">${item.album || 'Álbum'}</div>
+            <div class="artist">${item.artista || 'Artista'}</div>
+          </div>
+          <div class="score">${item.tier}</div>
+        </div>
+      `;
+    });
+  } else {
+    html += `<div class="dash-placeholder-note">Nada na wishlist ainda — vá em Importar para gerar recomendações.</div>`;
+  }
+  html += `</div>`;
+
+  html += `<div><div class="dash-section-title">Oportunidades de mercado</div><div id="dashOportunidades"></div></div>`;
+  html += `</div>`;
+
+  // ===== COLLECTION INSIGHTS + WISHLIST GRID =====
+  html += `<div class="dash-two-col">`;
+  html += `<div><div class="dash-section-title">Destaques da coleção</div><div class="dash-insights-grid">`;
+
+  if (stats.genero_predominante) {
+    html += `
+      <div class="dash-insight-card">
+        <div class="stat"><span class="highlight">${stats.genero_predominante_pct}%</span> ${stats.genero_predominante}</div>
+        <div class="desc">seu gênero predominante</div>
+        <div class="bar"><div class="fill" style="width:${stats.genero_predominante_pct}%;"></div></div>
+      </div>
+    `;
+  }
+  if (stats.decadas && stats.decadas.length > 0) {
+    const topDecada = [...stats.decadas].sort((a, b) => b.contagem - a.contagem)[0];
+    const pct = Math.round((topDecada.contagem / (stats.total_discos || 1)) * 100);
+    html += `
+      <div class="dash-insight-card">
+        <div class="stat"><span class="highlight">${topDecada.nome}</span></div>
+        <div class="desc">década mais coletada · ${topDecada.contagem} discos</div>
+        <div class="bar"><div class="fill" style="width:${pct}%;"></div></div>
+      </div>
+    `;
+  }
+  if (stats.valor_total) {
+    html += `
+      <div class="dash-insight-card">
+        <div class="stat"><span class="highlight">R$ ${stats.valor_total}</span></div>
+        <div class="desc">valor estimado da coleção</div>
+      </div>
+    `;
+  }
+  html += `
+    <div class="dash-insight-card">
+      <div class="stat"><span class="highlight">em breve</span></div>
+      <div class="desc">discografias completas</div>
+      <div class="dash-placeholder-note">Depende das trilogias (V0.10+)</div>
+    </div>
+  `;
+  html += `</div></div>`;
+
+  html += `<div><div class="dash-section-title">Wishlist <a href="wishlist.html" class="see-all">ver tudo</a></div><div class="dash-wishlist-grid">`;
+  if (wishlist.length > 0) {
+    wishlist.slice(0, 3).forEach((item, idx) => {
+      const coverStyle = item.capa_url ? `background-image:url('${item.capa_url}');` : `background:${corTier(item.tier)};`;
+      html += `
+        <div class="dash-wishlist-item">
+          <div class="cover" id="dashWish-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}" style="${coverStyle}">
+            <span class="priority" style="background:${corTier(item.tier)};">${item.tier}</span>
+            <span class="fallback-icon">${item.capa_url ? '' : '♢'}</span>
+          </div>
+          <div class="info">
+            <div class="title">${item.album || 'Álbum'}</div>
+            <div class="artist">${item.artista || 'Artista'}</div>
+          </div>
+        </div>
+      `;
+    });
+  } else {
+    html += `<div class="dash-placeholder-note">Sua wishlist está vazia.</div>`;
+  }
+  html += `</div></div>`;
+  html += `</div>`;
+
+  // ===== RECENT ACTIVITY + DISCOVER =====
+  const recentes = [...colecao]
+    .filter(d => d.data_adicao)
+    .sort((a, b) => (a.data_adicao < b.data_adicao ? 1 : -1))
+    .slice(0, 5);
+
+  html += `<div class="dash-two-col">`;
+  html += `<div><div class="dash-section-title">Atividade recente</div><div id="dashAtividade">`;
+  if (recentes.length > 0) {
+    html += recentes.map(item => `
+      <div class="dash-activity-item">
+        <span class="icon">+</span>
+        <span class="text"><strong>${item.album || 'Álbum'}</strong> — ${item.artista || 'Artista'} adicionado à coleção</span>
+        <span class="time">${item.data_adicao}</span>
+      </div>
+    `).join('');
+  } else {
+    html += `<div class="dash-placeholder-note">Nenhuma atividade ainda.</div>`;
+  }
+  html += `</div></div>`;
+
+  html += `<div><div class="dash-section-title">Descobrir</div><div id="dashDescobrir" class="dash-discover-grid"></div></div>`;
+  html += `</div>`;
+
+  document.getElementById('dashContent').innerHTML = html;
+  carregarCapasFaltantesDashboard();
+
+  buscarOportunidadesMercado().then(lista => {
+    const el = document.getElementById('dashOportunidades');
+    if (!el) return;
+    el.innerHTML = lista.map(op => `
+      <div class="dash-opp-card">
+        <div class="left">
+          <div class="tag">${op.tag}</div>
+          <div class="name">${op.nome}</div>
+          <div class="sub">${op.sub}</div>
+        </div>
+        <div class="right">${op.preco ? `${op.precoAntigo ? `<span class="old">R$ ${op.precoAntigo}</span>` : ''}<span class="price">R$ ${op.preco}</span>` : ''}</div>
+      </div>
+    `).join('') + '<div class="dash-placeholder-note">Monitoramento de preços real chega na V0.11.</div>';
+  });
+
+  buscarDescobertas().then(lista => {
+    const el = document.getElementById('dashDescobrir');
+    if (!el) return;
+    if (lista.length === 0) {
+      el.innerHTML = '<div class="dash-placeholder-note">Motor de descoberta ainda não existe — planejado pra frente.</div>';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  verificarSessao();
+});
+
+// ================================================================
+// BUSCA (topo)
+// ================================================================
+function configurarBuscaDashboard() {
+  const input = document.getElementById('dashSearch');
+  const results = document.getElementById('dashSearchResults');
+  if (!input || !results) return;
+
+  input.addEventListener('input', function() {
+    const termo = this.value.trim().toLowerCase();
+    if (!termo) {
+      results.innerHTML = '';
+      results.classList.remove('open');
+      return;
+    }
+
+    const daColecao = dashColecao
+      .filter(d => `${d.artista} ${d.album}`.toLowerCase().includes(termo))
+      .slice(0, 5)
+      .map(d => ({ artista: d.artista, album: d.album, origem: 'Coleção', href: 'colecao.html' }));
+
+    const daWishlist = dashWishlist
+      .filter(d => `${d.artista} ${d.album}`.toLowerCase().includes(termo))
+      .slice(0, 5)
+      .map(d => ({ artista: d.artista, album: d.album, origem: 'Wishlist', href: 'wishlist.html' }));
+
+    const achados = [...daColecao, ...daWishlist].slice(0, 8);
+
+    if (achados.length === 0) {
+      results.innerHTML = '<div class="dash-search-empty">Nenhum resultado.</div>';
+    } else {
+      results.innerHTML = achados.map(item => `
+        <a href="${item.href}" class="dash-search-item">
+          <span class="title">${item.album}</span>
+          <span class="artist">${item.artista}</span>
+          <span class="tag">${item.origem}</span>
+        </a>
+      `).join('');
+    }
+    results.classList.add('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !results.contains(e.target)) {
+      results.classList.remove('open');
+    }
+  });
+}
+  </script>
+</body>
+</html>
