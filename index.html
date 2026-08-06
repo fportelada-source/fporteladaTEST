@@ -434,6 +434,43 @@ async function fetchAlbumArt(artist, album, artId, fallbackId) {
   }
 }
 
+// Prioriza a capa do Discogs (sem crop forçado) já salva no item; se não
+// tiver, tenta buscar ao vivo; só usa Last.fm como último recurso.
+function carregarCapa(item, artId, fallbackId) {
+  const artWrap = document.getElementById(artId);
+  const fallback = document.getElementById(fallbackId);
+  if (!artWrap) return;
+
+  function aplicar(url) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      artWrap.style.backgroundImage = `url('${url}')`;
+      artWrap.style.backgroundSize = 'cover';
+      artWrap.style.backgroundPosition = 'center';
+      artWrap.classList.add('has-image');
+      if (fallback) fallback.style.opacity = '0';
+    };
+    img.onerror = () => {
+      if (fallback) fallback.style.opacity = '0.8';
+    };
+    img.src = url;
+  }
+
+  if (item.capa_url) {
+    aplicar(item.capa_url);
+    return;
+  }
+
+  fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(item.artista)}&album=${encodeURIComponent(item.album)}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.sucesso && d.capa_url) aplicar(d.capa_url);
+      else fetchAlbumArt(item.artista, item.album, artId, fallbackId);
+    })
+    .catch(() => fetchAlbumArt(item.artista, item.album, artId, fallbackId));
+}
+
 // Busca o ano de lançamento (via Discogs, mesmo endpoint usado na Coleção)
 // e preenche ao lado do título do álbum na Wishlist.
 async function fetchAnoLancamento(artist, album, spanId) {
@@ -552,7 +589,7 @@ async function fetchAnoLancamento(artist, album, spanId) {
         const items = tiers[tier] || [];
         items.forEach((item, idx) => {
           const id = `rec-${tier}-${idx}`;
-          fetchAlbumArt(item.artista, item.album, 'art-' + id, 'fallback-' + id);
+          carregarCapa(item, 'art-' + id, 'fallback-' + id);
           fetchAnoLancamento(item.artista, item.album, 'ano-' + id);
         });
       });
