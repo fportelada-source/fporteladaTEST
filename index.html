@@ -32,7 +32,7 @@
       <aside class="app-sidebar">
         <a href="index.html" class="logo">D<span>.</span></a>
         <nav class="nav-icons">
-          <a href="index.html" class="active" title="Dashboard">⌂</a>
+          <a href="index.html" class="active" title="Dashboard">🏠</a>
           <a href="wishlist.html" title="Wishlist">📋<span class="badge-count" id="navWishlistCount" style="display:none;">0</span></a>
           <a href="colecao.html" title="Coleção">💿</a>
           <a href="estatisticas.html" title="Estatísticas">📊</a>
@@ -46,9 +46,10 @@
 
         <!-- TOP BAR -->
         <div class="app-topbar">
-          <div class="search">
+          <div class="search" style="position:relative;">
             <span>⌕</span>
             <input type="text" id="dashSearch" placeholder="Buscar álbuns, artistas, coleção...">
+            <div id="dashSearchResults" class="dash-search-results"></div>
           </div>
           <a href="perfil.html" class="user">
             <span class="name" id="userNameDisplay">Carregando...</span>
@@ -78,6 +79,8 @@ const DEV_USER_NOME = 'Teste ID 1';
 
 let usuarioId = null;
 let confirmCallback = null;
+let dashColecao = [];
+let dashWishlist = [];
 
 // ================================================================
 // LOGIN
@@ -191,12 +194,15 @@ function carregarDashboard() {
     fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId).then(r => r.json()),
     fetch(API_URL + '/perfil/' + usuarioId).then(r => r.json())
   ]).then(([colecao, wishlist, stats, perfil]) => {
+    dashColecao = Array.isArray(colecao) ? colecao : [];
+    dashWishlist = Array.isArray(wishlist) ? wishlist : [];
     renderDashboard(
-      Array.isArray(colecao) ? colecao : [],
-      Array.isArray(wishlist) ? wishlist : [],
+      dashColecao,
+      dashWishlist,
       stats && !stats.erro ? stats : {},
       perfil && !perfil.erro ? perfil : {}
     );
+    configurarBuscaDashboard();
   }).catch(() => {
     document.getElementById('dashContent').innerHTML =
       '<div style="opacity:0.5; font-size:13px;">Não consegui carregar o dashboard. Tenta recarregar a página.</div>';
@@ -205,6 +211,31 @@ function carregarDashboard() {
 
 function corTier(tier) {
   return { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' }[tier] || 'var(--c-color)';
+}
+
+// O dashboard só mostra ~7 itens no máximo (hero + 3 compras + 3 wishlist),
+// então buscar a capa que ainda não veio salva é seguro aqui — diferente
+// da geração em massa de recomendações, que evita isso de propósito.
+function carregarCapasFaltantesDashboard() {
+  document.querySelectorAll('.dash-hero .cover[data-artista], .dash-purchase-card .thumb[data-artista], .dash-wishlist-item .cover[data-artista]').forEach(el => {
+    if (el.style.backgroundImage) return; // já tem capa
+    const artista = el.dataset.artista;
+    const album = el.dataset.album;
+    if (!artista || !album) return;
+    fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.sucesso && d.capa_url) {
+          el.style.backgroundImage = `url('${d.capa_url}')`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          const icone = el.querySelector('.fallback-icon');
+          if (icone) icone.style.display = 'none';
+          else el.textContent = '';
+        }
+      })
+      .catch(() => {});
+  });
 }
 
 function renderDashboard(colecao, wishlist, stats, perfil) {
@@ -233,7 +264,7 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
     const capaHero = hero.capa_url ? `style="background-image:url('${hero.capa_url}'); background-size:cover; background-position:center;"` : '';
     html += `
       <div class="dash-hero">
-        <div class="cover" ${capaHero}>${hero.capa_url ? '' : '♬'}</div>
+        <div class="cover" id="dashHeroCover" data-artista="${hero.artista || ''}" data-album="${hero.album || ''}" ${capaHero}>${hero.capa_url ? '' : '♬'}</div>
         <div class="info">
           <div class="badge">★ Prioridade ${hero.tier}</div>
           <h2>${hero.album || 'Álbum'}</h2>
@@ -261,11 +292,11 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
   html += `<div class="dash-two-col">`;
   html += `<div><div class="dash-section-title">Próximas compras <a href="wishlist.html" class="see-all">ver todas</a></div>`;
   if (wishlist.length > 0) {
-    wishlist.slice(0, 3).forEach(item => {
+    wishlist.slice(0, 3).forEach((item, idx) => {
       const thumbStyle = item.capa_url ? `background-image:url('${item.capa_url}');` : `background:${corTier(item.tier)};`;
       html += `
         <div class="dash-purchase-card">
-          <div class="thumb" style="${thumbStyle}"></div>
+          <div class="thumb" id="dashPurchase-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}" style="${thumbStyle}"></div>
           <div class="info">
             <div class="title">${item.album || 'Álbum'}</div>
             <div class="artist">${item.artista || 'Artista'}</div>
@@ -325,13 +356,13 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
 
   html += `<div><div class="dash-section-title">Wishlist <a href="wishlist.html" class="see-all">ver tudo</a></div><div class="dash-wishlist-grid">`;
   if (wishlist.length > 0) {
-    wishlist.slice(0, 3).forEach(item => {
+    wishlist.slice(0, 3).forEach((item, idx) => {
       const coverStyle = item.capa_url ? `background-image:url('${item.capa_url}');` : `background:${corTier(item.tier)};`;
       html += `
         <div class="dash-wishlist-item">
-          <div class="cover" style="${coverStyle}">
+          <div class="cover" id="dashWish-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}" style="${coverStyle}">
             <span class="priority" style="background:${corTier(item.tier)};">${item.tier}</span>
-            ${item.capa_url ? '' : '♢'}
+            <span class="fallback-icon">${item.capa_url ? '' : '♢'}</span>
           </div>
           <div class="info">
             <div class="title">${item.album || 'Álbum'}</div>
@@ -371,6 +402,7 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
   html += `</div>`;
 
   document.getElementById('dashContent').innerHTML = html;
+  carregarCapasFaltantesDashboard();
 
   buscarOportunidadesMercado().then(lista => {
     const el = document.getElementById('dashOportunidades');
@@ -399,6 +431,55 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
 document.addEventListener('DOMContentLoaded', function() {
   verificarSessao();
 });
+
+// ================================================================
+// BUSCA (topo)
+// ================================================================
+function configurarBuscaDashboard() {
+  const input = document.getElementById('dashSearch');
+  const results = document.getElementById('dashSearchResults');
+  if (!input || !results) return;
+
+  input.addEventListener('input', function() {
+    const termo = this.value.trim().toLowerCase();
+    if (!termo) {
+      results.innerHTML = '';
+      results.classList.remove('open');
+      return;
+    }
+
+    const daColecao = dashColecao
+      .filter(d => `${d.artista} ${d.album}`.toLowerCase().includes(termo))
+      .slice(0, 5)
+      .map(d => ({ artista: d.artista, album: d.album, origem: 'Coleção', href: 'colecao.html' }));
+
+    const daWishlist = dashWishlist
+      .filter(d => `${d.artista} ${d.album}`.toLowerCase().includes(termo))
+      .slice(0, 5)
+      .map(d => ({ artista: d.artista, album: d.album, origem: 'Wishlist', href: 'wishlist.html' }));
+
+    const achados = [...daColecao, ...daWishlist].slice(0, 8);
+
+    if (achados.length === 0) {
+      results.innerHTML = '<div class="dash-search-empty">Nenhum resultado.</div>';
+    } else {
+      results.innerHTML = achados.map(item => `
+        <a href="${item.href}" class="dash-search-item">
+          <span class="title">${item.album}</span>
+          <span class="artist">${item.artista}</span>
+          <span class="tag">${item.origem}</span>
+        </a>
+      `).join('');
+    }
+    results.classList.add('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !results.contains(e.target)) {
+      results.classList.remove('open');
+    }
+  });
+}
   </script>
 </body>
 </html>
