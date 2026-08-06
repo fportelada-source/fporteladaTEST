@@ -218,7 +218,7 @@ function corTier(tier) {
 // da geração em massa de recomendações, que evita isso de propósito.
 function carregarCapasFaltantesDashboard() {
   document.querySelectorAll('.dash-hero .cover[data-artista], .dash-purchase-card .thumb[data-artista], .dash-wishlist-item .cover[data-artista]').forEach(el => {
-    if (el.style.backgroundImage) return; // já tem capa
+    if (el.dataset.hasCapa) return; // já tem capa
     const artista = el.dataset.artista;
     const album = el.dataset.album;
     if (!artista || !album) return;
@@ -264,7 +264,7 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
     const capaHero = hero.capa_url ? `style="background-image:url('${hero.capa_url}'); background-size:cover; background-position:center;"` : '';
     html += `
       <div class="dash-hero">
-        <div class="cover" id="dashHeroCover" data-artista="${hero.artista || ''}" data-album="${hero.album || ''}" ${capaHero}>${hero.capa_url ? '' : '♬'}</div>
+        <div class="cover" id="dashHeroCover" data-artista="${hero.artista || ''}" data-album="${hero.album || ''}"${hero.capa_url ? ' data-has-capa="1"' : ''} ${capaHero}>${hero.capa_url ? '' : '♬'}</div>
         <div class="info">
           <div class="badge">★ Prioridade ${hero.tier}</div>
           <h2>${hero.album || 'Álbum'}</h2>
@@ -296,7 +296,7 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
       const thumbStyle = item.capa_url ? `background-image:url('${item.capa_url}');` : `background:${corTier(item.tier)};`;
       html += `
         <div class="dash-purchase-card">
-          <div class="thumb" id="dashPurchase-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}" style="${thumbStyle}"></div>
+          <div class="thumb" id="dashPurchase-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}"${item.capa_url ? ' data-has-capa="1"' : ''} style="${thumbStyle}"></div>
           <div class="info">
             <div class="title">${item.album || 'Álbum'}</div>
             <div class="artist">${item.artista || 'Artista'}</div>
@@ -360,7 +360,7 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
       const coverStyle = item.capa_url ? `background-image:url('${item.capa_url}');` : `background:${corTier(item.tier)};`;
       html += `
         <div class="dash-wishlist-item">
-          <div class="cover" id="dashWish-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}" style="${coverStyle}">
+          <div class="cover" id="dashWish-${idx}" data-artista="${item.artista || ''}" data-album="${item.album || ''}"${item.capa_url ? ' data-has-capa="1"' : ''} style="${coverStyle}">
             <span class="priority" style="background:${corTier(item.tier)};">${item.tier}</span>
             <span class="fallback-icon">${item.capa_url ? '' : '♢'}</span>
           </div>
