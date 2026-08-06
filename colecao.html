@@ -621,7 +621,7 @@ function carregarDados() {
           const tagLabel = secao.nome;
 
           html += `
-            <div class="card" data-artista="${item.artista || ''}" data-album="${item.album || ''}" data-id="${item.id || ''}">
+            <div class="card" data-artista="${item.artista || ''}" data-album="${item.album || ''}" data-id="${item.id || ''}"${item.capa_url ? ` data-capa="${item.capa_url}"` : ''}>
               <div class="art-wrap" id="art-${uniqueId}" style="background: ${tagColor}; background-size: cover; background-position: center;">
                 <span class="priority-tag" style="background:${tagColor};color:var(--ink);">${tagIcon} ${tagLabel}</span>
                 <div class="spine-letter">${letter}</div>
@@ -656,12 +656,13 @@ function carregarDados() {
       cards.forEach(card => {
         const artista = card.dataset.artista;
         const album = card.dataset.album;
+        const capaSalva = card.dataset.capa;
         const artWrap = card.querySelector('.art-wrap');
         const fallback = card.querySelector('.art-fallback');
         if (artista && album && artWrap && fallback) {
           const artId = artWrap.id;
           const fallbackId = fallback.id;
-          setTimeout(() => fetchAlbumArt(artista, album, artId, fallbackId), 100);
+          setTimeout(() => carregarCapaColecao(artista, album, capaSalva, artId, fallbackId), 100);
         }
       });
     }
@@ -811,6 +812,43 @@ function carregarDados() {
       } catch {
         if (fallback) fallback.style.opacity = '0.8';
       }
+    }
+
+    // Prioriza a capa do Discogs (sem crop forçado) já salva no disco; se
+    // não tiver, tenta buscar ao vivo; só usa Last.fm como último recurso.
+    function carregarCapaColecao(artista, album, capaSalva, artId, fallbackId) {
+      const artWrap = document.getElementById(artId);
+      const fallback = document.getElementById(fallbackId);
+      if (!artWrap) return;
+
+      function aplicar(url) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          artWrap.style.backgroundImage = `url('${url}')`;
+          artWrap.style.backgroundSize = 'cover';
+          artWrap.style.backgroundPosition = 'center';
+          artWrap.classList.add('has-image');
+          if (fallback) fallback.style.opacity = '0';
+        };
+        img.onerror = () => {
+          if (fallback) fallback.style.opacity = '0.8';
+        };
+        img.src = url;
+      }
+
+      if (capaSalva) {
+        aplicar(capaSalva);
+        return;
+      }
+
+      fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.sucesso && d.capa_url) aplicar(d.capa_url);
+          else fetchAlbumArt(artista, album, artId, fallbackId);
+        })
+        .catch(() => fetchAlbumArt(artista, album, artId, fallbackId));
     }
 
     const modal = document.getElementById('modalAdicionar');
