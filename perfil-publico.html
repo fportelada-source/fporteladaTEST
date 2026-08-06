@@ -6,42 +6,30 @@
   <title>Perfil · Discoteca</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
-  <div id="perfil-content">
-    <div style="text-align:center; padding:80px 20px; opacity:0.5; font-family:'JetBrains Mono', monospace; font-size:13px;">Carregando perfil...</div>
+  <div id="perfil-content" class="pp-page">
+    <div style="text-align:center; padding:80px 20px; opacity:0.4; font-size:13px;">Carregando perfil...</div>
   </div>
 
   <footer>Discoteca — Sua coleção, suas recomendações.</footer>
 
   <script>
     const API_URL = 'https://fporteladaTEST.pythonanywhere.com';
-
-    // ================================================================
-    // FORMATO: cor + ícone (mesmo padrão usado na Coleção)
-    // ================================================================
-    const FORMATOS = {
-      vinil:      { nome: 'Vinil',       icone: '🎵', cor: 'var(--vinil-color)' },
-      cd:         { nome: 'CD',          icone: '💿', cor: 'var(--cd-color)' },
-      cassete:    { nome: 'Cassete',     icone: '📼', cor: 'var(--cassete-color)' },
-      dvd_bluray: { nome: 'DVD/Blu-ray', icone: '📀', cor: 'var(--e-color)' }
-    };
-    const ORDEM_FORMATOS = ['vinil', 'cd', 'cassete', 'dvd_bluray'];
     const CORES_TIER = { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' };
+    const NOME_FORMATO = { vinil: 'Vinil', cd: 'CD', cassete: 'Cassete', dvd_bluray: 'DVD/Blu-ray' };
 
     // ================================================================
-    // LAST.FM (capas dos álbuns) — mesmo mecanismo já usado no resto do site
+    // LAST.FM — só como último recurso (Discogs é a fonte principal)
     // ================================================================
     const LASTFM_KEY = 'b25b959554ed76058ac220b7b2e0a026';
-
-    async function getCoverUrl(artist, album) {
+    async function getCoverUrlLastfm(artist, album) {
       if (!artist || !album) return null;
       try {
-        const url =
-          `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
+        const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.album && data.album.image) {
@@ -49,71 +37,65 @@
           return img && img['#text'] ? img['#text'] : null;
         }
         return null;
-      } catch {
-        return null;
-      }
+      } catch { return null; }
     }
 
-    async function fetchAlbumArt(artist, album, artId, fallbackId) {
-      const artWrap = document.getElementById(artId);
-      const fallback = document.getElementById(fallbackId);
-      if (!artWrap) return;
-      try {
-        const url = await getCoverUrl(artist, album);
-        if (url) {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Timeout')), 10000);
-            img.onload = () => {
-              clearTimeout(timeout);
-              artWrap.style.backgroundImage = `url('${url}')`;
-              if (fallback) fallback.style.opacity = '0';
-              resolve();
-            };
-            img.onerror = () => { clearTimeout(timeout); reject(new Error('Failed')); };
-            img.src = url;
-          });
-        } else if (fallback) {
-          fallback.style.opacity = '0.8';
-        }
-      } catch {
-        if (fallback) fallback.style.opacity = '0.8';
-      }
+    function aplicarCapa(el, url) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        el.style.backgroundImage = `url('${url}')`;
+        const icone = el.querySelector('.fallback-icon');
+        if (icone) icone.style.display = 'none';
+      };
+      img.src = url;
     }
 
-    // ================================================================
-    // AVATAR FALLBACK (cor + iniciais, quando não há capa)
-    // ================================================================
-    const CORES = ['#D6432F', '#E39A2E', '#4E7A8C', '#8A8378', '#5C6B7A', '#B8A88A', '#E8C87A', '#7AB8D8', '#A78BFA'];
+    // Prioridade: capa já salva → Discogs sob demanda → Last.fm por último.
+    // Lazy (só busca quando o card entra na tela) — importante pra coleções grandes.
+    function configurarLazyLoadCapas() {
+      const itens = document.querySelectorAll('[data-artista][data-album]');
+      const carregar = (el) => {
+        if (el.dataset.capaCarregada) return;
+        el.dataset.capaCarregada = '1';
+        const artista = el.dataset.artista, album = el.dataset.album, capaSalva = el.dataset.capa;
+        if (capaSalva) { aplicarCapa(el, capaSalva); return; }
+        fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
+          .then(r => r.json())
+          .then(d => {
+            if (d.sucesso && d.capa_url) aplicarCapa(el, d.capa_url);
+            else getCoverUrlLastfm(artista, album).then(url => { if (url) aplicarCapa(el, url); });
+          })
+          .catch(() => {});
+      };
+      if (!('IntersectionObserver' in window)) { itens.forEach(carregar); return; }
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) { carregar(entry.target); obs.unobserve(entry.target); }
+        });
+      }, { rootMargin: '200px' });
+      itens.forEach(el => observer.observe(el));
+    }
+
     function getCor(texto) {
+      const CORES = ['#D6432F', '#E39A2E', '#4E7A8C', '#8A8378', '#5C6B7A', '#B8A88A', '#E8C87A', '#7AB8D8', '#A78BFA'];
       const hash = (texto || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
       return CORES[hash % CORES.length];
     }
-    function getIniciais(artista, album) {
-      const a = (artista || '').split(' ').map(w => w[0]).join('').slice(0, 3);
-      const b = (album || '').split(' ').map(w => w[0]).join('').slice(0, 3);
-      return `${a}\n${b}`;
-    }
 
     // ================================================================
-    // CARREGAR PERFIL
+    // CARREGAR
     // ================================================================
     function carregarPerfil() {
       const params = new URLSearchParams(window.location.search);
       const userId = params.get('id');
-
       if (!userId) {
         document.getElementById('perfil-content').innerHTML =
           `<div style="text-align:center; padding:80px 20px;">Perfil não especificado. Use o link com <code>?id=</code>.</div>`;
         return;
       }
-
       fetch(API_URL + `/perfil/${userId}`)
-        .then(r => {
-          if (!r.ok) throw new Error('Perfil não encontrado');
-          return r.json();
-        })
+        .then(r => { if (!r.ok) throw new Error('Perfil não encontrado'); return r.json(); })
         .then(renderPerfil)
         .catch(err => {
           document.getElementById('perfil-content').innerHTML =
@@ -121,242 +103,174 @@
         });
     }
 
-    // ================================================================
-    // MONTA UM ITEM (usado tanto na Wishlist quanto na Coleção)
-    // ================================================================
-    function montarItem(item, rowId, idx, opts) {
-      const artId = `${rowId}-art-${idx}`;
-      const fallbackId = `${rowId}-fallback-${idx}`;
-      const corFundo = opts.corFundo || getCor(item.artista);
-      const corAccent = opts.badge ? opts.badge.cor : corFundo;
-      const badge = opts.badge ? `<span class="priority-tag" style="background:${opts.badge.cor}; color:var(--ink);">${opts.badge.texto}</span>` : '';
+    function montarCoverDiv(item) {
+      const cor = getCor(item.artista);
       const capaAttr = item.capa_url ? ` data-capa="${item.capa_url}"` : '';
-      return `
-        <div class="lb-item" style="--item-accent:${corAccent};" data-artista="${item.artista || ''}" data-album="${item.album || ''}"${capaAttr}>
-          <div class="art" id="${artId}" style="background:${corFundo};">
-            ${badge}
-            <div class="fallback" id="${fallbackId}">${getIniciais(item.artista, item.album)}</div>
-          </div>
-          <div class="info">
-            <div class="album">${item.album || 'Álbum'}</div>
-            <div class="artist">${item.artista || 'Artista'}</div>
-          </div>
-        </div>
-      `;
+      return `data-artista="${item.artista || ''}" data-album="${item.album || ''}"${capaAttr} style="background-color:${cor}; background-size:cover; background-position:center;"`;
     }
 
-    function montarLinha(rowId, titulo, items, opts) {
-      if (!items || items.length === 0) {
-        return `
-          <section class="lb-row-section">
-            <div class="lb-row-head"><h2>${titulo}</h2></div>
-            <div class="lb-empty">Prateleira vazia.</div>
-          </section>
-        `;
-      }
-      const itensHtml = items.map((item, idx) => montarItem(item, rowId, idx, opts(item))).join('');
-      return `
-        <section class="lb-row-section">
-          <div class="lb-row-head">
-            <h2>${titulo}<span class="count">${items.length}</span></h2>
-            <div class="lb-row-arrows">
-              <button class="lb-arrow disabled" data-row="${rowId}" data-dir="-1">‹</button>
-              <button class="lb-arrow" data-row="${rowId}" data-dir="1">›</button>
-            </div>
-          </div>
-          <div class="lb-row-scroll" id="${rowId}">${itensHtml}</div>
-        </section>
-      `;
-    }
-
-    // ================================================================
-    // RENDER PERFIL
-    // ================================================================
     function renderPerfil(data) {
       const container = document.getElementById('perfil-content');
       const nome = data.nome_exibicao || data.nome || 'Colecionador';
       const ano = data.data_criacao ? data.data_criacao.split('-')[0] : '';
-      const avatarHtml = data.foto_url
-        ? `<img src="${data.foto_url}" alt="${nome}">`
-        : nome.charAt(0).toUpperCase();
-
-      let redesHtml = '';
-      if (ano) redesHtml += `<span>Colecionando desde ${ano}</span>`;
-      if (data.spotify_url) redesHtml += `<span class="dot">·</span><a href="${data.spotify_url}" target="_blank">Spotify</a>`;
-      if (data.discogs_url) redesHtml += `<span class="dot">·</span><a href="${data.discogs_url}" target="_blank">Discogs</a>`;
-      if (data.instagram_url) redesHtml += `<span class="dot">·</span><a href="${data.instagram_url}" target="_blank">Instagram</a>`;
+      const avatarHtml = data.foto_url ? `<img src="${data.foto_url}" alt="${nome}">` : nome.charAt(0).toUpperCase();
+      const formatosBadge = (data.formatos_possuidos || []).map(f => NOME_FORMATO[f] || f).join(' · ');
 
       let html = `
-        <header class="lb-header">
-          <div class="lb-avatar">${avatarHtml}</div>
-          <div class="lb-headerinfo">
-            <div class="lb-nome">${nome}</div>
-            ${data.bio ? `<div class="lb-bio">${data.bio}</div>` : ''}
-            <div class="lb-detailline">${redesHtml}</div>
+        <div class="pp-hero-banner">
+          <div class="pp-hero-inner">
+            <div class="pp-avatar">${avatarHtml}</div>
+            <div class="pp-meta">
+              <div class="pp-name">${nome}${formatosBadge ? `<span class="badge">${formatosBadge}</span>` : ''}</div>
+              ${data.bio ? `<div class="pp-bio">${data.bio}</div>` : ''}
+              <div class="pp-details">
+                ${data.localizacao ? `<span>📍 ${data.localizacao}</span>` : ''}
+                ${ano ? `<span>📅 membro desde ${ano}</span>` : ''}
+                <span>🎧 ${data.total_discos || 0} discos</span>
+              </div>
+              ${data.generos_favoritos && data.generos_favoritos.length > 0 ? `
+                <div class="pp-genre-tags">
+                  ${data.generos_favoritos.map((g, i) => `<span class="tag${i < 3 ? ' active' : ''}">${g}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
           </div>
-          <div class="lb-stats">
-            <div class="lb-stat"><span class="num" style="color:var(--colecao-color);">${data.total_discos || 0}</span><span class="label">Itens na Estante</span></div>
-            <div class="lb-stat"><span class="num" style="color:var(--s-color);">${data.total_wishlist || 0}</span><span class="label">Wishlist</span></div>
-          </div>
-          <button class="lb-search-btn" id="btnBusca" title="Buscar na coleção">🔍</button>
-        </header>
-
-        <div class="lb-search-wrap" id="buscaWrap">
-          <input type="text" id="campoBusca" class="lb-search-input" placeholder="Buscar artista ou álbum...">
-          <span class="lb-search-count" id="buscaContagem"></span>
         </div>
       `;
 
-      const substats = [];
-      if (data.genero_predominante) substats.push(`<span class="k">Gênero predominante</span> <span class="v" style="color:var(--e-color);">${data.genero_predominante}</span>`);
-      if (data.disco_mais_antigo) substats.push(`<span class="k">Mais antigo</span> <span class="v" style="color:var(--vinil-color);">${data.disco_mais_antigo}</span>`);
-      if (data.disco_mais_recente) substats.push(`<span class="k">Mais recente</span> <span class="v" style="color:var(--a-color);">${data.disco_mais_recente}</span>`);
-      if (substats.length > 0) {
-        html += `<div class="lb-substats">${substats.join('<span class="dot">·</span>')}</div>`;
+      const vinil = (data.colecao_por_formato && data.colecao_por_formato.vinil.length) || 0;
+      const cds = (data.colecao_por_formato && data.colecao_por_formato.cd.length) || 0;
+      const cassetes = (data.colecao_por_formato && data.colecao_por_formato.cassete.length) || 0;
+      html += `
+        <div class="pp-stats-row">
+          <div class="pp-stat-item"><div class="number">${data.total_discos || 0}</div><div class="label">Discos</div></div>
+          <div class="pp-stat-item"><div class="number">${data.total_artistas || 0}</div><div class="label">Artistas</div></div>
+          <div class="pp-stat-item"><div class="number"><span class="accent">${vinil}</span></div><div class="label">Vinil</div></div>
+          <div class="pp-stat-item"><div class="number"><span class="accent">${cds}</span></div><div class="label">CDs</div></div>
+          <div class="pp-stat-item"><div class="number"><span class="accent">${cassetes}</span></div><div class="label">Cassetes</div></div>
+          <div class="pp-stat-item"><div class="number">${data.total_wishlist || 0}</div><div class="label">Wishlist</div></div>
+        </div>
+      `;
+
+      html += `<div class="pp-section"><div class="pp-section-header"><h2>⭐ Álbuns favoritos</h2></div>`;
+      if (data.favoritos && data.favoritos.length > 0) {
+        if (data.favoritos_e_provisorio) {
+          html += `<div class="pp-empty-note" style="margin-bottom:10px;">Ninguém foi marcado como favorito ainda — mostrando os mais recentes por enquanto.</div>`;
+        }
+        html += `<div class="pp-fav-grid">`;
+        data.favoritos.forEach((item, idx) => {
+          html += `
+            <div class="pp-fav-item">
+              <div class="cover" ${montarCoverDiv(item)}>
+                <span class="fallback-icon">♢</span>
+                <span class="rank">#${idx + 1}</span>
+              </div>
+              <div class="info"><div class="title">${item.album || 'Álbum'}</div><div class="artist">${item.artista || 'Artista'}</div></div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div class="pp-empty-note">Este colecionador ainda não tem discos.</div>`;
       }
+      html += `</div>`;
 
-      // Wishlist — uma fileira só, ordenada S → C
-      html += montarLinha('row-wishlist', 'Wishlist', data.wishlist, item => ({
-        corFundo: CORES_TIER[item.tier] || 'var(--c-color)',
-        badge: { texto: item.tier, cor: CORES_TIER[item.tier] || 'var(--c-color)' }
-      }));
+      html += `<div class="pp-section"><div class="pp-section-header"><h2>🕒 Adicionados recentemente</h2></div>`;
+      if (data.recentes && data.recentes.length > 0) {
+        html += `<div class="pp-recent-scroll">`;
+        data.recentes.forEach(item => {
+          html += `
+            <div class="pp-recent-item">
+              <div class="cover" ${montarCoverDiv(item)}><span class="fallback-icon">◈</span></div>
+              <div class="info">
+                <div class="title">${item.album || 'Álbum'}</div>
+                <div class="artist">${item.artista || 'Artista'}</div>
+                <div class="date">adicionado em ${item.data_adicao || '—'}</div>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div class="pp-empty-note">Nenhuma adição ainda.</div>`;
+      }
+      html += `</div>`;
 
-      // Coleção — uma fileira por formato, sempre na ordem Vinil > CD > Cassete > DVD/Blu-ray
-      ORDEM_FORMATOS.forEach(chave => {
-        const f = FORMATOS[chave];
-        const items = (data.colecao_por_formato && data.colecao_por_formato[chave]) || [];
-        html += montarLinha('row-' + chave, f.nome, items, () => ({
-          badge: { texto: `${f.icone} ${f.nome}`, cor: f.cor }
-        }));
-      });
+      html += `<div class="pp-section"><div class="pp-section-header"><h2>💭 Wishlist atual</h2></div>`;
+      if (data.wishlist && data.wishlist.length > 0) {
+        html += `<div class="pp-wishlist-grid">`;
+        data.wishlist.slice(0, 6).forEach(item => {
+          const cor = CORES_TIER[item.tier] || 'var(--c-color)';
+          html += `
+            <div class="pp-wishlist-item">
+              <div class="cover" ${montarCoverDiv(item)}>
+                <span class="priority" style="background:${cor};">${item.tier}</span>
+                <span class="fallback-icon">◈</span>
+              </div>
+              <div class="info"><div class="title">${item.album || 'Álbum'}</div><div class="artist">${item.artista || 'Artista'}</div></div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div class="pp-empty-note">Sem itens na wishlist no momento.</div>`;
+      }
+      html += `</div>`;
+
+      html += `<div class="pp-section"><div class="pp-section-header"><h2>📊 Destaques da coleção</h2></div><div class="pp-highlights-grid">`;
+      if (data.genero_predominante) {
+        html += `<div class="pp-highlight-card"><div class="value">${data.genero_predominante_pct}%</div><div class="label">${data.genero_predominante}</div><div class="sub">gênero predominante</div></div>`;
+      }
+      if (data.decada_favorita) {
+        html += `<div class="pp-highlight-card"><div class="value">${data.decada_favorita.nome}</div><div class="label">década favorita</div><div class="sub">${data.decada_favorita.contagem} discos</div></div>`;
+      }
+      if (data.valor_total) {
+        html += `<div class="pp-highlight-card"><div class="value">R$ ${data.valor_total}</div><div class="label">valor da coleção</div><div class="sub">estimado</div></div>`;
+      }
+      html += `<div class="pp-highlight-card"><div class="value">em breve</div><div class="label">completude</div><div class="sub">discografias completas</div></div>`;
+      html += `</div></div>`;
+
+      html += `<div class="pp-section"><div class="pp-section-header"><h2>📖 Linha do tempo</h2></div><div class="pp-timeline">`;
+      if (data.recentes && data.recentes.length > 0) {
+        data.recentes.slice(0, 5).forEach(item => {
+          html += `<div class="pp-timeline-item"><span class="icon">+</span><span class="text"><strong>${item.album || 'Álbum'}</strong> — ${item.artista || 'Artista'} adicionado à coleção</span><span class="time">${item.data_adicao || ''}</span></div>`;
+        });
+      } else {
+        html += `<div class="pp-empty-note">Nenhuma atividade ainda.</div>`;
+      }
+      html += `</div></div>`;
+
+      html += `<div class="pp-section"><div class="pp-section-header"><h2>📚 Prévia da estante</h2></div>`;
+      const todosDiscos = data.colecao_por_formato
+        ? [...data.colecao_por_formato.vinil, ...data.colecao_por_formato.cd, ...data.colecao_por_formato.cassete, ...data.colecao_por_formato.dvd_bluray]
+        : [];
+      if (todosDiscos.length > 0) {
+        html += `<div class="pp-shelf-grid">`;
+        todosDiscos.slice(0, 24).forEach(item => {
+          html += `<div class="pp-shelf-item" ${montarCoverDiv(item)}><span class="fallback-icon">♢</span></div>`;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div class="pp-empty-note">Prateleira vazia.</div>`;
+      }
+      html += `</div>`;
+
+      html += `
+        <div class="pp-section">
+          <div class="pp-section-header"><h2>🔗 Gostos em comum</h2></div>
+          <div class="pp-shared-taste">
+            <div class="circle">—</div>
+            <div class="info">
+              <div class="label">compatibilidade com</div>
+              <div class="name">Em breve — comparação entre colecionadores</div>
+              <div class="tags"><span>Chega quando o Discoteca tiver mais de um usuário ativo</span></div>
+            </div>
+          </div>
+        </div>
+      `;
 
       container.innerHTML = html;
-
-      // Carrega as capas sob demanda (lazy) — evita disparar 100+ chamadas
-      // ao Last.fm de uma vez só quando a coleção é grande.
       configurarLazyLoadCapas();
-      configurarSetas();
-      configurarBusca(data);
-    }
-
-    function configurarLazyLoadCapas() {
-      const itens = document.querySelectorAll('.lb-item[data-artista]');
-      if (!('IntersectionObserver' in window)) {
-        // Navegador sem suporte: volta pro comportamento antigo (carrega tudo)
-        itens.forEach(carregarCapaDoItem);
-        return;
-      }
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            carregarCapaDoItem(entry.target);
-            obs.unobserve(entry.target);
-          }
-        });
-      }, { rootMargin: '200px' });
-      itens.forEach(el => observer.observe(el));
-    }
-
-    function aplicarCapa(url, artEl, fallbackEl) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        artEl.style.backgroundImage = `url('${url}')`;
-        if (fallbackEl) fallbackEl.style.opacity = '0';
-      };
-      img.onerror = () => {
-        if (fallbackEl) fallbackEl.style.opacity = '0.8';
-      };
-      img.src = url;
-    }
-
-    function carregarCapaDoItem(el) {
-      const artista = el.dataset.artista;
-      const album = el.dataset.album;
-      const capaSalva = el.dataset.capa;
-      const artEl = el.querySelector('.art');
-      const fallbackEl = el.querySelector('.fallback');
-      if (!artista || !album || !artEl || !fallbackEl || el.dataset.capaCarregada) return;
-      el.dataset.capaCarregada = '1';
-
-      // 1) Já veio do banco (Discogs, sem crop) — usa direto, sem nenhuma chamada.
-      if (capaSalva) {
-        aplicarCapa(capaSalva, artEl, fallbackEl);
-        return;
-      }
-
-      // 2) Não tinha salva ainda (item mais antigo) — tenta Discogs ao vivo.
-      fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
-        .then(r => r.json())
-        .then(d => {
-          if (d.sucesso && d.capa_url) {
-            aplicarCapa(d.capa_url, artEl, fallbackEl);
-          } else {
-            // 3) Último recurso: Last.fm (pode vir cortado em algumas capas).
-            fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
-          }
-        })
-        .catch(() => {
-          fetchAlbumArt(artista, album, artEl.id, fallbackEl.id);
-        });
-    }
-
-    // ================================================================
-    // SETAS DE ROLAGEM HORIZONTAL
-    // ================================================================
-    function configurarSetas() {
-      document.querySelectorAll('.lb-row-scroll').forEach(row => {
-        const atualizarEstadoSetas = () => {
-          const prev = document.querySelector(`.lb-arrow[data-row="${row.id}"][data-dir="-1"]`);
-          const next = document.querySelector(`.lb-arrow[data-row="${row.id}"][data-dir="1"]`);
-          if (prev) prev.classList.toggle('disabled', row.scrollLeft <= 4);
-          if (next) next.classList.toggle('disabled', row.scrollLeft + row.clientWidth >= row.scrollWidth - 4);
-        };
-        row.addEventListener('scroll', atualizarEstadoSetas);
-        atualizarEstadoSetas();
-      });
-
-      document.querySelectorAll('.lb-arrow').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const row = document.getElementById(this.dataset.row);
-          if (!row) return;
-          const passo = row.clientWidth * 0.85;
-          row.scrollBy({ left: passo * parseInt(this.dataset.dir, 10), behavior: 'smooth' });
-        });
-      });
-    }
-
-    function configurarBusca(data) {
-      const btn = document.getElementById('btnBusca');
-      const wrap = document.getElementById('buscaWrap');
-      const input = document.getElementById('campoBusca');
-      const contagem = document.getElementById('buscaContagem');
-      if (!btn || !wrap || !input) return;
-
-      btn.addEventListener('click', function() {
-        wrap.classList.toggle('open');
-        if (wrap.classList.contains('open')) input.focus();
-      });
-
-      input.addEventListener('input', function() {
-        const termo = this.value.trim().toLowerCase();
-        let totalVisivel = 0;
-
-        document.querySelectorAll('.lb-row-section').forEach(secao => {
-          const row = secao.querySelector('.lb-row-scroll');
-          if (!row) return;
-          let algumVisivel = false;
-          row.querySelectorAll('.lb-item').forEach(item => {
-            const texto = `${item.dataset.artista} ${item.dataset.album}`.toLowerCase();
-            const bate = !termo || texto.includes(termo);
-            item.style.display = bate ? '' : 'none';
-            if (bate) { algumVisivel = true; totalVisivel++; }
-          });
-          secao.style.display = algumVisivel ? '' : 'none';
-        });
-
-        contagem.textContent = termo ? `${totalVisivel} resultado${totalVisivel === 1 ? '' : 's'}` : '';
-      });
     }
 
     document.addEventListener('DOMContentLoaded', carregarPerfil);
