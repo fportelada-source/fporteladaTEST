@@ -2590,3 +2590,88 @@
       transition: opacity 0.15s ease;
     }
     .btn-remover-disco:hover { opacity: 1; text-decoration: underline; }
+
+    /* ================================================================
+       V0.11 — WISHLIST (redesign fiel ao mockup)
+       ================================================================ */
+    .wl-hero { margin-bottom: 26px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+    .wl-hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+    .wl-hero h1 .accent { color: var(--terracotta); }
+    .wl-hero .sub { font-size: 13.5px; opacity: 0.45; margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .wl-hero .sub span { display: flex; align-items: center; gap: 4px; }
+    .wl-hero .sub .dot { opacity: 0.4; }
+    .wl-hero .stats-mini { display: flex; gap: 10px; flex-wrap: wrap; }
+    .wl-hero .stats-mini .stat { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 6px 14px; text-align: center; }
+    .wl-hero .stats-mini .stat .num { font-weight: 700; font-size: 17px; color: var(--terracotta); }
+    .wl-hero .stats-mini .stat .label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.4; }
+
+    .wl-priority-nav { display: flex; gap: 6px; margin-bottom: 22px; flex-wrap: wrap; align-items: center; }
+    .wl-priority-nav .pill {
+      background: var(--card); border: 1px solid var(--card-line); padding: 4px 14px; border-radius: 30px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.5;
+      cursor: pointer; color: var(--paper); font-family: 'Inter', sans-serif; transition: all 0.15s ease;
+    }
+    .wl-priority-nav .pill:hover { opacity: 0.85; }
+    .wl-priority-nav .pill.active { opacity: 1; }
+    .wl-priority-nav .pill[data-tier="S"].active { border-color: var(--s-color); color: var(--s-color); }
+    .wl-priority-nav .pill[data-tier="A"].active { border-color: var(--a-color); color: var(--a-color); }
+    .wl-priority-nav .pill[data-tier="B"].active { border-color: var(--b-color); color: var(--b-color); }
+    .wl-priority-nav .pill[data-tier="C"].active { border-color: var(--c-color); color: var(--c-color); }
+    .wl-priority-nav .pill[data-tier=""].active { border-color: var(--terracotta); color: var(--terracotta); }
+    .wl-priority-nav .count { font-size: 11px; opacity: 0.3; font-weight: 400; margin-left: 4px; }
+
+    .wl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .wl-card {
+      background: var(--card); border-radius: 18px; overflow: hidden; border: 1px solid var(--card-line);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; cursor: pointer;
+    }
+    .wl-card:hover { transform: translateY(-5px); border-color: #3a3a3a; box-shadow: 0 12px 36px rgba(0,0,0,0.45); }
+    .wl-card .art { height: 190px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #5a5a5a; position: relative; }
+    .wl-card .art .priority-badge {
+      position: absolute; top: 10px; left: 10px; color: var(--ink); font-size: 10px; font-weight: 700;
+      padding: 0 9px; border-radius: 16px; letter-spacing: 0.04em;
+    }
+    .wl-card .info { padding: 11px 14px 14px 14px; }
+    .wl-card .info .title { font-weight: 600; font-size: 14.5px; line-height: 1.25; }
+    .wl-card .info .artist { font-size: 12.5px; opacity: 0.5; margin-top: 2px; }
+    .wl-card .info .meta { font-size: 11px; opacity: 0.35; margin-top: 4px; }
+    .wl-card .info .note {
+      font-size: 11.5px; opacity: 0.4; font-style: italic; margin-top: 6px;
+      border-top: 1px solid var(--card-line); padding-top: 6px; line-height: 1.4;
+    }
+    .wl-card .info .actions { display: flex; gap: 8px; margin-top: 8px; }
+    .wl-card .info .actions button {
+      flex: 1; background: transparent; border: 1px solid var(--card-line); color: var(--paper);
+      padding: 5px; border-radius: 8px; font-size: 11px; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s ease;
+    }
+    .wl-card .info .actions button:hover { border-color: var(--terracotta); }
+
+    .wl-opp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .wl-gaps-grid, .wl-price-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .wl-gap-card, .wl-price-card { background: var(--card); border-radius: 16px; padding: 16px 14px; border: 1px solid var(--card-line); text-align: center; }
+    .wl-gap-card .icon { font-size: 26px; margin-bottom: 4px; opacity: 0.5; }
+    .wl-gap-card .count { font-size: 20px; font-weight: 800; color: var(--terracotta); }
+    .wl-gap-card .label { font-size: 11.5px; opacity: 0.4; margin-top: 2px; }
+    .wl-gap-card .sub { font-size: 10.5px; opacity: 0.25; margin-top: 2px; }
+    .wl-price-card .value { font-size: 19px; font-weight: 800; color: var(--terracotta); }
+    .wl-price-card .label { font-size: 10.5px; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px; }
+    .wl-price-card .sub { font-size: 10.5px; opacity: 0.25; margin-top: 2px; }
+
+    .wl-discover-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .wl-discover-item { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--card-line); opacity: 0.65; }
+    .wl-discover-item .art { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #5a5a5a; background-size: cover; background-position: center; }
+    .wl-discover-item .info { padding: 9px 12px 11px 12px; }
+    .wl-discover-item .info .title { font-weight: 600; font-size: 12.5px; }
+    .wl-discover-item .info .artist { font-size: 11.5px; opacity: 0.4; }
+
+    @media (max-width: 1000px) {
+      .wl-opp-grid { grid-template-columns: 1fr 1fr; }
+      .wl-gaps-grid, .wl-price-grid, .wl-discover-grid { grid-template-columns: 1fr 1fr; }
+      .wl-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .wl-hero { flex-direction: column; align-items: flex-start; }
+      .wl-opp-grid, .wl-gaps-grid, .wl-price-grid, .wl-discover-grid { grid-template-columns: 1fr; }
+      .wl-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    }
