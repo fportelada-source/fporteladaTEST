@@ -124,12 +124,6 @@
           <div class="col-fav-grid" id="colFavoritos"></div>
         </div>
 
-        <!-- VISTA DA ESTANTE -->
-        <div class="col-section">
-          <div class="col-section-header"><h3>📚 Vista da estante</h3></div>
-          <div class="pp-shelf-grid" id="colShelf"></div>
-        </div>
-
       </div>
     </div>
   </div><!-- /appScreen -->
@@ -508,7 +502,6 @@ function carregarDados() {
       renderInsightsColecao();
       renderRecentesColecao();
       renderFavoritosColecao();
-      renderShelfColecao();
       aplicarFiltros();
     })
     .catch(() => {});
