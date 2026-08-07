@@ -109,6 +109,7 @@
       <form id="form-adicionar">
         <input type="hidden" id="campo-id" value="">
         <input type="hidden" id="campo-ano" value="">
+        <input type="hidden" id="campo-favorito" value="0">
         <div class="form-group">
           <label>Artista *</label>
           <input type="text" id="campo-artista" placeholder="Ex: Metallica" required>
@@ -183,6 +184,9 @@
             <div id="barcode-reader"></div>
             <button type="button" class="btn" style="margin-top:8px; background:var(--card-line); color:var(--paper);" id="btnBarcodeCancel">Cancelar</button>
           </div>
+        </div>
+        <div class="form-group">
+          <button type="button" id="btnFavoritar" class="btn-favoritar">☆ Marcar como favorito</button>
         </div>
         <button type="submit" class="form-btn" id="btn-submit">Salvar Disco</button>
         <div class="form-msg" id="form-msg"></div>
@@ -852,6 +856,25 @@ function carregarDados() {
         .catch(() => fetchAlbumArt(artista, album, artId, fallbackId));
     }
 
+    function atualizarBotaoFavoritar() {
+      const btn = document.getElementById('btnFavoritar');
+      if (!btn) return;
+      const favoritado = document.getElementById('campo-favorito').value === '1';
+      btn.textContent = favoritado ? '★ Favorito' : '☆ Marcar como favorito';
+      btn.classList.toggle('ativo', favoritado);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const btnFav = document.getElementById('btnFavoritar');
+      if (btnFav) {
+        btnFav.addEventListener('click', function() {
+          const campo = document.getElementById('campo-favorito');
+          campo.value = campo.value === '1' ? '0' : '1';
+          atualizarBotaoFavoritar();
+        });
+      }
+    });
+
     const modal = document.getElementById('modalAdicionar');
     const btnAbrirModal = document.getElementById('btnAbrirModal');
     const btnFecharModal = document.getElementById('btnFecharModal');
@@ -880,6 +903,8 @@ function carregarDados() {
           document.getElementById('campo-data').value = disco.data_adicao || '';
           document.getElementById('campo-notas').value = '';
           document.getElementById('campo-codigo-barras').value = '';
+          document.getElementById('campo-favorito').value = disco.favorito ? '1' : '0';
+          atualizarBotaoFavoritar();
         }
       } else {
         document.getElementById('modalTitle').textContent = '➕ Adicionar Disco';
@@ -894,6 +919,8 @@ function carregarDados() {
         document.getElementById('campo-data').value = '';
         document.getElementById('campo-notas').value = '';
         document.getElementById('campo-codigo-barras').value = '';
+        document.getElementById('campo-favorito').value = '0';
+        atualizarBotaoFavoritar();
       }
 
       modal.classList.add('open');
@@ -938,7 +965,8 @@ function carregarDados() {
         preco: parseFloat(document.getElementById('campo-preco').value) || null,
         data_aquisicao: document.getElementById('campo-data').value || null,
         notas: document.getElementById('campo-notas').value.trim(),
-        codigo_barras: document.getElementById('campo-codigo-barras').value.trim()
+        codigo_barras: document.getElementById('campo-codigo-barras').value.trim(),
+        favorito: document.getElementById('campo-favorito').value === '1'
       };
 
       if (!dados.artista || !dados.album) {
