@@ -26,25 +26,34 @@
 
   <!-- ===== APP ===== -->
   <div id="appScreen" style="display:none;">
+    <div class="app-shell">
 
-    <!-- BARRA DO USUÁRIO -->
-    <div class="user-bar">
-      <span class="user-name" id="userNameDisplay">👤 Carregando...</span>
-      <button class="logout-btn" id="btnLogout">Sair</button>
-    </div>
+      <!-- SIDEBAR -->
+      <aside class="app-sidebar">
+        <a href="index.html" class="logo">D<span>.</span></a>
+        <nav class="nav-icons">
+          <a href="index.html" title="Início">🏠</a>
+          <a href="wishlist.html" title="Wishlist">📋 <span class="badge-count" id="navWishlistCount" style="display:none;">0</span></a>
+          <a href="colecao.html" title="Coleção">💿</a>
+          <a href="estatisticas.html" title="Estatísticas">📊</a>
+          <a href="importar.html" title="Importar">📤</a>
+        </nav>
+      </aside>
 
-    <!-- HERO -->
-    <section class="hero hero-state-perfil" id="heroSection">
-      <div class="hero-eyebrow" id="heroEyebrow">Discoteca · Perfil</div>
-      <h1 id="heroTitle">Meu <span id="heroHighlight">Perfil</span></h1>
-      <p class="hero-sub" id="heroSub">Como os outros colecionadores veem você.</p>
-    </section>
+      <!-- MAIN -->
+      <div class="app-main">
 
-    <!-- TABS -->
-    <div class="tabs-container">
-      <div class="tabs" id="navContainer"></div>
-    </div>
-
+        <!-- TOP BAR -->
+        <div class="app-topbar">
+          <div class="search" style="position:relative;">
+            <span>⌕</span>
+            <input type="text" placeholder="Buscar álbuns, artistas, coleção...">
+          </div>
+          <a href="perfil.html" class="user">
+            <span class="name" id="userNameDisplay">Carregando...</span>
+            <div class="avatar" id="userAvatar">?</div>
+          </a>
+        </div>
     <!-- ===== PERFIL ===== -->
     <div id="tab-perfil" class="tab-content active">
       <section class="section" style="--tier-color:var(--vinil-color)">
@@ -101,6 +110,8 @@
       </section>
     </div>
 
+      </div>
+    </div>
   </div><!-- /appScreen -->
 
   <footer>Discoteca — Sua coleção, suas recomendações.</footer>
@@ -118,38 +129,38 @@ let usuarioId = null;
 let confirmCallback = null;
 
 // ================================================================
-// NAVEGAÇÃO
+// SIDEBAR / TOP BAR (compartilhado — mesmo padrão do Início e Coleção)
 // ================================================================
-const NAV_ITEMS = [
-  { id: 'tab-dashboard', href: 'index.html', label: '🏠 Início' },
-  { id: 'tab-compras', href: 'wishlist.html', label: '📋 Wishlist' },
-  { id: 'tab-estatisticas', href: 'estatisticas.html', label: '📊 Estatísticas' },
-  { id: 'tab-colecao', href: 'colecao.html', label: '💿 Coleção', badge: true },
-  { id: 'tab-importar', href: 'importar.html', label: '📤 Importar' },
-  { id: 'tab-perfil', href: 'perfil.html', label: '👤 Perfil' }
-];
-
-function renderNav(paginaAtiva) {
-  const container = document.getElementById('navContainer');
-  if (!container) return;
-  const html = NAV_ITEMS.map(item => {
-    const ativo = item.href === paginaAtiva ? ' active' : '';
-    const badge = item.badge ? ' <span class="tab-badge" id="colecao-badge">0</span>' : '';
-    return `<a class="tab-btn${ativo}" data-tab="${item.id}" href="${item.href}">${item.label}${badge}</a>`;
-  }).join('');
-  container.innerHTML = html;
+function atualizarBadgeWishlist(n) {
+  const el = document.getElementById('navWishlistCount');
+  if (!el) return;
+  if (n > 0) { el.textContent = n; el.style.display = 'flex'; }
+  else { el.style.display = 'none'; }
 }
 
-function atualizarBadgeColecao(n) {
-  const el = document.getElementById('colecao-badge');
-  if (el) el.textContent = n;
+function carregarAvatarTopo() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/perfil/' + usuarioId)
+    .then(r => r.json())
+    .then(perfil => {
+      if (!perfil || perfil.erro) return;
+      const nome = perfil.nome_exibicao || perfil.nome || DEV_USER_NOME;
+      const nomeEl = document.getElementById('userNameDisplay');
+      if (nomeEl) nomeEl.textContent = nome;
+      const avatarEl = document.getElementById('userAvatar');
+      if (avatarEl) {
+        if (perfil.foto_url) avatarEl.innerHTML = `<img src="${perfil.foto_url}" alt="${nome}">`;
+        else avatarEl.textContent = nome.charAt(0).toUpperCase();
+      }
+    })
+    .catch(() => {});
 }
 
 function sincronizarBadge() {
   if (!usuarioId) return;
-  fetch(API_URL + '/colecao?user_id=' + usuarioId)
+  fetch(API_URL + '/recomendacoes?user_id=' + usuarioId)
     .then(r => r.json())
-    .then(data => atualizarBadgeColecao(Array.isArray(data) ? data.length : 0))
+    .then(data => atualizarBadgeWishlist(Array.isArray(data) ? data.length : 0))
     .catch(() => {});
 }
 
@@ -176,7 +187,7 @@ function ativarTelaApp(nome) {
   if (loginScreen) loginScreen.style.display = 'none';
   if (appScreen) appScreen.style.display = 'block';
   const nomeDisplay = document.getElementById('userNameDisplay');
-  if (nomeDisplay) nomeDisplay.textContent = '👤 ' + nome;
+  if (nomeDisplay) nomeDisplay.textContent = nome;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -254,6 +265,7 @@ function verificarSessao() {
 // PÁGINA: PERFIL
 // ================================================================
 function onPaginaPronta() {
+  carregarAvatarTopo();
   carregarDados();
   sincronizarBadge();
 }
@@ -341,8 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
   }
-
-  renderNav('perfil.html');
   verificarSessao();
 });
   </script>
