@@ -128,6 +128,13 @@
                 ${ano ? `<span>📅 membro desde ${ano}</span>` : ''}
                 <span>🎧 ${data.total_discos || 0} discos</span>
               </div>
+              ${(data.spotify_url || data.discogs_url || data.instagram_url) ? `
+                <div class="pp-social-links">
+                  ${data.spotify_url ? `<a href="${data.spotify_url}" target="_blank" rel="noopener">Spotify</a>` : ''}
+                  ${data.discogs_url ? `<a href="${data.discogs_url}" target="_blank" rel="noopener">Discogs</a>` : ''}
+                  ${data.instagram_url ? `<a href="${data.instagram_url}" target="_blank" rel="noopener">Instagram</a>` : ''}
+                </div>
+              ` : ''}
               ${data.generos_favoritos && data.generos_favoritos.length > 0 ? `
                 <div class="pp-genre-tags">
                   ${data.generos_favoritos.map((g, i) => `<span class="tag${i < 3 ? ' active' : ''}">${g}</span>`).join('')}
