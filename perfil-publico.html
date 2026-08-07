@@ -95,7 +95,13 @@
         return;
       }
       fetch(API_URL + `/perfil/${userId}`)
-        .then(r => { if (!r.ok) throw new Error('Perfil não encontrado'); return r.json(); })
+        .then(async r => {
+          if (!r.ok) {
+            const corpo = await r.json().catch(() => ({}));
+            throw new Error(corpo.erro || 'Perfil não encontrado');
+          }
+          return r.json();
+        })
         .then(renderPerfil)
         .catch(err => {
           document.getElementById('perfil-content').innerHTML =
