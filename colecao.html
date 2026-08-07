@@ -314,6 +314,17 @@ function configurarPillsFormato() {
       aplicarFiltros();
     });
   });
+
+  // Vem de um link "?formato=vinil" (ex: cards da Dashboard) — pré-seleciona.
+  const formatoUrl = new URLSearchParams(window.location.search).get('formato');
+  if (formatoUrl) {
+    const pillCorrespondente = document.querySelector(`#formatPills .pill[data-formato="${formatoUrl}"]`);
+    if (pillCorrespondente) {
+      pills.forEach(p => p.classList.remove('active'));
+      pillCorrespondente.classList.add('active');
+      filtroFormatoAtivo = formatoUrl;
+    }
+  }
 }
 
 function configurarBuscaTopo() {
