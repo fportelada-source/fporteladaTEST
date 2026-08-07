@@ -241,7 +241,7 @@ let confirmCallback = null;
 // NAVEGAÇÃO (abas viraram links entre paginas separadas)
 // ================================================================
 const NAV_ITEMS = [
-  { id: 'tab-dashboard', href: 'index.html', label: '🏠 Dashboard' },
+  { id: 'tab-dashboard', href: 'index.html', label: '🏠 Início' },
   { id: 'tab-compras', href: 'wishlist.html', label: '📋 Wishlist' },
   { id: 'tab-estatisticas', href: 'estatisticas.html', label: '📊 Estatísticas' },
   { id: 'tab-colecao', href: 'colecao.html', label: '💿 Coleção', badge: true },
@@ -574,7 +574,14 @@ function carregarDados() {
       if (!container) return;
 
       if (!colecaoFiltrada || colecaoFiltrada.length === 0) {
-        container.innerHTML = `
+        const colecaoVaziaDeVerdade = !colecao || colecao.length === 0;
+        container.innerHTML = colecaoVaziaDeVerdade ? `
+          <div class="empty-state">
+            <div class="icon">🎵</div>
+            <h3>Sua estante está vazia</h3>
+            <p>Que tal começar com um clássico?</p>
+          </div>
+        ` : `
           <div class="empty-state">
             <div class="icon">🎵</div>
             <h3>Nenhum disco encontrado</h3>
@@ -1135,9 +1142,6 @@ function carregarDados() {
                   break;
                 }
               }
-            }
-            if (d.ano) {
-              document.getElementById('campo-data').value = d.ano + '-01-01';
             }
             document.getElementById('campo-notas').value = (d.gravadora ? 'Gravadora: ' + d.gravadora : '');
             document.getElementById('form-msg').textContent = '✅ Dados preenchidos automaticamente!';
