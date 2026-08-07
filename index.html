@@ -309,16 +309,21 @@ function renderDashboard(colecao, wishlist, stats, perfil) {
   }
 
   // ===== STATS ROW =====
-  html += `
-    <div class="dash-stats">
-      <div class="dash-stat-item"><div class="number">${stats.total_discos || colecao.length}</div><div class="label">Discos</div></div>
-      <div class="dash-stat-item"><div class="number">${stats.lps || 0}</div><div class="label">Vinil</div></div>
-      <div class="dash-stat-item"><div class="number">${stats.cds || 0}</div><div class="label">CDs</div></div>
-      <div class="dash-stat-item"><div class="number">${stats.cassetes || 0}</div><div class="label">Cassete</div></div>
-      <div class="dash-stat-item"><div class="number">${artistasUnicos.size}</div><div class="label">Artistas</div></div>
-      <div class="dash-stat-item"><div class="number">${wishlist.length}</div><div class="label">Wishlist</div></div>
-    </div>
-  `;
+  const statsFormato = [
+    { valor: stats.lps || 0, label: 'Vinil', href: 'colecao.html?formato=vinil' },
+    { valor: stats.cds || 0, label: 'CDs', href: 'colecao.html?formato=cd' },
+    { valor: stats.cassetes || 0, label: 'Cassete', href: 'colecao.html?formato=cassete' },
+    { valor: stats.dvd_bluray || 0, label: 'DVD/Blu-ray', href: 'colecao.html?formato=dvd_bluray' }
+  ].filter(s => s.valor > 0);
+
+  html += `<div class="dash-stats">`;
+  html += `<a href="colecao.html" class="dash-stat-item"><div class="number">${stats.total_discos || colecao.length}</div><div class="label">Discos</div></a>`;
+  statsFormato.forEach(s => {
+    html += `<a href="${s.href}" class="dash-stat-item"><div class="number">${s.valor}</div><div class="label">${s.label}</div></a>`;
+  });
+  html += `<a href="estatisticas.html" class="dash-stat-item"><div class="number">${artistasUnicos.size}</div><div class="label">Artistas</div></a>`;
+  html += `<a href="wishlist.html" class="dash-stat-item"><div class="number">${wishlist.length}</div><div class="label">Wishlist</div></a>`;
+  html += `</div>`;
 
   // ===== NEXT PURCHASES + MARKET OPPORTUNITIES =====
   html += `<div class="dash-two-col">`;
