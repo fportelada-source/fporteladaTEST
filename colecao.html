@@ -74,9 +74,10 @@
           </div>
           <div class="col-filter-pills" id="formatPills">
             <button class="pill active" data-formato="">Tudo</button>
-            <button class="pill" data-formato="LP">Vinil</button>
-            <button class="pill" data-formato="CD">CD</button>
-            <button class="pill" data-formato="Cassete">Cassete</button>
+            <button class="pill" data-formato="vinil">Vinil</button>
+            <button class="pill" data-formato="cd">CD</button>
+            <button class="pill" data-formato="cassete">Cassete</button>
+            <button class="pill" data-formato="dvd_bluray">DVD/Blu-ray</button>
           </div>
           <select id="sortSelect" class="col-sort-select" onchange="aplicarFiltros()">
             <option value="data_mais_recente">Mais recente</option>
@@ -630,6 +631,21 @@ function carregarDados() {
 
     // Reaproveita o mesmo padrão de carregamento sob demanda (Discogs → Last.fm)
     // já usado no Perfil Público, aplicado aos containers desta página.
+    const LASTFM_KEY_COL = 'b25b959554ed76058ac220b7b2e0a026';
+    async function getCoverUrlLastfmCol(artist, album) {
+      if (!artist || !album) return null;
+      try {
+        const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY_COL}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.album && data.album.image) {
+          const img = data.album.image.find(i => i.size === 'extralarge');
+          return img && img['#text'] ? img['#text'] : null;
+        }
+        return null;
+      } catch { return null; }
+    }
+
     function carregarCapasGenericas(container) {
       const itens = container.querySelectorAll('[data-artista][data-album]');
       itens.forEach(el => {
@@ -645,8 +661,13 @@ function carregarDados() {
         if (capaSalva) { aplicar(capaSalva); return; }
         fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
           .then(r => r.json())
-          .then(d => { if (d.sucesso && d.capa_url) aplicar(d.capa_url); })
-          .catch(() => {});
+          .then(d => {
+            if (d.sucesso && d.capa_url) aplicar(d.capa_url);
+            else getCoverUrlLastfmCol(artista, album).then(url => { if (url) aplicar(url); });
+          })
+          .catch(() => {
+            getCoverUrlLastfmCol(artista, album).then(url => { if (url) aplicar(url); });
+          });
       });
     }
 
@@ -657,7 +678,7 @@ function carregarDados() {
       const sortType = document.getElementById('sortSelect').value;
 
       let filtrados = colecao.filter(item => {
-        if (filtroFormatoAtivo && !(item.formato || '').includes(filtroFormatoAtivo)) return false;
+        if (filtroFormatoAtivo && classeFormato(item.formato) !== filtroFormatoAtivo) return false;
         if (!searchTerm) return true;
         const artista = (item.artista || '').toLowerCase();
         const album = (item.album || '').toLowerCase();
