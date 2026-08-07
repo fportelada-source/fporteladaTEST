@@ -2304,6 +2304,14 @@
     }
     .pp-genre-tags .tag.active { border-color: var(--terracotta); color: var(--terracotta); opacity: 1; }
 
+    .pp-social-links { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .pp-social-links a {
+      background: var(--terracotta-wash); border: 1px solid transparent; color: var(--terracotta);
+      padding: 3px 14px; border-radius: 40px; font-size: 11.5px; font-weight: 600;
+      text-decoration: none; letter-spacing: 0.01em;
+    }
+    .pp-social-links a:hover { border-color: var(--terracotta); }
+
     /* ===== SECTIONS ===== */
     .pp-section { margin-bottom: 40px; }
     .pp-section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
@@ -2414,4 +2422,25 @@
     .fallback-icon {
       opacity: 0.6;
       pointer-events: none;
+    }
+
+    /* ===== BOTÃO FAVORITAR (modal de disco) ===== */
+    .btn-favoritar {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--card-line);
+      color: var(--paper);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-favoritar:hover { border-color: var(--terracotta); }
+    .btn-favoritar.ativo {
+      background: var(--terracotta-wash);
+      border-color: var(--terracotta);
+      color: var(--terracotta);
     }
