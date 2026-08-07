@@ -54,15 +54,13 @@
             <div class="avatar" id="userAvatar">?</div>
           </a>
         </div>
-    <!-- ===== ESTATÍSTICAS ===== -->
-    <div id="tab-estatisticas" class="tab-content active">
-      <section class="section" style="--tier-color:var(--e-color)">
-        <div class="tier-head">
-          <div class="tier-stamp small">📊</div>
-          <div class="tier-info">
-            <h2 style="color:var(--e-color);">Estatísticas</h2>
-            <p>O que você ouve e o que você tem.</p>
+        <!-- HERO -->
+        <div class="st-hero">
+          <div>
+            <h1>📊 <span class="accent">Estatísticas</span></h1>
+            <div class="sub" id="stHeroSub"><span>O que você ouve e o que você tem.</span></div>
           </div>
+          <div class="stats-mini" id="stHeroStats"></div>
         </div>
 
         <!-- VAZIO UNIFICADO (quando player E estante estão vazios) -->
@@ -74,15 +72,66 @@
           </div>
         </div>
 
-        <!-- PLAYER -->
-        <div id="estatisticas-player"></div>
+        <div id="stConteudo" style="display:none;">
 
-        <!-- ESTANTE -->
-        <div id="estatisticas-estante"></div>
+          <!-- OVERVIEW -->
+          <div class="st-overview-grid" id="stOverview"></div>
 
-      </section>
-    </div>
+          <!-- PLAYER x ESTANTE -->
+          <div class="st-two-col">
+            <div class="st-card">
+              <div class="card-header"><h3>🎧 No seu <span class="accent">player</span></h3><span class="sub">do Spotify</span></div>
+              <div id="estatisticas-player"></div>
+            </div>
+            <div class="st-card">
+              <div class="card-header"><h3>📀 Na sua <span class="accent">estante</span></h3><span class="sub">coleção física</span></div>
+              <div id="estatisticas-estante"></div>
+            </div>
+          </div>
 
+          <!-- CRESCIMENTO DA COLEÇÃO -->
+          <div class="st-card">
+            <div class="card-header"><h3>📈 Crescimento da <span class="accent">coleção</span></h3><span class="sub">últimos 12 meses</span></div>
+            <div class="st-growth" id="stCrescimento"></div>
+          </div>
+
+          <!-- WISHLIST PROGRESS + VALOR -->
+          <div class="st-two-col">
+            <div class="st-card">
+              <div class="card-header"><h3>🎯 Progresso da <span class="accent">wishlist</span></h3><span class="sub" id="stWishlistTotal"></span></div>
+              <div id="stWishlistProgress"></div>
+            </div>
+            <div class="st-card">
+              <div class="card-header"><h3>💰 Valor da <span class="accent">coleção</span></h3><span class="sub">estimado</span></div>
+              <div id="stValor"></div>
+            </div>
+          </div>
+
+          <!-- TOP ARTISTAS -->
+          <div class="st-card">
+            <div class="card-header"><h3>🎤 Top <span class="accent">artistas</span></h3><span class="sub">por discos na estante</span></div>
+            <div class="st-rank-list" id="stTopArtistas"></div>
+          </div>
+
+          <!-- DESTAQUES DA COLEÇÃO -->
+          <div class="st-card">
+            <div class="card-header"><h3>📊 Destaques da <span class="accent">coleção</span></h3><span class="sub">curiosidades</span></div>
+            <div class="st-insights-grid" id="stInsights"></div>
+          </div>
+
+          <!-- OUVIDO VS POSSUÍDO + MARCOS -->
+          <div class="st-two-col">
+            <div class="st-card">
+              <div class="card-header"><h3>🔍 Ouvido vs <span class="accent">possuído</span></h3><span class="sub">lacunas</span></div>
+              <div id="stCruzamento"></div>
+            </div>
+            <div class="st-card">
+              <div class="card-header"><h3>🏆 Marcos da <span class="accent">coleção</span></h3><span class="sub">celebre</span></div>
+              <div class="st-insights-grid" id="stMarcos" style="grid-template-columns:1fr 1fr;"></div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div><!-- /appScreen -->
@@ -307,358 +356,277 @@ function carregarDados() {
   if (!usuarioId) return;
   Promise.all([
     fetch(API_URL + '/estatisticas?user_id=' + usuarioId).then(r => r.json()).catch(() => ({ erro: true })),
-    fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId).then(r => r.json()).catch(() => ({ erro: true }))
-  ]).then(([dadosPlayer, dadosEstante]) => {
+    fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId).then(r => r.json()).catch(() => ({ erro: true })),
+    fetch(API_URL + '/estatisticas_avancadas?user_id=' + usuarioId).then(r => r.json()).catch(() => ({ erro: true })),
+    fetch(API_URL + '/recomendacoes?user_id=' + usuarioId).then(r => r.json()).catch(() => [])
+  ]).then(([dadosPlayer, dadosEstante, avancadas, wishlist]) => {
     const playerVazio = !dadosPlayer || dadosPlayer.erro || !dadosPlayer.total_musicas;
     const estanteVazia = !dadosEstante || dadosEstante.erro || !dadosEstante.total_discos;
 
     const vazioUnificado = document.getElementById('estatisticas-vazio-unificado');
+    const conteudo = document.getElementById('stConteudo');
     const containerPlayer = document.getElementById('estatisticas-player');
     const containerEstante = document.getElementById('estatisticas-estante');
 
     if (playerVazio && estanteVazia) {
-      // Nada em lugar nenhum — um bloco só de "vazio" pra página inteira.
       vazioUnificado.style.display = 'block';
+      conteudo.style.display = 'none';
       containerPlayer.innerHTML = '';
       containerEstante.innerHTML = '';
       return;
     }
 
     vazioUnificado.style.display = 'none';
+    conteudo.style.display = 'block';
+
     renderEstatisticasPlayer(dadosPlayer, playerVazio);
     renderEstatisticasEstante(dadosEstante, estanteVazia);
+    renderOverview(dadosPlayer, dadosEstante, wishlist);
+    renderCrescimento(dadosEstante);
+    renderWishlistProgress(avancadas.wishlist_progress);
+    renderValor(dadosEstante);
+    renderTopArtistas(dadosEstante);
+    renderInsightsDestaques(dadosEstante);
+    renderCruzamento(avancadas.ouvido_vs_possuido, playerVazio, estanteVazia);
+    renderMarcos(dadosEstante, avancadas);
   });
 }
 
-    function renderEstatisticasPlayer(dados, apenasCabecalho) {
-      const container = document.getElementById('estatisticas-player');
-      if (!container) return;
-      const semDados = !dados || dados.erro || dados.total_musicas === 0;
-      // Seção vazia não tem o que economizar espaço escondendo — sempre abre,
-      // mesmo que o usuário tenha fechado essa seção numa sessão anterior.
-      const estado = semDados ? 'aberta' : (localStorage.getItem('secao_player') || 'aberta');
+function corTier(tier) {
+  return { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' }[tier] || 'var(--c-color)';
+}
 
-      let resumoHtml = '';
-      if (dados && !dados.erro && dados.total_musicas > 0) {
-        resumoHtml = `
-          <div class="resumo-cards" id="resumo-player">
-            <div class="resumo-item">
-              <span class="num">${dados.total_musicas || 0}</span>
-              <span class="label">Músicas</span>
-            </div>
-            <div class="resumo-item">
-              <span class="num">${dados.artistas_unicos || 0}</span>
-              <span class="label">Artistas</span>
-            </div>
-            <div class="resumo-item">
-              <span class="num">${dados.albuns_unicos || 0}</span>
-              <span class="label">Álbuns</span>
-            </div>
-            <div class="resumo-item">
-              <span class="num">${dados.duracao_horas || 0}h</span>
-              <span class="label">Duração</span>
-            </div>
-          </div>
-        `;
-      }
+// ===== OVERVIEW =====
+function renderOverview(player, estante, wishlist) {
+  const el = document.getElementById('stOverview');
+  const statsMini = document.getElementById('stHeroStats');
+  if (!el) return;
+  const totalDiscos = estante.total_discos || 0;
+  const totalArtistas = estante.top_artistas ? new Set(estante.top_artistas.map(a => a.nome)).size : 0;
+  const wl = Array.isArray(wishlist) ? wishlist.length : 0;
+  const valor = estante.valor_total || 0;
 
-      if (semDados) {
-        if (apenasCabecalho) {
-          // A outra seção (estante) tem dado — aqui só fica o cabeçalho,
-          // sem repetir o bloco de "vazio" (já apareceu do outro lado, ou
-          // nem precisa aparecer já que existe dado em algum lugar).
-          container.innerHTML = `
-            <div class="estatistica-secao player">
-              <div class="secao-header">
-                <h3>🎧 No seu player</h3>
-              </div>
-            </div>
-          `;
-          return;
-        }
-        container.innerHTML = `
-          <div class="estatistica-secao player">
-            <div class="secao-header" onclick="toggleSecao('player')">
-              <h3>🎧 No seu player</h3>
-              <span class="toggle-icon" id="secao-player-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
-            </div>
-            ${resumoHtml}
-            <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-player-content">
-              <div class="empty-state" style="padding:40px 20px;">
-                <div class="icon" style="font-size:40px;">🎧</div>
-                <h3 style="font-size:20px;">Ainda não dividimos o fone</h3>
-                <p style="font-size:13px;">Adicione discos à sua coleção para ver as estatísticas.</p>
-              </div>
-            </div>
-          </div>
-        `;
-        aplicarEstadoSecao('player', estado);
-        return;
-      }
+  el.innerHTML = `
+    <div class="st-overview-card"><div class="num">${totalDiscos}</div><div class="label">Discos</div></div>
+    <div class="st-overview-card"><div class="num">${totalArtistas}</div><div class="label">Artistas (top)</div></div>
+    <div class="st-overview-card"><div class="num"><span class="accent">${valor ? 'R$ ' + valor : '—'}</span></div><div class="label">Valor</div></div>
+    <div class="st-overview-card"><div class="num"><span class="accent">${wl}</span></div><div class="label">Wishlist</div></div>
+    <div class="st-overview-card"><div class="num">${player.total_musicas || 0}</div><div class="label">Músicas ouvidas</div></div>
+    <div class="st-overview-card"><div class="num">${estante.genero_predominante ? estante.genero_predominante_pct + '%' : '—'}</div><div class="label">${estante.genero_predominante || 'Gênero'}</div></div>
+  `;
+  if (statsMini) {
+    statsMini.innerHTML = valor ? `<div class="stat"><div class="num">R$ ${valor}</div><div class="label">Valor</div></div>` : '';
+  }
+}
 
-      let html = `
-        <div class="estatistica-secao player">
-          <div class="secao-header" onclick="toggleSecao('player')">
-            <h3>🎧 No seu player</h3>
-            <span class="toggle-icon" id="secao-player-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
-          </div>
-          ${resumoHtml}
-          <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-player-content">
-            <div class="stat-grid">
-              <div class="stat-card">
-                <div class="stat-number">${dados.total_musicas || 0}</div>
-                <div class="stat-label">Total de Músicas</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">${dados.artistas_unicos || 0}</div>
-                <div class="stat-label">Artistas Únicos</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">${dados.albuns_unicos || 0}</div>
-                <div class="stat-label">Álbuns Únicos</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">${dados.duracao_horas || 0}h</div>
-                <div class="stat-label">Duração Total</div>
-              </div>
-            </div>
-      `;
+// ===== PLAYER (barras) =====
+function renderEstatisticasPlayer(dados, apenasCabecalho) {
+  const container = document.getElementById('estatisticas-player');
+  if (!container) return;
+  if (apenasCabecalho || !dados || dados.erro || !dados.total_musicas) {
+    container.innerHTML = `<div class="pp-empty-note">Ainda não dividimos o fone — importe suas playlists.</div>`;
+    return;
+  }
+  let html = `
+    <div class="st-bar-chart">
+      <div class="st-bar-row"><span class="label">Músicas</span><div class="track"><div class="fill" style="width:100%;"></div></div><span class="value">${dados.total_musicas}</span></div>
+      <div class="st-bar-row"><span class="label">Artistas</span><div class="track"><div class="fill" style="width:${pctRelativo(dados.artistas_unicos, dados.total_musicas)}%;"></div></div><span class="value">${dados.artistas_unicos}</span></div>
+      <div class="st-bar-row"><span class="label">Álbuns</span><div class="track"><div class="fill" style="width:${pctRelativo(dados.albuns_unicos, dados.total_musicas)}%;"></div></div><span class="value">${dados.albuns_unicos}</span></div>
+      <div class="st-bar-row"><span class="label">Horas</span><div class="track"><div class="fill" style="width:${pctRelativo(dados.duracao_horas, dados.total_musicas)}%;"></div></div><span class="value">${dados.duracao_horas}h</span></div>
+    </div>
+  `;
+  if (dados.top_generos && dados.top_generos.length > 0) {
+    const max = dados.top_generos[0].contagem;
+    html += `<div class="st-subhead">Top gêneros</div><div class="st-bar-chart">`;
+    dados.top_generos.slice(0, 3).forEach(g => {
+      html += `<div class="st-bar-row"><span class="label">${g.nome}</span><div class="track"><div class="fill" style="width:${Math.round(g.contagem / max * 100)}%;"></div></div><span class="value">${g.contagem}</span></div>`;
+    });
+    html += `</div>`;
+  }
+  container.innerHTML = html;
+}
 
-      if (dados.top_artistas && dados.top_artistas.length > 0) {
-        html += `<div class="stat-subtitle">🎤 Top 10 Artistas</div><div class="stat-list">`;
-        dados.top_artistas.forEach(item => {
-          html +=
-            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
-        });
-        html += `</div>`;
-      }
+// ===== ESTANTE (barras) =====
+function renderEstatisticasEstante(dados, apenasCabecalho) {
+  const container = document.getElementById('estatisticas-estante');
+  if (!container) return;
+  if (apenasCabecalho || !dados || dados.erro || !dados.total_discos) {
+    container.innerHTML = `<div class="pp-empty-note">Sua estante está vazia — adicione discos à coleção.</div>`;
+    return;
+  }
+  const total = dados.total_discos;
+  let html = `
+    <div class="st-bar-chart">
+      <div class="st-bar-row"><span class="label">Vinil</span><div class="track"><div class="fill" style="width:${pct(dados.lps, total)}%; background:var(--vinil-color);"></div></div><span class="value">${dados.lps}</span></div>
+      <div class="st-bar-row"><span class="label">CDs</span><div class="track"><div class="fill" style="width:${pct(dados.cds, total)}%; background:var(--cd-color);"></div></div><span class="value">${dados.cds}</span></div>
+      <div class="st-bar-row"><span class="label">Cassetes</span><div class="track"><div class="fill" style="width:${pct(dados.cassetes, total)}%; background:var(--cassete-color);"></div></div><span class="value">${dados.cassetes}</span></div>
+      <div class="st-bar-row"><span class="label">DVD/Blu-ray</span><div class="track"><div class="fill" style="width:${pct(dados.dvd_bluray, total)}%; background:var(--e-color);"></div></div><span class="value">${dados.dvd_bluray}</span></div>
+    </div>
+  `;
+  if (dados.decadas && dados.decadas.length > 0) {
+    const max = Math.max(...dados.decadas.map(d => d.contagem));
+    html += `<div class="st-subhead">Por década</div><div class="st-bar-chart">`;
+    [...dados.decadas].sort((a, b) => b.contagem - a.contagem).slice(0, 3).forEach(d => {
+      html += `<div class="st-bar-row"><span class="label">${d.nome}</span><div class="track"><div class="fill" style="width:${Math.round(d.contagem / max * 100)}%;"></div></div><span class="value">${d.contagem}</span></div>`;
+    });
+    html += `</div>`;
+  }
+  container.innerHTML = html;
+}
 
-      if (dados.top_albuns && dados.top_albuns.length > 0) {
-        html += `<div class="stat-subtitle">💿 Top 10 Álbuns</div><div class="stat-list">`;
-        dados.top_albuns.forEach(item => {
-          html +=
-            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
-        });
-        html += `</div>`;
-      }
+function pct(valor, total) { return total > 0 ? Math.round((valor / total) * 100) : 0; }
+function pctRelativo(valor, base) { return base > 0 ? Math.min(100, Math.round((valor / base) * 100)) : 0; }
 
-      if (dados.decadas && dados.decadas.length > 0) {
-        html += `<div class="stat-subtitle">📅 Distribuição por Década</div><div class="stat-list">`;
-        dados.decadas.forEach(item => {
-          html +=
-            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
-        });
-        html += `</div>`;
-      }
+// ===== CRESCIMENTO DA COLEÇÃO =====
+function renderCrescimento(estante) {
+  const el = document.getElementById('stCrescimento');
+  if (!el) return;
+  const meses = estante.crescimento_mensal;
+  if (!meses || meses.length === 0) {
+    el.innerHTML = '<div class="pp-empty-note">Sem histórico suficiente ainda.</div>';
+    return;
+  }
+  const max = Math.max(...meses.map(m => m.contagem), 1);
+  const nomesM = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const barrasHtml = meses.map(m => {
+    const altura = Math.max(3, Math.round((m.contagem / max) * 80));
+    return `<div class="bar" style="height:${altura}px;" title="${m.contagem} discos"></div>`;
+  }).join('');
+  const labelsHtml = meses.map(m => `<span>${nomesM[parseInt(m.mes.split('-')[1], 10) - 1]}</span>`).join('');
+  const totalAno = meses.reduce((s, m) => s + m.contagem, 0);
+  el.innerHTML = `
+    <div class="chart-area">${barrasHtml}</div>
+    <div class="chart-labels">${labelsHtml}</div>
+    <div class="growth-stats">
+      <span>+${totalAno} discos nos últimos 12 meses</span>
+      <span>🎉 ${estante.total_discos} no total</span>
+    </div>
+  `;
+}
 
-      if (dados.top_generos && dados.top_generos.length > 0) {
-        html += `<div class="stat-subtitle">🎸 Top 10 Gêneros</div><div class="stat-list">`;
-        dados.top_generos.forEach(item => {
-          html +=
-            `<div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>`;
-        });
-        html += `</div>`;
-      }
-
-      html += `</div></div>`;
-      container.innerHTML = html;
-      aplicarEstadoSecao('player', estado);
-    }
-
-    function renderEstatisticasEstante(dados, apenasCabecalho) {
-      const container = document.getElementById('estatisticas-estante');
-      if (!container) return;
-      const semDados = !dados || dados.erro || dados.total_discos === 0;
-      const estado = semDados ? 'aberta' : (localStorage.getItem('secao_estante') || 'aberta');
-
-      let resumoHtml = '';
-      if (dados && !dados.erro && dados.total_discos > 0) {
-        resumoHtml = `
-          <div class="resumo-cards" id="resumo-estante">
-            <div class="resumo-item">
-              <span class="num">${dados.total_discos || 0}</span>
-              <span class="label">Discos</span>
-            </div>
-            <div class="resumo-item">
-              <span class="num">${dados.lps || 0}</span>
-              <span class="label">LPs</span>
-            </div>
-            <div class="resumo-item">
-              <span class="num">${dados.cds || 0}</span>
-              <span class="label">CDs</span>
-            </div>
-            <div class="resumo-item">
-              <span class="num">${dados.cassetes || 0}</span>
-              <span class="label">Cassetes</span>
-            </div>
-            <div class="resumo-item">
-              <span class="num">${dados.dvd_bluray || 0}</span>
-              <span class="label">DVD/Blu-ray</span>
-            </div>
-            ${dados.valor_total ? `<div class="resumo-item">
-              <span class="num">R$ ${dados.valor_total}</span>
-              <span class="label">Valor</span>
-            </div>` : ''}
-          </div>
-        `;
-      }
-
-      if (semDados) {
-        if (apenasCabecalho) {
-          container.innerHTML = `
-            <div class="estatistica-secao estante">
-              <div class="secao-header">
-                <h3>Na sua estante</h3>
-              </div>
-            </div>
-          `;
-          return;
-        }
-        container.innerHTML = `
-          <div class="estatistica-secao estante">
-            <div class="secao-header" onclick="toggleSecao('estante')">
-              <h3>Na sua estante</h3>
-              <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
-            </div>
-            ${resumoHtml}
-            <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
-              <div class="empty-state" style="padding:40px 20px;">
-                <h3 style="font-size:20px;">Sua estante está vazia</h3>
-                <p style="font-size:13px;">Adicione discos à sua coleção para ver as estatísticas.</p>
-              </div>
-            </div>
-          </div>
-        `;
-        aplicarEstadoSecao('estante', estado);
-        return;
-      }
-
-      let detalhesHtml = '';
-      if (dados.album_mais_antigo) {
-        detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">Álbum mais antigo</span><span class="count">${dados.album_mais_antigo}</span></div>`;
-      }
-      if (dados.album_mais_recente) {
-        detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">Álbum mais recente</span><span class="count">${dados.album_mais_recente}</span></div>`;
-      }
-      if (dados.preco_medio && dados.preco_medio > 0) {
-        detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">Preço médio</span><span class="count">R$ ${dados.preco_medio}</span></div>`;
-      }
-      if (dados.disco_mais_caro) {
-        detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">Disco mais caro</span><span class="count">${dados.disco_mais_caro}</span></div>`;
-      }
-      if (dados.disco_mais_barato) {
-        detalhesHtml +=
-          `<div class="stat-list-item"><span class="name">Disco mais barato</span><span class="count">${dados.disco_mais_barato}</span></div>`;
-      }
-
-      let html = `
-        <div class="estatistica-secao estante">
-          <div class="secao-header" onclick="toggleSecao('estante')">
-            <h3>Na sua estante</h3>
-            <span class="toggle-icon" id="secao-estante-toggle">${estado === 'aberta' ? '▼' : '▶'}</span>
-          </div>
-          ${resumoHtml}
-          <div class="secao-content ${estado === 'aberta' ? '' : 'fechada'}" id="secao-estante-content">
-            <div class="stat-grid">
-              <div class="stat-card" style="border-top-color: var(--colecao-color);">
-                <div class="stat-number">${dados.total_discos || 0}</div>
-                <div class="stat-label">Total de Discos</div>
-              </div>
-              <div class="stat-card" style="border-top-color: var(--vinil-color);">
-                <div class="stat-number">${dados.lps || 0}</div>
-                <div class="stat-label">LPs</div>
-              </div>
-              <div class="stat-card" style="border-top-color: var(--cd-color);">
-                <div class="stat-number">${dados.cds || 0}</div>
-                <div class="stat-label">CDs</div>
-              </div>
-              <div class="stat-card" style="border-top-color: var(--cassete-color);">
-                <div class="stat-number">${dados.cassetes || 0}</div>
-                <div class="stat-label">Cassetes</div>
-              </div>
-              <div class="stat-card" style="border-top-color: var(--e-color);">
-                <div class="stat-number">${dados.dvd_bluray || 0}</div>
-                <div class="stat-label">DVD/Blu-ray</div>
-              </div>
-              ${dados.valor_total ? `<div class="stat-card" style="border-top-color: #4CAF50;">
-                <div class="stat-number">R$ ${dados.valor_total}</div>
-                <div class="stat-label">Valor Total Estimado</div>
-              </div>` : ''}
-            </div>
-
-            ${dados.top_artistas && dados.top_artistas.length > 0 ? `
-              <div class="stat-subtitle" style="color: var(--colecao-color);">Top 5 Artistas na Estante</div>
-              <div class="stat-list">
-                ${dados.top_artistas.map(item => `
-                  <div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>
-                `).join('')}
-              </div>
-            ` : ''}
-
-            ${dados.decadas && dados.decadas.length > 0 ? `
-              <div class="stat-subtitle" style="color: var(--colecao-color);">Distribuição por Década</div>
-              <div class="stat-list">
-                ${dados.decadas.map(item => `
-                  <div class="stat-list-item"><span class="name">${item.nome}</span><span class="count">${item.contagem}</span></div>
-                `).join('')}
-              </div>
-            ` : ''}
-
-            ${detalhesHtml ? `
-              <div class="stat-subtitle" style="color: var(--colecao-color);">Detalhes da Coleção</div>
-              <div class="stat-list">
-                ${detalhesHtml}
-              </div>
-            ` : ''}
-
-          </div>
+// ===== WISHLIST PROGRESS =====
+function renderWishlistProgress(dados) {
+  const el = document.getElementById('stWishlistProgress');
+  const totalEl = document.getElementById('stWishlistTotal');
+  if (!el) return;
+  if (!dados || dados.total === 0) {
+    el.innerHTML = '<div class="pp-empty-note">Nenhum item na wishlist ainda.</div>';
+    if (totalEl) totalEl.textContent = '';
+    return;
+  }
+  if (totalEl) totalEl.textContent = `${dados.total} itens`;
+  const tiers = dados.tiers_pendentes || {};
+  el.innerHTML = `
+    <div class="st-progress-ring">
+      <div class="circle" style="--pct:${dados.pct};"><span>${dados.pct}%</span></div>
+      <div class="details">
+        <div class="stat"><span class="highlight">${dados.adquiridos}</span> de ${dados.total} adquiridos</div>
+        <div class="sub">${dados.restantes} restantes</div>
+        <div class="priority-tags">
+          <span>S: ${tiers.S || 0}</span><span>A: ${tiers.A || 0}</span><span>B: ${tiers.B || 0}</span><span>C: ${tiers.C || 0}</span>
         </div>
-      `;
+      </div>
+    </div>
+    <div class="st-summary-row">
+      <span>✅ ${dados.adquiridos} adquiridos</span>
+      <span>⏳ ${dados.restantes} pra comprar</span>
+    </div>
+  `;
+}
 
-      container.innerHTML = html;
-      aplicarEstadoSecao('estante', estado);
-    }
+// ===== VALOR DA COLEÇÃO =====
+function renderValor(estante) {
+  const el = document.getElementById('stValor');
+  if (!el) return;
+  if (!estante.valor_total) {
+    el.innerHTML = '<div class="pp-empty-note">Nenhum preço registrado ainda.</div>';
+    return;
+  }
+  const vf = estante.valor_por_formato || {};
+  el.innerHTML = `
+    <div class="st-value-hero">R$ ${estante.valor_total}</div>
+    <div class="st-value-sub">Preço médio: R$ ${estante.preco_medio || 0}</div>
+    <div class="st-value-grid">
+      <div class="st-value-item"><span class="label">Vinil</span><span class="value">R$ ${vf.vinil || 0}</span></div>
+      <div class="st-value-item"><span class="label">CDs</span><span class="value">R$ ${vf.cd || 0}</span></div>
+      <div class="st-value-item"><span class="label">Cassetes</span><span class="value">R$ ${vf.cassete || 0}</span></div>
+      <div class="st-value-item"><span class="label">DVD/Blu-ray</span><span class="value">R$ ${vf.dvd_bluray || 0}</span></div>
+    </div>
+    ${estante.disco_mais_caro ? `<div class="pp-empty-note" style="margin-top:10px;">Mais valioso: ${estante.disco_mais_caro}</div>` : ''}
+  `;
+}
 
-    function aplicarEstadoSecao(secao, estado) {
-      const content = document.getElementById('secao-' + secao + '-content');
-      const toggle = document.getElementById('secao-' + secao + '-toggle');
-      const resumo = document.getElementById('resumo-' + secao);
+// ===== TOP ARTISTAS =====
+function renderTopArtistas(estante) {
+  const el = document.getElementById('stTopArtistas');
+  if (!el) return;
+  if (!estante.top_artistas || estante.top_artistas.length === 0) {
+    el.innerHTML = '<div class="pp-empty-note">Sem dados suficientes ainda.</div>';
+    return;
+  }
+  const max = estante.top_artistas[0].contagem;
+  el.innerHTML = estante.top_artistas.map((a, i) => `
+    <div class="st-rank-item">
+      <span class="pos">#${i + 1}</span>
+      <span class="name">${a.nome}</span>
+      <div class="progress"><div class="bar"><div class="fill" style="width:${Math.round(a.contagem / max * 100)}%;"></div></div><span class="count">${a.contagem}</span></div>
+    </div>
+  `).join('');
+}
 
-      if (!content || !toggle) return;
+// ===== DESTAQUES DA COLEÇÃO =====
+function renderInsightsDestaques(estante) {
+  const el = document.getElementById('stInsights');
+  if (!el) return;
+  const cards = [];
+  if (estante.genero_predominante) cards.push({ icon: '🎸', value: estante.genero_predominante_pct + '%', label: estante.genero_predominante, sub: 'gênero predominante' });
+  if (estante.decadas && estante.decadas.length > 0) {
+    const top = [...estante.decadas].sort((a, b) => b.contagem - a.contagem)[0];
+    cards.push({ icon: '📅', value: top.nome, label: 'década mais coletada', sub: `${top.contagem} discos` });
+  }
+  if (estante.top_artistas && estante.top_artistas.length > 0) cards.push({ icon: '💿', value: estante.top_artistas[0].nome, label: 'artista mais coletado', sub: `${estante.top_artistas[0].contagem} discos` });
+  if (estante.disco_mais_caro) cards.push({ icon: '💰', value: estante.disco_mais_caro.split(' (')[0], label: 'mais valioso', sub: estante.disco_mais_caro.match(/\(([^)]+)\)/)?.[1] || '' });
+  if (estante.album_mais_antigo) cards.push({ icon: '🕰️', value: estante.album_mais_antigo, label: 'primeiro adicionado', sub: '' });
+  if (estante.album_mais_recente) cards.push({ icon: '🆕', value: estante.album_mais_recente, label: 'mais recente', sub: '' });
 
-      if (estado === 'fechada') {
-        content.classList.add('fechada');
-        toggle.textContent = '▶';
-        if (resumo) resumo.style.display = 'flex';
-      } else {
-        content.classList.remove('fechada');
-        toggle.textContent = '▼';
-        if (resumo) resumo.style.display = 'none';
-      }
-    }
+  el.innerHTML = cards.length > 0
+    ? cards.map(c => `<div class="st-insight-card"><div class="icon">${c.icon}</div><div class="value">${c.value}</div><div class="label">${c.label}</div>${c.sub ? `<div class="sub">${c.sub}</div>` : ''}</div>`).join('')
+    : '<div class="pp-empty-note">Sem dados suficientes ainda.</div>';
+}
 
-    function toggleSecao(secao) {
-      const content = document.getElementById('secao-' + secao + '-content');
-      const toggle = document.getElementById('secao-' + secao + '-toggle');
-      const resumo = document.getElementById('resumo-' + secao);
-      if (!content || !toggle) return;
+// ===== OUVIDO VS POSSUÍDO =====
+function renderCruzamento(dados, playerVazio, estanteVazia) {
+  const el = document.getElementById('stCruzamento');
+  if (!el) return;
+  if (playerVazio || estanteVazia || !dados) {
+    el.innerHTML = '<div class="pp-empty-note">Precisa de dado no player e na estante pra cruzar as duas coisas.</div>';
+    return;
+  }
+  el.innerHTML = `
+    ${dados.top_artista_nao_possuido ? `<div class="st-cross-row"><span class="k">Artista mais ouvido que você não tem</span><span class="v">${dados.top_artista_nao_possuido}</span></div>` : ''}
+    <div class="st-cross-row"><span class="k">Álbuns ouvidos mas faltando na estante</span><span class="v">${dados.albuns_ouvidos_faltando}</span></div>
+    <div class="st-cross-row"><span class="k">Discos que você tem mas nunca ouviu</span><span class="v">${dados.discos_nunca_ouvidos}</span></div>
+    ${dados.cobertura_pct !== null ? `<div class="st-cross-row"><span class="k">Cobertura da coleção</span><span class="v">${dados.cobertura_pct}%</span></div>` : ''}
+  `;
+}
 
-      if (content.classList.contains('fechada')) {
-        content.classList.remove('fechada');
-        toggle.textContent = '▼';
-        localStorage.setItem('secao_' + secao, 'aberta');
-        if (resumo) resumo.style.display = 'none';
-      } else {
-        content.classList.add('fechada');
-        toggle.textContent = '▶';
-        localStorage.setItem('secao_' + secao, 'fechada');
-        if (resumo) resumo.style.display = 'flex';
-      }
-    }
+// ===== MARCOS DA COLEÇÃO =====
+function renderMarcos(estante, avancadas) {
+  const el = document.getElementById('stMarcos');
+  if (!el) return;
+  const anoInicio = configAtualAno || null;
+  const cards = [
+    { icon: '💿', value: estante.total_discos >= 1000 ? '1.000+' : String(estante.total_discos || 0), label: 'discos', sub: '' },
+    { icon: '🔥', value: 'em breve', label: 'discografias completas', sub: 'depende das trilogias' }
+  ];
+  if (avancadas && avancadas.wishlist_progress) {
+    cards.push({ icon: '🎯', value: String(avancadas.wishlist_progress.adquiridos), label: 'itens adquiridos', sub: 'via wishlist' });
+  }
+  cards.push({ icon: '📀', value: 'em breve', label: 'anos colecionando', sub: 'desde o cadastro' });
+  el.innerHTML = cards.map(c => `<div class="st-insight-card"><div class="icon">${c.icon}</div><div class="value">${c.value}</div><div class="label">${c.label}</div>${c.sub ? `<div class="sub">${c.sub}</div>` : ''}</div>`).join('');
+}
+let configAtualAno = null;
+
 
     document.addEventListener('DOMContentLoaded', function() {
       verificarSessao();
