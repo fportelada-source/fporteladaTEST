@@ -2345,12 +2345,15 @@
     .pp-recent-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
     .pp-recent-scroll::-webkit-scrollbar { height: 4px; }
     .pp-recent-scroll::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
-    .pp-recent-item { min-width: 140px; background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--card-line); flex-shrink: 0; }
-    .pp-recent-item .cover { height: 140px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #5a5a5a; }
+    .pp-recent-item { width: 140px; min-width: 140px; max-width: 140px; background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--card-line); flex-shrink: 0; }
+    .pp-recent-item .cover { width: 140px; height: 140px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #5a5a5a; }
     .pp-recent-item .info { padding: 10px 12px 12px 12px; }
-    .pp-recent-item .info .title { font-weight: 600; font-size: 12.5px; }
-    .pp-recent-item .info .artist { font-size: 11.5px; opacity: 0.4; }
-    .pp-recent-item .info .date { font-size: 10px; opacity: 0.25; margin-top: 2px; }
+    .pp-recent-item .info .title {
+      font-weight: 600; font-size: 12.5px; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .pp-recent-item .info .artist { font-size: 11.5px; opacity: 0.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pp-recent-item .info .date { font-size: 10px; opacity: 0.25; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* ===== WISHLIST ===== */
     .pp-wishlist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
