@@ -38,7 +38,6 @@
           <a href="estatisticas.html" title="Estatísticas">📊</a>
           <a href="importar.html" title="Importar">📤</a>
         </nav>
-        <a href="perfil.html" class="bottom-icon" title="Perfil">⚙</a>
       </aside>
 
       <!-- MAIN -->
@@ -213,6 +212,25 @@ function corTier(tier) {
   return { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' }[tier] || 'var(--c-color)';
 }
 
+// Last.fm como último recurso, igual às outras páginas (Discogs é a fonte
+// principal, mas o Dashboard não tinha rede de segurança nenhuma até agora).
+const LASTFM_KEY = 'b25b959554ed76058ac220b7b2e0a026';
+async function getCoverUrlLastfm(artist, album) {
+  if (!artist || !album) return null;
+  try {
+    const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}&format=json`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.album && data.album.image) {
+      const img = data.album.image.find(i => i.size === 'extralarge');
+      return img && img['#text'] ? img['#text'] : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 // O dashboard só mostra ~7 itens no máximo (hero + 3 compras + 3 wishlist),
 // então buscar a capa que ainda não veio salva é seguro aqui — diferente
 // da geração em massa de recomendações, que evita isso de propósito.
@@ -222,19 +240,33 @@ function carregarCapasFaltantesDashboard() {
     const artista = el.dataset.artista;
     const album = el.dataset.album;
     if (!artista || !album) return;
+
+    function aplicar(url) {
+      el.style.backgroundImage = `url('${url}')`;
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      const icone = el.querySelector('.fallback-icon');
+      if (icone) icone.style.display = 'none';
+      else el.textContent = '';
+    }
+
     fetch(API_URL + `/buscar_capa?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`)
       .then(r => r.json())
       .then(d => {
         if (d.sucesso && d.capa_url) {
-          el.style.backgroundImage = `url('${d.capa_url}')`;
-          el.style.backgroundSize = 'cover';
-          el.style.backgroundPosition = 'center';
-          const icone = el.querySelector('.fallback-icon');
-          if (icone) icone.style.display = 'none';
-          else el.textContent = '';
+          aplicar(d.capa_url);
+        } else {
+          console.warn('[Dashboard] Discogs sem capa para', artista, '-', album, '— tentando Last.fm');
+          getCoverUrlLastfm(artista, album).then(url => {
+            if (url) aplicar(url);
+            else console.warn('[Dashboard] Last.fm também sem capa para', artista, '-', album);
+          });
         }
       })
-      .catch(() => {});
+      .catch(err => {
+        console.warn('[Dashboard] /buscar_capa falhou para', artista, '-', album, err, '— tentando Last.fm');
+        getCoverUrlLastfm(artista, album).then(url => { if (url) aplicar(url); });
+      });
   });
 }
 
