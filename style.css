@@ -2748,13 +2748,17 @@
     .set-selector-row .options .opt.disabled { opacity: 0.2; cursor: not-allowed; }
 
     .set-action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .set-action-card { background: #0f0f0f; border-radius: 14px; padding: 14px 16px; border: 1px solid var(--card-line); text-align: center; }
+    .set-action-card {
+      background: #0f0f0f; border-radius: 14px; padding: 14px 16px; border: 1px solid var(--card-line);
+      text-align: center; display: flex; flex-direction: column; align-items: center;
+    }
     .set-action-card .icon { font-size: 24px; margin-bottom: 4px; }
     .set-action-card .name { font-weight: 600; font-size: 13px; }
     .set-action-card .desc { font-size: 11px; opacity: 0.35; margin-top: 2px; margin-bottom: 8px; }
     .set-action-card button {
       display: inline-block; background: transparent; border: 1px solid var(--card-line); padding: 5px 16px;
       border-radius: 30px; font-size: 11.5px; font-weight: 500; color: var(--paper); cursor: pointer; font-family: 'Inter', sans-serif;
+      margin-top: auto;
     }
     .set-action-card button.primary { background: var(--terracotta); border-color: var(--terracotta); color: var(--ink); }
     .set-action-card button:hover { border-color: var(--terracotta); }
