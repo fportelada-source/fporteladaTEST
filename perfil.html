@@ -54,65 +54,210 @@
             <div class="avatar" id="userAvatar">?</div>
           </a>
         </div>
-    <!-- ===== PERFIL ===== -->
-    <div id="tab-perfil" class="tab-content active">
-      <section class="section" style="--tier-color:var(--vinil-color)">
-        <div class="tier-head">
-          <div class="tier-stamp small">👤</div>
-          <div class="tier-info">
-            <h2 style="color:var(--vinil-color);">Perfil</h2>
-            <p>Nome e foto vêm da sua conta Google. Bio e redes são editáveis.</p>
+        <!-- HERO -->
+        <div class="set-hero">
+          <div>
+            <h1>⚙️ <span class="accent">Configurações</span></h1>
+            <div class="sub">Configure a Discoteca do seu jeito</div>
+          </div>
+          <div>
+            <button class="btn-save" id="btnSalvarTudo">Salvar alterações</button>
           </div>
         </div>
 
-        <div style="max-width:560px; margin:0 auto;">
+        <div class="set-grid">
 
-          <div class="perfil-avatar-wrap">
-            <div class="perfil-avatar" id="perfilAvatar">?</div>
-            <div class="perfil-avatar-info">
-              <div class="nome" id="perfilNome">Carregando...</div>
-              <div class="desde" id="perfilDesde"></div>
-              <a href="#" target="_blank" class="perfil-link-publico" id="perfilLinkPublico">Ver meu perfil público →</a>
+          <!-- CONTA -->
+          <div class="set-card">
+            <div class="card-header"><h3>👤 Conta</h3><span class="sub">gerenciado pelo Google</span></div>
+            <div class="set-row"><span class="icon">⊘</span><span class="label">Google</span><span class="value" id="setGoogleEmail">— <span class="readonly">· conectado</span></span></div>
+            <div class="set-row"><span class="icon">✇</span><span class="label">Nome</span><span class="value" id="setNomeGoogle">—</span></div>
+            <div class="set-row"><span class="icon">📅</span><span class="label">Membro desde</span><span class="value" id="setMembroDesde">—</span></div>
+          </div>
+
+          <!-- PERFIL DE COLECIONADOR -->
+          <div class="set-card">
+            <div class="card-header"><h3>🎯 Perfil de colecionador</h3><span class="sub" id="setLinkPerfilPublico">→ ver perfil público</span></div>
+            <div class="set-row"><span class="icon">✎</span><span class="label">Nome de exibição</span><input type="text" id="campo-nome-exibicao" maxlength="60" placeholder="Como quer aparecer publicamente"></div>
+            <div class="set-row"><span class="icon">📍</span><span class="label">Localização</span><input type="text" id="campo-localizacao" maxlength="60" placeholder="Ex: São Luís, MA"></div>
+            <div class="set-row"><span class="icon">✍</span><span class="label">Bio</span><textarea id="campo-bio" maxlength="280" placeholder="Conte um pouco sobre sua coleção..."></textarea></div>
+            <div class="set-row"><span class="icon">🎵</span><span class="label">Spotify</span><input type="url" id="campo-spotify" placeholder="https://open.spotify.com/user/..."></div>
+            <div class="set-row"><span class="icon">💿</span><span class="label">Discogs</span><input type="url" id="campo-discogs" placeholder="https://discogs.com/user/..."></div>
+            <div class="set-row"><span class="icon">📷</span><span class="label">Instagram</span><input type="url" id="campo-instagram" placeholder="https://instagram.com/..."></div>
+          </div>
+
+          <!-- SERVIÇOS CONECTADOS -->
+          <div class="set-card">
+            <div class="card-header"><h3>🔌 Serviços conectados</h3><span class="sub">integrações</span></div>
+            <div class="set-service-grid">
+              <div class="set-service-card">
+                <div class="left"><span class="icon">🎵</span><div><div class="name">Spotify</div><div class="status">Só via importação de CSV por enquanto</div></div></div>
+                <span class="set-badge disconnected">Não conectado</span>
+              </div>
+              <div class="set-service-card">
+                <div class="left"><span class="icon">💿</span><div><div class="name">Discogs</div><div class="status">Usado pra buscar capa/ano/gênero</div></div></div>
+                <span class="set-badge disconnected">Não conectado</span>
+              </div>
+              <div class="set-service-card">
+                <div class="left"><span class="icon">⌛</span><div><div class="name">Last.fm</div><div class="status">Em breve</div></div></div>
+                <span class="set-badge pending">Em breve</span>
+              </div>
+              <div class="set-service-card">
+                <div class="left"><span class="icon">⊡</span><div><div class="name">MusicBrainz</div><div class="status">Integração futura</div></div></div>
+                <span class="set-badge pending">Em breve</span>
+              </div>
+            </div>
+            <div class="pp-empty-note" style="margin-top:10px;">Login direto com Spotify/Discogs (OAuth) ainda não existe — hoje a importação é via CSV, na aba Importar.</div>
+          </div>
+
+          <!-- PREFERÊNCIAS DA COLEÇÃO -->
+          <div class="set-card">
+            <div class="card-header"><h3>💿 Preferências da coleção</h3><span class="sub">seus padrões</span></div>
+            <div class="set-selector-row">
+              <div class="left"><div class="title">Formato preferido</div><div class="sub">Padrão ao adicionar discos</div></div>
+              <div class="options" id="optFormato">
+                <span class="opt" data-valor="Vinil">Vinil</span><span class="opt" data-valor="CD">CD</span><span class="opt" data-valor="Cassete">Cassete</span>
+              </div>
+            </div>
+            <div class="set-selector-row">
+              <div class="left"><div class="title">Moeda</div><div class="sub">Moeda padrão pros preços</div></div>
+              <div class="options" id="optMoeda">
+                <span class="opt" data-valor="BRL">BRL (R$)</span><span class="opt" data-valor="USD">USD ($)</span><span class="opt" data-valor="EUR">EUR (€)</span>
+              </div>
+            </div>
+            <div class="set-selector-row">
+              <div class="left"><div class="title">Marketplace padrão</div><div class="sub">Onde você prefere comprar</div></div>
+              <div class="options" id="optMarketplace">
+                <span class="opt" data-valor="Discogs">Discogs</span><span class="opt" data-valor="eBay">eBay</span><span class="opt" data-valor="Loja local">Loja local</span>
+              </div>
+            </div>
+            <div class="set-selector-row">
+              <div class="left"><div class="title">Visualização padrão</div><div class="sub">Layout da Coleção ao abrir</div></div>
+              <div class="options" id="optVisualizacao">
+                <span class="opt" data-valor="cards">Cards</span><span class="opt" data-valor="list">Lista</span>
+              </div>
             </div>
           </div>
 
-          <form id="form-perfil">
-            <div class="form-group">
-              <label>Nome de exibição</label>
-              <input type="text" id="campo-nome-exibicao" maxlength="60" placeholder="Como quer aparecer no seu perfil público (deixe em branco para usar o nome do Google)">
+          <!-- NOTIFICAÇÕES -->
+          <div class="set-card">
+            <div class="card-header"><h3>🔔 Notificações</h3><span class="sub">fica sabendo</span></div>
+            <div class="pp-empty-note" style="margin-bottom:6px;">Envio real (e-mail/push) ainda não existe — suas preferências já ficam salvas pra quando chegar.</div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Queda de preço</div><div class="sub">Mudanças de preço na wishlist</div></div><button class="set-toggle" data-campo="notif_price_drop"><div class="dot"></div></button></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Alertas de wishlist</div><div class="sub">Novos matches e reposições</div></div><button class="set-toggle" data-campo="notif_wishlist"><div class="dot"></div></button></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Novos lançamentos</div><div class="sub">Artistas que você segue</div></div><button class="set-toggle" data-campo="notif_novidades"><div class="dot"></div></button></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Discografia completa</div><div class="sub">Marcos de artistas</div></div><button class="set-toggle" data-campo="notif_discografia"><div class="dot"></div></button></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">E-mail</div><div class="sub">Resumo semanal</div></div><button class="set-toggle" data-campo="notif_email"><div class="dot"></div></button></div>
+          </div>
+
+          <!-- IMPORTAR E EXPORTAR -->
+          <div class="set-card">
+            <div class="card-header"><h3>📥 Importar e exportar</h3><span class="sub">gerencie seus dados</span></div>
+            <div class="set-action-grid">
+              <div class="set-action-card">
+                <div class="icon">🎵</div><div class="name">Importar CSV</div><div class="desc">Playlists do Spotify (Exportify)</div>
+                <button class="primary" id="btnAbrirImportCsv">Importar</button>
+              </div>
+              <div class="set-action-card">
+                <div class="icon">💿</div><div class="name">Importar Discogs</div><div class="desc">Coleção via CSV</div>
+                <button onclick="window.location.href='importar.html'">Ir pra Importar</button>
+              </div>
+              <div class="set-action-card">
+                <div class="icon">📤</div><div class="name">Exportar coleção</div><div class="desc">Download em CSV</div>
+                <button id="btnExportarCsv">Exportar</button>
+              </div>
+              <div class="set-action-card">
+                <div class="icon">💾</div><div class="name">Backup completo</div><div class="desc">Tudo em JSON</div>
+                <button id="btnBackup">Baixar</button>
+              </div>
+              <div class="set-action-card">
+                <div class="icon">⟳</div><div class="name">Restaurar backup</div><div class="desc">A partir de um arquivo</div>
+                <button disabled title="Em breve">Em breve</button>
+              </div>
             </div>
-            <div class="form-group">
-              <label>Localização</label>
-              <input type="text" id="campo-localizacao" maxlength="60" placeholder="Ex: São Luís, MA">
+          </div>
+
+          <!-- PRIVACIDADE -->
+          <div class="set-card">
+            <div class="card-header"><h3>🔒 Privacidade</h3><span class="sub">controle sua visibilidade</span></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Perfil público</div><div class="sub">Visível pra qualquer pessoa com o link</div></div><button class="set-toggle" data-campo="privacidade_perfil_publico"><div class="dot"></div></button></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Visível em buscas</div><div class="sub">Ainda não temos indexação — sem efeito real por enquanto</div></div><button class="set-toggle" data-campo="privacidade_busca"><div class="dot"></div></button></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Mostrar valor da coleção</div><div class="sub">No perfil público</div></div><button class="set-toggle" data-campo="privacidade_valor"><div class="dot"></div></button></div>
+            <div class="set-toggle-item"><div class="left"><div class="title">Mostrar wishlist</div><div class="sub">No perfil público</div></div><button class="set-toggle" data-campo="privacidade_wishlist"><div class="dot"></div></button></div>
+          </div>
+
+          <!-- APARÊNCIA -->
+          <div class="set-card">
+            <div class="card-header"><h3>🎨 Aparência</h3><span class="sub">preferências visuais</span></div>
+            <div class="set-selector-row">
+              <div class="left"><div class="title">Tema</div><div class="sub">Só temos escuro por enquanto</div></div>
+              <div class="options"><span class="opt active disabled">Escuro</span><span class="opt disabled">Claro</span></div>
             </div>
-            <div class="form-group">
-              <label>Bio</label>
-              <textarea id="campo-bio" maxlength="280" placeholder="Conte um pouco sobre sua coleção..."></textarea>
-              <div class="char-count"><span id="bioCount">0</span>/280</div>
+            <div class="set-selector-row">
+              <div class="left"><div class="title">Idioma</div><div class="sub">Só temos português por enquanto</div></div>
+              <div class="options"><span class="opt active disabled">Português</span><span class="opt disabled">English</span></div>
             </div>
-            <div class="form-group">
-              <label>Spotify</label>
-              <input type="url" id="campo-spotify" placeholder="https://open.spotify.com/user/...">
-            </div>
-            <div class="form-group">
-              <label>Discogs</label>
-              <input type="url" id="campo-discogs" placeholder="https://discogs.com/user/...">
-            </div>
-            <div class="form-group">
-              <label>Instagram</label>
-              <input type="url" id="campo-instagram" placeholder="https://instagram.com/...">
-            </div>
-            <button type="submit" class="form-btn" id="btn-salvar-perfil">Salvar Perfil</button>
-            <div class="form-msg" id="perfil-msg"></div>
-          </form>
+          </div>
+
+          <!-- ZONA DE PERIGO -->
+          <div class="set-card set-danger">
+            <div class="card-header"><h3>⚠️ Zona de perigo</h3><span class="sub">ações irreversíveis</span></div>
+            <div class="set-danger-item"><div class="left"><div class="title">Limpar dados importados</div><div class="sub">Remove playlists importadas (mantém coleção e wishlist)</div></div><button id="btnLimparImportados">Limpar</button></div>
+            <div class="set-danger-item"><div class="left"><div class="title">Restaurar preferências</div><div class="sub">Volta tudo desta página pro padrão</div></div><button id="btnResetarPrefs">Restaurar</button></div>
+            <div class="set-danger-item"><div class="left"><div class="title">Desconectar serviços</div><div class="sub">Nenhum serviço conectado ainda</div></div><button id="btnDesconectarTudo">Desconectar</button></div>
+            <div class="set-danger-item"><div class="left"><div class="title">Excluir conta</div><div class="sub">Remove todos os seus dados permanentemente</div></div><button id="btnExcluirConta">Excluir conta</button></div>
+          </div>
+
+          <div class="set-msg" id="setMsg"></div>
 
         </div>
-      </section>
-    </div>
 
       </div>
     </div>
   </div><!-- /appScreen -->
+
+  <!-- ===== MODAL: IMPORTAR CSV ===== -->
+  <div class="modal-overlay" id="modalImportCsv">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>🎵 Importar Playlists (CSV)</h2>
+        <button class="modal-close" id="btnFecharImportCsv">✕</button>
+      </div>
+      <p style="font-size:12.5px; opacity:0.6; margin-bottom:16px;">Exporte suas playlists com o <a href="https://exportify.net" target="_blank" style="color:var(--terracotta);">Exportify</a> e envie os 3 arquivos abaixo.</p>
+      <div class="set-import-slot">
+        <label>Top do Ano (peso 3x)</label>
+        <input type="file" id="csvTop" accept=".csv">
+        <div class="set-import-status" id="statusCsvTop"></div>
+      </div>
+      <div class="set-import-slot">
+        <label>Descobertas (peso 2x)</label>
+        <input type="file" id="csvDesc" accept=".csv">
+        <div class="set-import-status" id="statusCsvDesc"></div>
+      </div>
+      <div class="set-import-slot">
+        <label>Favoritos (peso 1x)</label>
+        <input type="file" id="csvFav" accept=".csv">
+        <div class="set-import-status" id="statusCsvFav"></div>
+      </div>
+      <button class="form-btn" id="btnEnviarCsv">Importar arquivos</button>
+      <div class="form-msg" id="importCsvMsg"></div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: CONFIRMAÇÃO ===== -->
+  <div class="modal-overlay" id="modalConfirm">
+    <div class="modal" style="max-width:450px;">
+      <div class="modal-header">
+        <h2>⚠️ Confirmar</h2>
+        <button class="modal-close" id="btnFecharConfirm">✕</button>
+      </div>
+      <div class="modal-confirm-text" id="confirmMessage">Tem certeza que deseja fazer isso?</div>
+      <div style="display:flex; gap:12px; margin-top:20px;">
+        <button class="btn-confirm-cancel" id="btnConfirmCancel">Cancelar</button>
+        <button class="btn-confirm-danger" id="btnConfirmAction">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
   <footer>Discoteca — Sua coleção, suas recomendações.</footer>
 
@@ -127,6 +272,7 @@ const DEV_USER_NOME = 'Teste ID 1';
 
 let usuarioId = null;
 let confirmCallback = null;
+let configAtual = {};
 
 // ================================================================
 // SIDEBAR / TOP BAR (compartilhado — mesmo padrão do Início e Coleção)
@@ -181,6 +327,33 @@ function limparSessao() {
   localStorage.removeItem('discoteca_user_id');
   localStorage.removeItem('discoteca_user_nome');
 }
+
+// ================================================================
+// MODAL: CONFIRMAÇÃO (usado pela Zona de Perigo)
+// ================================================================
+function abrirConfirm(mensagem, callback) {
+  document.getElementById('confirmMessage').textContent = mensagem;
+  confirmCallback = callback;
+  document.getElementById('modalConfirm').classList.add('open');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const btnFecharConfirm = document.getElementById('btnFecharConfirm');
+  const btnConfirmCancel = document.getElementById('btnConfirmCancel');
+  const btnConfirmAction = document.getElementById('btnConfirmAction');
+  if (btnFecharConfirm) btnFecharConfirm.addEventListener('click', function() {
+    document.getElementById('modalConfirm').classList.remove('open');
+    confirmCallback = null;
+  });
+  if (btnConfirmCancel) btnConfirmCancel.addEventListener('click', function() {
+    document.getElementById('modalConfirm').classList.remove('open');
+    confirmCallback = null;
+  });
+  if (btnConfirmAction) btnConfirmAction.addEventListener('click', function() {
+    if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+    document.getElementById('modalConfirm').classList.remove('open');
+  });
+});
+
 function ativarTelaApp(nome) {
   const loginScreen = document.getElementById('loginScreen');
   const appScreen = document.getElementById('appScreen');
@@ -266,93 +439,238 @@ function verificarSessao() {
 // ================================================================
 function onPaginaPronta() {
   carregarAvatarTopo();
-  carregarDados();
+  carregarConfiguracoes();
   sincronizarBadge();
 }
 
-function carregarDados() {
+function carregarConfiguracoes() {
   if (!usuarioId) return;
-  fetch(API_URL + '/perfil/' + usuarioId)
+  fetch(API_URL + '/configuracoes?user_id=' + usuarioId)
     .then(r => r.json())
-    .then(data => preencherFormulario(data))
-    .catch(() => {
-      document.getElementById('perfil-msg').textContent = 'Erro ao carregar perfil.';
-      document.getElementById('perfil-msg').className = 'form-msg error';
-    });
+    .then(data => preencherPagina(data))
+    .catch(() => mostrarMsg('Erro ao carregar configurações.', 'error'));
 }
 
-function preencherFormulario(data) {
-  const avatar = document.getElementById('perfilAvatar');
-  if (data.foto_url) {
-    avatar.innerHTML = `<img src="${data.foto_url}" alt="Avatar">`;
-  } else {
-    avatar.textContent = (data.nome || '?').charAt(0).toUpperCase();
-  }
-  document.getElementById('perfilNome').textContent = data.nome || 'Usuário';
+function preencherPagina(data) {
+  configAtual = data;
+
+  document.getElementById('setGoogleEmail').innerHTML = `${data.email || '—'} <span class="readonly">· conectado</span>`;
+  document.getElementById('setNomeGoogle').textContent = data.nome || '—';
   const ano = data.data_criacao ? data.data_criacao.split('-')[0] : '';
-  document.getElementById('perfilDesde').textContent = ano ? `Colecionando desde ${ano}` : '';
-  document.getElementById('perfilLinkPublico').href = `perfil-publico.html?id=${data.id}`;
+  document.getElementById('setMembroDesde').textContent = ano || '—';
+  document.getElementById('setLinkPerfilPublico').innerHTML = `<a href="perfil-publico.html?id=${data.id}" target="_blank" style="color:var(--terracotta); text-decoration:none;">→ ver perfil público</a>`;
 
   document.getElementById('campo-nome-exibicao').value = data.nome_exibicao || '';
   document.getElementById('campo-localizacao').value = data.localizacao || '';
   document.getElementById('campo-bio').value = data.bio || '';
-  document.getElementById('bioCount').textContent = (data.bio || '').length;
   document.getElementById('campo-spotify').value = data.spotify_url || '';
   document.getElementById('campo-discogs').value = data.discogs_url || '';
   document.getElementById('campo-instagram').value = data.instagram_url || '';
+
+  selecionarOpcao('optFormato', data.formato_preferido || 'Vinil');
+  selecionarOpcao('optMoeda', data.moeda_preferida || 'BRL');
+  selecionarOpcao('optMarketplace', data.marketplace_preferido || 'Discogs');
+  selecionarOpcao('optVisualizacao', data.visualizacao_padrao || 'cards');
+
+  ['notif_price_drop', 'notif_wishlist', 'notif_novidades', 'notif_discografia', 'notif_email',
+   'privacidade_perfil_publico', 'privacidade_busca', 'privacidade_valor', 'privacidade_wishlist'].forEach(campo => {
+    const btn = document.querySelector(`.set-toggle[data-campo="${campo}"]`);
+    if (btn) btn.classList.toggle('active', !!data[campo]);
+  });
+}
+
+function selecionarOpcao(grupoId, valor) {
+  const grupo = document.getElementById(grupoId);
+  if (!grupo) return;
+  grupo.querySelectorAll('.opt').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.valor === valor);
+  });
+}
+
+function mostrarMsg(texto, tipo) {
+  const msg = document.getElementById('setMsg');
+  if (!msg) return;
+  msg.textContent = texto;
+  msg.className = 'set-msg ' + tipo;
+  setTimeout(() => { msg.textContent = ''; msg.className = 'set-msg'; }, 4000);
+}
+
+function coletarConfiguracoes() {
+  const pegarOpcaoAtiva = grupoId => {
+    const ativo = document.querySelector(`#${grupoId} .opt.active`);
+    return ativo ? ativo.dataset.valor : null;
+  };
+  const pegarToggle = campo => {
+    const btn = document.querySelector(`.set-toggle[data-campo="${campo}"]`);
+    return btn ? btn.classList.contains('active') : false;
+  };
+  return {
+    nome_exibicao: document.getElementById('campo-nome-exibicao').value.trim(),
+    localizacao: document.getElementById('campo-localizacao').value.trim(),
+    bio: document.getElementById('campo-bio').value.trim(),
+    spotify_url: document.getElementById('campo-spotify').value.trim(),
+    discogs_url: document.getElementById('campo-discogs').value.trim(),
+    instagram_url: document.getElementById('campo-instagram').value.trim(),
+    formato_preferido: pegarOpcaoAtiva('optFormato'),
+    moeda_preferida: pegarOpcaoAtiva('optMoeda'),
+    marketplace_preferido: pegarOpcaoAtiva('optMarketplace'),
+    visualizacao_padrao: pegarOpcaoAtiva('optVisualizacao'),
+    notif_price_drop: pegarToggle('notif_price_drop'),
+    notif_wishlist: pegarToggle('notif_wishlist'),
+    notif_novidades: pegarToggle('notif_novidades'),
+    notif_discografia: pegarToggle('notif_discografia'),
+    notif_email: pegarToggle('notif_email'),
+    privacidade_perfil_publico: pegarToggle('privacidade_perfil_publico'),
+    privacidade_busca: pegarToggle('privacidade_busca'),
+    privacidade_valor: pegarToggle('privacidade_valor'),
+    privacidade_wishlist: pegarToggle('privacidade_wishlist'),
+    tema: 'dark',
+    idioma: 'pt-BR'
+  };
+}
+
+function salvarConfiguracoes() {
+  const btn = document.getElementById('btnSalvarTudo');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  fetch(API_URL + '/configuracoes?user_id=' + usuarioId, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(coletarConfiguracoes())
+  })
+    .then(r => r.json())
+    .then(d => {
+      btn.disabled = false;
+      btn.textContent = 'Salvar alterações';
+      mostrarMsg(d.sucesso ? 'Configurações salvas!' : (d.erro || 'Erro ao salvar.'), d.sucesso ? 'success' : 'error');
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Salvar alterações';
+      mostrarMsg('Erro de conexão.', 'error');
+    });
+}
+
+// ================================================================
+// IMPORTAR CSV (modal) — reaproveita a mesma rota já usada em Importar
+// ================================================================
+function uploadCsv(inputId, statusId, tipo) {
+  const input = document.getElementById(inputId);
+  const status = document.getElementById(statusId);
+  if (!input.files[0]) return Promise.resolve(false);
+  const formData = new FormData();
+  formData.append('tipo', tipo);
+  formData.append('arquivo', input.files[0]);
+  status.textContent = 'Enviando...';
+  return fetch(API_URL + '/importar_playlist?user_id=' + usuarioId, { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(d => {
+      status.textContent = d.sucesso ? '✓ Enviado' : (d.erro || 'Erro');
+      return !!d.sucesso;
+    })
+    .catch(() => { status.textContent = 'Erro de conexão'; return false; });
+}
+
+function enviarImportacaoCsv() {
+  const btn = document.getElementById('btnEnviarCsv');
+  const msg = document.getElementById('importCsvMsg');
+  btn.disabled = true;
+  btn.textContent = 'Importando...';
+  msg.textContent = '';
+
+  Promise.all([
+    uploadCsv('csvTop', 'statusCsvTop', 'top'),
+    uploadCsv('csvDesc', 'statusCsvDesc', 'desc'),
+    uploadCsv('csvFav', 'statusCsvFav', 'fav')
+  ]).then(resultados => {
+    const algumEnviado = resultados.some(r => r);
+    btn.disabled = false;
+    btn.textContent = 'Importar arquivos';
+    if (!algumEnviado) {
+      msg.textContent = 'Selecione ao menos um arquivo.';
+      msg.className = 'form-msg error';
+      return;
+    }
+    document.getElementById('modalImportCsv').classList.remove('open');
+    // A geração de recomendações + o Ajuste Fino já existem prontos na
+    // aba Importar — manda pra lá em vez de duplicar essa lógica aqui.
+    window.location.href = 'importar.html';
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  const bio = document.getElementById('campo-bio');
-  if (bio) {
-    bio.addEventListener('input', function() {
-      document.getElementById('bioCount').textContent = this.value.length;
+  document.getElementById('btnSalvarTudo').addEventListener('click', salvarConfiguracoes);
+
+  document.querySelectorAll('.set-selector-row .options').forEach(grupo => {
+    if (grupo.querySelector('.opt.disabled')) return; // aparência: só ilustrativo por enquanto
+    grupo.querySelectorAll('.opt').forEach(opt => {
+      opt.addEventListener('click', function() {
+        grupo.querySelectorAll('.opt').forEach(o => o.classList.remove('active'));
+        this.classList.add('active');
+      });
     });
-  }
+  });
 
-  const form = document.getElementById('form-perfil');
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-salvar-perfil');
-      const msg = document.getElementById('perfil-msg');
-      btn.disabled = true;
-      btn.textContent = 'Salvando...';
+  document.querySelectorAll('.set-toggle').forEach(btn => {
+    btn.addEventListener('click', function() { this.classList.toggle('active'); });
+  });
 
-      const dados = {
-        nome_exibicao: document.getElementById('campo-nome-exibicao').value.trim(),
-        localizacao: document.getElementById('campo-localizacao').value.trim(),
-        bio: document.getElementById('campo-bio').value.trim(),
-        spotify_url: document.getElementById('campo-spotify').value.trim(),
-        discogs_url: document.getElementById('campo-discogs').value.trim(),
-        instagram_url: document.getElementById('campo-instagram').value.trim()
-      };
+  document.getElementById('btnAbrirImportCsv').addEventListener('click', function() {
+    document.getElementById('modalImportCsv').classList.add('open');
+  });
+  document.getElementById('btnFecharImportCsv').addEventListener('click', function() {
+    document.getElementById('modalImportCsv').classList.remove('open');
+  });
+  document.getElementById('btnEnviarCsv').addEventListener('click', enviarImportacaoCsv);
 
-      fetch(API_URL + '/editar_perfil?user_id=' + usuarioId, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados)
-      })
+  document.getElementById('btnExportarCsv').addEventListener('click', function() {
+    window.location.href = API_URL + '/exportar_colecao?user_id=' + usuarioId;
+  });
+  document.getElementById('btnBackup').addEventListener('click', function() {
+    window.location.href = API_URL + '/backup_dados?user_id=' + usuarioId;
+  });
+
+  document.getElementById('btnLimparImportados').addEventListener('click', function() {
+    abrirConfirm('Limpar todos os dados de playlists importadas? A coleção e a wishlist não são afetadas.', function() {
+      fetch(API_URL + '/zerar_playlists?user_id=' + usuarioId, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(d => mostrarMsg(d.sucesso ? 'Dados importados limpos!' : (d.erro || 'Erro.'), d.sucesso ? 'success' : 'error'))
+        .catch(() => mostrarMsg('Erro de conexão.', 'error'));
+    });
+  });
+
+  document.getElementById('btnResetarPrefs').addEventListener('click', function() {
+    abrirConfirm('Restaurar todas as preferências desta página para o padrão?', function() {
+      fetch(API_URL + '/configuracoes/resetar?user_id=' + usuarioId, { method: 'POST' })
         .then(r => r.json())
         .then(d => {
-          btn.disabled = false;
-          btn.textContent = 'Salvar Perfil';
+          mostrarMsg(d.sucesso ? 'Preferências restauradas!' : (d.erro || 'Erro.'), d.sucesso ? 'success' : 'error');
+          if (d.sucesso) carregarConfiguracoes();
+        })
+        .catch(() => mostrarMsg('Erro de conexão.', 'error'));
+    });
+  });
+
+  document.getElementById('btnDesconectarTudo').addEventListener('click', function() {
+    abrirConfirm('Nenhum serviço está conectado ainda (login direto com Spotify/Discogs não existe). Não há nada pra desconectar.', function() {});
+  });
+
+  document.getElementById('btnExcluirConta').addEventListener('click', function() {
+    abrirConfirm('Excluir sua conta apaga TUDO permanentemente: coleção, wishlist e perfil. Essa ação não pode ser desfeita. Confirmar?', function() {
+      fetch(API_URL + '/excluir_conta?user_id=' + usuarioId, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(d => {
           if (d.sucesso) {
-            msg.textContent = 'Perfil atualizado!';
-            msg.className = 'form-msg success';
+            limparSessao();
+            window.location.href = 'index.html';
           } else {
-            msg.textContent = d.erro || 'Erro ao salvar.';
-            msg.className = 'form-msg error';
+            mostrarMsg(d.erro || 'Erro ao excluir conta.', 'error');
           }
         })
-        .catch(() => {
-          btn.disabled = false;
-          btn.textContent = 'Salvar Perfil';
-          msg.textContent = 'Erro de conexão. Tente novamente.';
-          msg.className = 'form-msg error';
-        });
+        .catch(() => mostrarMsg('Erro de conexão.', 'error'));
     });
-  }
+  });
+
   verificarSessao();
 });
   </script>
