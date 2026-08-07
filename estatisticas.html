@@ -65,6 +65,15 @@
           </div>
         </div>
 
+        <!-- VAZIO UNIFICADO (quando player E estante estão vazios) -->
+        <div id="estatisticas-vazio-unificado" style="display:none;">
+          <div class="empty-state" style="padding:60px 20px;">
+            <div class="icon" style="font-size:40px;">🎧</div>
+            <h3 style="font-size:20px;">Ainda não dividimos o fone</h3>
+            <p style="font-size:13px;">Adicione discos à sua coleção para ver as estatísticas.</p>
+          </div>
+        </div>
+
         <!-- PLAYER -->
         <div id="estatisticas-player"></div>
 
@@ -296,18 +305,32 @@ function onPaginaPronta() {
 
 function carregarDados() {
   if (!usuarioId) return;
-  fetch(API_URL + '/estatisticas?user_id=' + usuarioId)
-    .then(r => r.json())
-    .then(data => renderEstatisticasPlayer(data))
-    .catch(() => {});
+  Promise.all([
+    fetch(API_URL + '/estatisticas?user_id=' + usuarioId).then(r => r.json()).catch(() => ({ erro: true })),
+    fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId).then(r => r.json()).catch(() => ({ erro: true }))
+  ]).then(([dadosPlayer, dadosEstante]) => {
+    const playerVazio = !dadosPlayer || dadosPlayer.erro || !dadosPlayer.total_musicas;
+    const estanteVazia = !dadosEstante || dadosEstante.erro || !dadosEstante.total_discos;
 
-  fetch(API_URL + '/estatisticas_colecao?user_id=' + usuarioId)
-    .then(r => r.json())
-    .then(data => renderEstatisticasEstante(data))
-    .catch(() => {});
+    const vazioUnificado = document.getElementById('estatisticas-vazio-unificado');
+    const containerPlayer = document.getElementById('estatisticas-player');
+    const containerEstante = document.getElementById('estatisticas-estante');
+
+    if (playerVazio && estanteVazia) {
+      // Nada em lugar nenhum — um bloco só de "vazio" pra página inteira.
+      vazioUnificado.style.display = 'block';
+      containerPlayer.innerHTML = '';
+      containerEstante.innerHTML = '';
+      return;
+    }
+
+    vazioUnificado.style.display = 'none';
+    renderEstatisticasPlayer(dadosPlayer, playerVazio);
+    renderEstatisticasEstante(dadosEstante, estanteVazia);
+  });
 }
 
-    function renderEstatisticasPlayer(dados) {
+    function renderEstatisticasPlayer(dados, apenasCabecalho) {
       const container = document.getElementById('estatisticas-player');
       if (!container) return;
       const semDados = !dados || dados.erro || dados.total_musicas === 0;
@@ -340,6 +363,19 @@ function carregarDados() {
       }
 
       if (semDados) {
+        if (apenasCabecalho) {
+          // A outra seção (estante) tem dado — aqui só fica o cabeçalho,
+          // sem repetir o bloco de "vazio" (já apareceu do outro lado, ou
+          // nem precisa aparecer já que existe dado em algum lugar).
+          container.innerHTML = `
+            <div class="estatistica-secao player">
+              <div class="secao-header">
+                <h3>🎧 No seu player</h3>
+              </div>
+            </div>
+          `;
+          return;
+        }
         container.innerHTML = `
           <div class="estatistica-secao player">
             <div class="secao-header" onclick="toggleSecao('player')">
@@ -429,10 +465,11 @@ function carregarDados() {
       aplicarEstadoSecao('player', estado);
     }
 
-    function renderEstatisticasEstante(dados) {
+    function renderEstatisticasEstante(dados, apenasCabecalho) {
       const container = document.getElementById('estatisticas-estante');
       if (!container) return;
-      const estado = localStorage.getItem('secao_estante') || 'aberta';
+      const semDados = !dados || dados.erro || dados.total_discos === 0;
+      const estado = semDados ? 'aberta' : (localStorage.getItem('secao_estante') || 'aberta');
 
       let resumoHtml = '';
       if (dados && !dados.erro && dados.total_discos > 0) {
@@ -466,7 +503,17 @@ function carregarDados() {
         `;
       }
 
-      if (!dados || dados.erro || dados.total_discos === 0) {
+      if (semDados) {
+        if (apenasCabecalho) {
+          container.innerHTML = `
+            <div class="estatistica-secao estante">
+              <div class="secao-header">
+                <h3>Na sua estante</h3>
+              </div>
+            </div>
+          `;
+          return;
+        }
         container.innerHTML = `
           <div class="estatistica-secao estante">
             <div class="secao-header" onclick="toggleSecao('estante')">
