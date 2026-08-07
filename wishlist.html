@@ -54,10 +54,50 @@
             <div class="avatar" id="userAvatar">?</div>
           </a>
         </div>
-    <!-- ===== COMPRAS ===== -->
-    <div id="tab-compras" class="tab-content active">
-      <div id="compras-container"></div>
-    </div>
+        <!-- HERO -->
+        <div class="wl-hero">
+          <div>
+            <h1>Minha <span class="accent">Wishlist</span></h1>
+            <div class="sub" id="wlHeroSub"><span>🎯 0 discos</span></div>
+          </div>
+          <div class="stats-mini" id="wlHeroStats"></div>
+        </div>
+
+        <!-- PRIORIDADE -->
+        <div class="wl-priority-nav" id="wlPriorityNav"></div>
+
+        <!-- ===== WISHLIST GRID ===== -->
+        <div id="compras-container"></div>
+
+        <!-- OPORTUNIDADES DE COMPRA -->
+        <div class="col-section">
+          <div class="col-section-header"><h3>🔥 Oportunidades de compra</h3></div>
+          <div class="wl-opp-grid" id="wlOportunidades"></div>
+        </div>
+
+        <!-- LACUNAS DA COLEÇÃO -->
+        <div class="col-section">
+          <div class="col-section-header"><h3>📊 Lacunas da coleção</h3></div>
+          <div class="wl-gaps-grid" id="wlGaps"></div>
+        </div>
+
+        <!-- INTELIGÊNCIA DE PREÇO -->
+        <div class="col-section">
+          <div class="col-section-header"><h3>💰 Inteligência de preço</h3></div>
+          <div class="wl-price-grid" id="wlPrecos"></div>
+        </div>
+
+        <!-- ATIVIDADE RECENTE -->
+        <div class="col-section">
+          <div class="col-section-header"><h3>📖 Atividade recente</h3></div>
+          <div id="wlAtividade"></div>
+        </div>
+
+        <!-- DESCOBRIR -->
+        <div class="col-section">
+          <div class="col-section-header"><h3>🔮 Descobrir</h3></div>
+          <div class="wl-discover-grid" id="wlDescobrir"></div>
+        </div>
 
       </div>
     </div>
@@ -490,112 +530,193 @@ async function fetchAnoLancamento(artist, album, spanId) {
   }
 }
 
-    function renderRecomendacoes(dados) {
-      const container = document.getElementById('compras-container');
+function corTierWishlist(tier) {
+  return { S: 'var(--s-color)', A: 'var(--a-color)', B: 'var(--b-color)', C: 'var(--c-color)' }[tier] || 'var(--c-color)';
+}
+function getCorFallbackWishlist(texto) {
+  const CORES = ['#D6432F', '#E39A2E', '#4E7A8C', '#8A8378', '#5C6B7A', '#B8A88A', '#E8C87A', '#7AB8D8', '#A78BFA'];
+  const hash = (texto || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return CORES[hash % CORES.length];
+}
 
-      const hasActiveRecommendations = dados && dados.some(item => item.comprado === 0);
+let filtroTierAtivo = '';
 
-      if (!dados || dados.length === 0 || !hasActiveRecommendations) {
-        container.innerHTML = `
-          <div class="empty-state-full" style="padding:80px 20px;">
-            <div class="icon">💰</div>
-            <h3>Sua carteira está cheia... de expectativas!</h3>
-            <p>Faça upload da sua playlist para gerar recomendações personalizadas.</p>
-            <p class="empty-hint">Vá para a aba "Importar" e comece agora 🚀</p>
+function renderHeroWishlist(dados) {
+  const ativos = dados.filter(d => d.comprado === 0);
+  const subEl = document.getElementById('wlHeroSub');
+  const statsEl = document.getElementById('wlHeroStats');
+  if (!subEl || !statsEl) return;
+  const altaPrioridade = ativos.filter(d => d.tier === 'S' || d.tier === 'A').length;
+
+  subEl.innerHTML = `
+    <span>🎯 ${ativos.length} discos</span>
+    <span class="dot">·</span>
+    <span>⭐ ${altaPrioridade} alta prioridade</span>
+  `;
+  statsEl.innerHTML = `
+    <div class="stat"><div class="num">${ativos.length}</div><div class="label">Total</div></div>
+    <a href="#" class="stat" style="text-decoration:none;" onclick="event.preventDefault(); abrirWishlist();"><div class="num">+</div><div class="label">Adicionar</div></a>
+  `;
+}
+
+function renderPriorityNav(dados) {
+  const ativos = dados.filter(d => d.comprado === 0);
+  const contagem = { S: 0, A: 0, B: 0, C: 0 };
+  ativos.forEach(d => { if (contagem[d.tier] !== undefined) contagem[d.tier]++; });
+  const el = document.getElementById('wlPriorityNav');
+  if (!el) return;
+  const tiers = [
+    { key: '', label: 'Tudo' },
+    { key: 'S', label: `S · Prioridade Máxima (${contagem.S})` },
+    { key: 'A', label: `A · Alta (${contagem.A})` },
+    { key: 'B', label: `B · Média (${contagem.B})` },
+    { key: 'C', label: `C · Baixa (${contagem.C})` }
+  ];
+  el.innerHTML = tiers.map(t =>
+    `<button class="pill${filtroTierAtivo === t.key ? ' active' : ''}" data-tier="${t.key}">${t.label}</button>`
+  ).join('') + `<span class="count">${ativos.length} no total</span>`;
+
+  el.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', function() {
+      filtroTierAtivo = this.dataset.tier;
+      renderPriorityNav(recomendacoes);
+      renderWishlistGrid(recomendacoes);
+    });
+  });
+}
+
+function renderWishlistGrid(dados) {
+  const container = document.getElementById('compras-container');
+  const todosAtivos = dados.filter(d => d.comprado === 0);
+
+  if (!dados || todosAtivos.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state-full" style="padding:80px 20px;">
+        <div class="icon">💰</div>
+        <h3>Sua carteira está cheia... de expectativas!</h3>
+        <p>Faça upload da sua playlist para gerar recomendações personalizadas.</p>
+        <p class="empty-hint">Vá para a aba "Importar" e comece agora 🚀</p>
+      </div>
+    `;
+    return;
+  }
+
+  const itens = todosAtivos.filter(d => !filtroTierAtivo || d.tier === filtroTierAtivo);
+  if (itens.length === 0) {
+    container.innerHTML = `<div class="pp-empty-note" style="padding:20px 0;">Nenhum disco nessa prioridade.</div>`;
+    return;
+  }
+
+  let html = '<div class="wl-grid">';
+  itens.forEach((item, idx) => {
+    const id = `rec-${idx}`;
+    const cor = corTierWishlist(item.tier);
+    const capaAttr = item.capa_url ? ` data-capa="${item.capa_url}"` : '';
+    html += `
+      <div class="wl-card">
+        <div class="art" id="art-${id}" data-artista="${item.artista || ''}" data-album="${item.album || ''}"${capaAttr} style="background-color:${getCorFallbackWishlist(item.artista)};">
+          <span class="priority-badge" style="background:${cor};">${item.tier}${item.origem === 'manual' ? ' ✏️' : ''}</span>
+          <div class="art-fallback" id="fallback-${id}" style="opacity:0.6; font-size:11px; text-align:center; padding:0 8px;">${item.artista || '?'}<br>${item.album || '?'}</div>
+        </div>
+        <div class="info">
+          <div class="title">${item.album || 'Álbum'} <span class="ano-lancamento" id="ano-${id}"></span></div>
+          <div class="artist">${item.artista || 'Artista'}</div>
+          ${item.nota ? `<div class="note">"${item.nota}"</div>` : ''}
+          <div class="actions">
+            <button onclick="abrirEditTier('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}', '${item.tier || 'A'}')" title="Editar prioridade">✎</button>
+            <button onclick="marcarComoTenho('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Já tenho">✓</button>
+            <button onclick="removerDaWishlist('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Remover">✕</button>
           </div>
-        `;
-        return;
-      }
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  container.innerHTML = html;
 
-      const tiers = { S: [], A: [], B: [], C: [] };
-      dados.forEach(item => {
-        if (item.comprado === 0 && tiers[item.tier]) {
-          tiers[item.tier].push(item);
-        }
-      });
+  itens.forEach((item, idx) => {
+    const id = `rec-${idx}`;
+    carregarCapa(item, 'art-' + id, 'fallback-' + id);
+    fetchAnoLancamento(item.artista, item.album, 'ano-' + id);
+  });
+}
 
-      let html = '';
-      ['S', 'A', 'B', 'C'].forEach(tier => {
-        const items = tiers[tier] || [];
-        const tierColor = tier === 'S' ? '#D6432F' : tier === 'A' ? '#E39A2E' : tier === 'B' ? '#4E7A8C' :
-          '#8A8378';
-        const tierDesc = tier === 'S' ? 'Prioridade Máxima' : tier === 'A' ? 'Alta Prioridade' : tier === 'B' ?
-          'Sem Urgência' : 'Baixa Prioridade';
-        const tierDetail = tier === 'S' ?
-          'Comprar assim que aparecer. Fecham trilogias, completam tríades e representam o auge da coleção.' :
-          tier === 'A' ?
-          'Comprar na sequência — bons preços, boas edições, ou entrada de banda importante na coleção.' :
-          tier === 'B' ?
-          'Pegar em promoção ou naturalmente, sem pressa de garimpo.' :
-          'Só entram se aparecer oportunidade excepcional (preço/edição).';
+// ================================================================
+// SEÇÕES AINDA SEM DADOS REAIS (arquitetura pronta, mesmo padrão do
+// Início) — trocar o corpo destas funções quando as features existirem
+// (scraper de preços, análise de discografia).
+// ================================================================
+function buscarOportunidadesWishlist() {
+  return Promise.resolve([
+    { tag: 'em breve', nome: 'Monitoramento de preços', sub: 'Chega na V0.12', preco: null, precoAntigo: null }
+  ]);
+}
+function buscarLacunasColecao() {
+  return Promise.resolve([]);
+}
+function buscarInteligenciaPreco() {
+  return Promise.resolve(null);
+}
+function buscarDescobertasWishlist() {
+  return Promise.resolve([]);
+}
 
-        html += `
-          <section class="section" style="--tier-color:${tierColor}">
-            <div class="tier-head">
-              <div class="tier-stamp">${tier}</div>
-              <div class="tier-info">
-                <h2>${tierDesc}</h2>
-                <p>${tierDetail}</p>
-              </div>
-              ${tier === 'S' ? `<div class="add-btn-wrap"><button class="add-btn" onclick="abrirWishlist()" title="Adicionar manual à lista">+</button></div>` : ''}
-            </div>
-            <div class="grid">
-        `;
+function renderSecoesPlaceholder() {
+  buscarOportunidadesWishlist().then(lista => {
+    const el = document.getElementById('wlOportunidades');
+    if (!el) return;
+    el.innerHTML = lista.map(op => `
+      <div class="wl-gap-card">
+        <div class="label" style="text-transform:uppercase; font-size:10px; color:var(--terracotta); margin-bottom:6px;">${op.tag}</div>
+        <div class="count" style="font-size:16px;">${op.nome}</div>
+        <div class="sub">${op.sub}</div>
+      </div>
+    `).join('') + '<div class="pp-empty-note" style="grid-column:1/-1;">Monitoramento de preços real chega na V0.12.</div>';
+  });
 
-        if (items.length === 0) {
-          html += `
-            <div class="empty-state" style="padding:40px 20px;">
-              <div class="icon" style="font-size:32px;">📭</div>
-              <h3 style="font-size:18px;">Nenhum disco ${tier} ainda</h3>
-              <p style="font-size:13px;">Importe mais playlists ou adicione manualmente.</p>
-            </div>
-          `;
-        } else {
-          items.forEach((item, idx) => {
-            const letter = item.album ? item.album.charAt(0) : '?';
-            const id = `rec-${tier}-${idx}`;
-            const origem = item.origem || 'algoritmo';
-            const frase = item.frase || `${item.album}: Álbum em destaque na sua coleção`;
+  buscarLacunasColecao().then(lista => {
+    const el = document.getElementById('wlGaps');
+    if (!el) return;
+    el.innerHTML = '<div class="pp-empty-note">Análise de lacunas depende das trilogias e discografias completas — planejado pra frente.</div>';
+  });
 
-            html += `
-              <div class="card" id="${id}" data-id="${item.id || ''}">
-                <div class="art-wrap" id="art-${id}" style="background: ${tierColor}; background-size: cover; background-position: center;">
-                  <span class="priority-tag" style="background:${tierColor};color:var(--ink);">${tier} ${origem === 'manual' ? '✏️' : ''}</span>
-                  <div class="spine-letter">${letter}</div>
-                  <div class="art-fallback" id="fallback-${id}" style="opacity:0.6;">${item.artista || '?'}<br>${item.album || '?'}</div>
-                </div>
-                <div class="card-body">
-                  <h3>${item.album || 'Álbum'} <span class="ano-lancamento" id="ano-${id}"></span></h3>
-                  <div class="artist" style="color:${tierColor};">${item.artista || 'Artista'}</div>
-                  <div class="wishlist-phrase">${frase}</div>
-                  <div class="meta-block">
-                    ${item.origem === 'manual' ? `<div class="meta-row"><span class="label">Origem</span><span class="val">Adicionado manualmente</span></div>` : ''}
-                  </div>
-                  <div class="card-actions">
-                    <button class="btn-icon btn-tier" onclick="abrirEditTier('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}', '${item.tier || 'A'}')" title="Editar Tier">✎</button>
-                    <button class="btn-icon btn-move" onclick="marcarComoTenho('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Já tenho">✓</button>
-                    <button class="btn-icon btn-remove" onclick="removerDaWishlist('${item.id || ''}', '${item.artista || ''}', '${item.album || ''}')" title="Remover">✕</button>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
-        }
+  buscarInteligenciaPreco().then(dados => {
+    const el = document.getElementById('wlPrecos');
+    if (!el) return;
+    el.innerHTML = '<div class="pp-empty-note">Sem histórico de preço ainda — chega junto com o monitoramento (V0.12).</div>';
+  });
 
-        html += `</div></section>`;
-      });
+  buscarDescobertasWishlist().then(lista => {
+    const el = document.getElementById('wlDescobrir');
+    if (!el) return;
+    el.innerHTML = '<div class="pp-empty-note">Motor de recomendação por similaridade ainda não existe — planejado pra frente.</div>';
+  });
+}
 
-      container.innerHTML = html;
+function renderAtividadeWishlist(dados) {
+  const el = document.getElementById('wlAtividade');
+  if (!el) return;
+  const recentes = [...dados]
+    .filter(d => d.data_adicao)
+    .sort((a, b) => (a.data_adicao < b.data_adicao ? 1 : -1))
+    .slice(0, 8);
+  if (recentes.length === 0) { el.innerHTML = '<div class="pp-empty-note">Nenhuma atividade ainda.</div>'; return; }
+  el.innerHTML = recentes.map(item => `
+    <div class="dash-activity-item">
+      <span class="icon">+</span>
+      <span class="text"><strong>${item.album || 'Álbum'}</strong> — ${item.artista || 'Artista'} adicionado à wishlist</span>
+      <span class="time">${item.data_adicao}</span>
+    </div>
+  `).join('');
+}
 
-      ['S', 'A', 'B', 'C'].forEach(tier => {
-        const items = tiers[tier] || [];
-        items.forEach((item, idx) => {
-          const id = `rec-${tier}-${idx}`;
-          carregarCapa(item, 'art-' + id, 'fallback-' + id);
-          fetchAnoLancamento(item.artista, item.album, 'ano-' + id);
-        });
-      });
-    }
+function renderRecomendacoes(dados) {
+  renderHeroWishlist(dados);
+  renderPriorityNav(dados);
+  renderWishlistGrid(dados);
+  renderAtividadeWishlist(dados);
+  renderSecoesPlaceholder();
+}
 
     function marcarComoTenho(id, artista, album) {
       if (!id) {
