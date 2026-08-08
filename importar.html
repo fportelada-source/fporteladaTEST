@@ -54,79 +54,122 @@
             <div class="avatar" id="userAvatar">?</div>
           </a>
         </div>
-    <!-- ===== IMPORTAR ===== -->
-    <div id="tab-importar" class="tab-content active">
-      <section class="section" style="--tier-color:var(--colecao-color)">
-        <div class="tier-head">
-          <div class="tier-stamp small">📤</div>
-          <div class="tier-info">
-            <h2 style="color:var(--colecao-color);">Importar Dados</h2>
-            <p>Traga suas playlists e descubra quais discos você precisa comprar.</p>
-          </div>
+        <!-- ===== IMPORTAR ===== -->
+        <div class="imp-hero">
+          <span class="icon-big">📥</span>
+          <h1>Ensine à Discoteca o seu <span class="accent">gosto musical</span></h1>
+          <p class="sub">Envie suas playlists do Spotify e a Discoteca analisa seus hábitos de escuta pra gerar uma Wishlist personalizada. Quanto mais dado você manda, melhores ficam as recomendações.</p>
         </div>
-        <div style="max-width:800px; margin:0 auto;">
 
-          <!-- EXPORTIFY GUIDE -->
-          <div class="exportify-guide">
-            <h3>🎯 Antes de começar, você precisa dos seus CSVs</h3>
-            <p>O Discoteca usa os dados das suas playlists do Spotify para gerar recomendações. Para isso, você precisa exportar suas playlists como CSV usando o <strong><a href="https://exportify.net/" target="_blank" class="link">Exportify</a></strong> (é gratuito e seguro).</p>
-            <ul>
-              <li><span class="num">1.</span> <span class="text">Acesse o <strong>Exportify</strong> e faça login com sua conta do Spotify</span></li>
-              <li><span class="num">2.</span> <span class="text">Selecione as playlists que você quer exportar</span></li>
-              <li><span class="num">3.</span> <span class="text">Clique em <strong>"Export"</strong> e baixe os 3 arquivos CSV</span></li>
-              <li><span class="num">4.</span> <span class="text">Volte aqui e faça upload de cada um nos campos abaixo</span></li>
-            </ul>
-            <p class="dica">💡 Quanto mais dados, melhores as recomendações! Use playlists com pelo menos 50 músicas cada.</p>
+        <div class="imp-how">
+          <div class="flow">
+            <span class="step">🎵 <span class="highlight">Spotify</span></span>
+            <span class="arrow">→</span>
+            <span class="step">📥 <span class="highlight">Exportify</span> <span style="opacity:0.35;">CSV</span></span>
+            <span class="arrow">→</span>
+            <span class="step">🧠 <span class="highlight">Discoteca</span></span>
+            <span class="arrow">→</span>
+            <span class="step">⭐ <span class="highlight">Wishlist personalizada</span></span>
           </div>
+          <span class="badge">inteligente</span>
+        </div>
 
-          <!-- UPLOADS -->
-          <div class="upload-grid">
-            <div class="upload-area">
-              <div class="icon">🏆</div>
-              <p><strong>Top do Ano</strong> <span style="opacity:0.4;font-size:12px;">(peso 3x)</span></p>
-              <label class="upload-label" for="upload-top">Escolher CSV</label>
-              <input type="file" id="upload-top" accept=".csv,text/csv" class="file-input">
-              <div id="status-top" class="upload-status"></div>
+        <div class="imp-upload-grid">
+          <div class="imp-upload-card">
+            <div class="card-header">
+              <div><div class="icon">🏆</div><div class="title">Top do Ano <span class="weight">· peso 3x</span></div></div>
+              <span class="imp-status-badge missing" id="badge-top">⚠️ faltando</span>
             </div>
-            <div class="upload-area">
-              <div class="icon">🔍</div>
-              <p><strong>Descobertas</strong> <span style="opacity:0.4;font-size:12px;">(peso 2x)</span></p>
-              <label class="upload-label" for="upload-desc">Escolher CSV</label>
-              <input type="file" id="upload-desc" accept=".csv,text/csv" class="file-input">
-              <div id="status-desc" class="upload-status"></div>
-            </div>
-            <div class="upload-area">
-              <div class="icon">⭐</div>
-              <p><strong>Favoritos</strong> <span style="opacity:0.4;font-size:12px;">(peso 1x)</span></p>
-              <label class="upload-label" for="upload-fav">Escolher CSV</label>
-              <input type="file" id="upload-fav" accept=".csv,text/csv" class="file-input">
-              <div id="status-fav" class="upload-status"></div>
-            </div>
-            <div class="upload-area">
-              <div class="icon">💿</div>
-              <p><strong>Discogs (Coleção)</strong></p>
-              <label class="upload-label" for="upload-discogs">Escolher CSV</label>
-              <input type="file" id="upload-discogs" accept=".csv,text/csv" class="file-input">
-              <div id="status-discogs" class="upload-status"></div>
-            </div>
-          </div>
-          <button class="btn" id="btn-gerar">⚡ Gerar Recomendações</button>
-          <div id="status-gerar" class="upload-status" style="text-align:center;margin-top:8px;"></div>
-
-          <!-- BOTÕES DE ZERAR -->
-          <div style="margin-top: 32px; border-top: 1px solid var(--card-line); padding-top: 24px;">
-            <p style="opacity:0.5; font-size:13px; margin-bottom:12px; font-family:'JetBrains Mono', monospace;">⚠️ CUIDADO: Essas ações são permanentes.</p>
+            <div class="desc">Suas músicas mais ouvidas. Maior peso na recomendação. Reflete seu gosto de longo prazo.</div>
             <div class="btn-group">
-              <button class="btn btn-danger" onclick="zerarPlaylists()">🧹 Zerar Playlists</button>
-              <button class="btn btn-danger" onclick="zerarColecao()">🧹 Zerar Coleção</button>
-              <button class="btn btn-danger" onclick="zerarWishlist()">🧹 Zerar Wishlist</button>
-              <button class="btn btn-danger" onclick="zerarTudo()">🔥 Zerar Tudo</button>
+              <div class="file-input-wrap"><button class="imp-btn primary" type="button">Escolher CSV</button><input type="file" id="upload-top" accept=".csv,text/csv"></div>
+              <span class="imp-file-info" id="status-top"></span>
             </div>
           </div>
 
+          <div class="imp-upload-card">
+            <div class="card-header">
+              <div><div class="icon">⭐</div><div class="title">Favoritos <span class="weight">· peso 1x</span></div></div>
+              <span class="imp-status-badge missing" id="badge-fav">⚠️ faltando</span>
+            </div>
+            <div class="desc">Músicas que você curtiu explicitamente. Representa seu gosto pessoal.</div>
+            <div class="btn-group">
+              <div class="file-input-wrap"><button class="imp-btn primary" type="button">Escolher CSV</button><input type="file" id="upload-fav" accept=".csv,text/csv"></div>
+              <span class="imp-file-info" id="status-fav"></span>
+            </div>
+          </div>
+
+          <div class="imp-upload-card">
+            <div class="card-header">
+              <div><div class="icon">🔍</div><div class="title">Descobertas <span class="weight">· peso 2x</span></div></div>
+              <span class="imp-status-badge missing" id="badge-desc">⚠️ faltando</span>
+            </div>
+            <div class="desc">Músicas descobertas durante o ano. Ajuda a identificar interesses emergentes e novos artistas.</div>
+            <div class="btn-group">
+              <div class="file-input-wrap"><button class="imp-btn primary" type="button">Escolher CSV</button><input type="file" id="upload-desc" accept=".csv,text/csv"></div>
+              <span class="imp-file-info" id="status-desc"></span>
+            </div>
+          </div>
+
+          <div class="imp-upload-card">
+            <div class="card-header">
+              <div><div class="icon">💿</div><div class="title">Coleção Discogs</div></div>
+              <span class="imp-status-badge missing" id="badge-discogs">⚠️ faltando</span>
+            </div>
+            <div class="desc">Importa sua coleção física existente. Evita recomendar discos que você já tem.</div>
+            <div class="btn-group">
+              <div class="file-input-wrap"><button class="imp-btn primary" type="button">Escolher CSV</button><input type="file" id="upload-discogs" accept=".csv,text/csv"></div>
+              <span class="imp-file-info" id="status-discogs"></span>
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+
+        <div class="imp-quality-section">
+          <div class="imp-quality-card">
+            <div class="card-header"><h3>🧠 Confiança da recomendação</h3><span class="sub">baseado no que já foi enviado</span></div>
+            <div class="imp-ring">
+              <div class="circle" id="impConfiancaCirculo" style="--pct:0;"><span id="impConfiancaValor">0%</span></div>
+              <div class="details">
+                <div class="stat" id="impConfiancaStat">Nenhum dado enviado ainda</div>
+                <div class="imp-checklist" id="impChecklist"></div>
+              </div>
+            </div>
+          </div>
+          <div class="imp-quality-card">
+            <div class="card-header"><h3>📊 Cobertura de dados</h3><span class="sub">o que a Discoteca sabe</span></div>
+            <div class="imp-coverage-grid" id="impCobertura"></div>
+          </div>
+        </div>
+
+        <div class="imp-privacy">
+          <span class="icon">🔒</span>
+          <span class="text"><strong>Seu dado é privado.</strong> A Discoteca só analisa os arquivos exportados. Nunca mexe na sua conta do Spotify. Tudo é usado exclusivamente pra gerar sua Wishlist.</span>
+        </div>
+
+        <div class="imp-cta">
+          <button class="primary" id="btn-gerar">🧠 Gerar Wishlist Personalizada</button>
+          <button class="secondary" onclick="zerarTudo()">↻ Zerar tudo e recomeçar</button>
+        </div>
+        <div id="status-gerar" class="upload-status" style="text-align:center; margin-top:-14px; margin-bottom:26px;"></div>
+
+        <div class="imp-next">
+          <div class="card-header"><h3>📋 O que vem a seguir</h3><span class="sub">sua jornada</span></div>
+          <div class="imp-next-steps">
+            <div class="imp-next-step"><div class="num">01</div><div class="step-icon">📥</div><div class="title">Importar dados</div><div class="desc">Ensine seu gosto</div></div>
+            <div class="imp-next-step"><div class="num">02</div><div class="step-icon">🎯</div><div class="title">Ajuste fino</div><div class="desc">Refine as prioridades</div></div>
+            <div class="imp-next-step"><div class="num">03</div><div class="step-icon">⭐</div><div class="title">Receba a Wishlist</div><div class="desc">Recomendações prontas</div></div>
+            <div class="imp-next-step"><div class="num">04</div><div class="step-icon">💿</div><div class="title">Comece a colecionar</div><div class="desc">Monte sua estante física</div></div>
+          </div>
+        </div>
+
+        <!-- ZONA DE PERIGO (mantida, reaproveitada) -->
+        <div class="set-card set-danger" style="margin-top:26px;">
+          <div class="card-header"><h3>⚠️ Zona de perigo</h3><span class="sub">ações irreversíveis</span></div>
+          <div class="set-danger-item"><div class="left"><div class="title">Zerar playlists</div><div class="sub">Apaga o que foi importado do Spotify + recomendações geradas</div></div><button onclick="zerarPlaylists()">Zerar</button></div>
+          <div class="set-danger-item"><div class="left"><div class="title">Zerar coleção</div><div class="sub">Apaga todos os discos da coleção física</div></div><button onclick="zerarColecao()">Zerar</button></div>
+          <div class="set-danger-item"><div class="left"><div class="title">Zerar wishlist</div><div class="sub">Apaga a lista de compras atual</div></div><button onclick="zerarWishlist()">Zerar</button></div>
+          <div class="set-danger-item"><div class="left"><div class="title">Zerar tudo</div><div class="sub">Apaga playlists, coleção e wishlist de uma vez</div></div><button onclick="zerarTudo()">Zerar tudo</button></div>
+        </div>
 
       </div>
     </div>
@@ -383,6 +426,73 @@ function onPaginaPronta() {
 // para atualizar o badge da coleção no menu (sem estado próprio de dados).
 function carregarDados() {
   sincronizarBadge();
+  carregarStatusImportacao();
+}
+
+function carregarStatusImportacao() {
+  if (!usuarioId) return;
+  fetch(API_URL + '/status_importacao?user_id=' + usuarioId)
+    .then(r => r.json())
+    .then(renderStatusImportacao)
+    .catch(() => {});
+}
+
+function renderStatusImportacao(d) {
+  if (!d || d.erro) return;
+
+  function badge(id, statusId, qtd) {
+    const badgeEl = document.getElementById(id);
+    const statusEl = document.getElementById(statusId);
+    if (qtd > 0) {
+      badgeEl.textContent = '✓ enviado';
+      badgeEl.classList.remove('missing');
+      badgeEl.classList.add('uploaded');
+      if (statusEl && !statusEl.textContent) statusEl.textContent = `${qtd} músicas`;
+    }
+  }
+  badge('badge-top', 'status-top', d.fontes.top);
+  badge('badge-fav', 'status-fav', d.fontes.fav);
+  badge('badge-desc', 'status-desc', d.fontes.desc);
+  if (d.colecao_importada) {
+    const badgeEl = document.getElementById('badge-discogs');
+    badgeEl.textContent = '✓ enviado';
+    badgeEl.classList.remove('missing');
+    badgeEl.classList.add('uploaded');
+    const statusEl = document.getElementById('status-discogs');
+    if (statusEl && !statusEl.textContent) statusEl.textContent = `${d.total_discos} discos na coleção`;
+  }
+
+  // Anel de confiança
+  const circulo = document.getElementById('impConfiancaCirculo');
+  const valor = document.getElementById('impConfiancaValor');
+  const stat = document.getElementById('impConfiancaStat');
+  const checklist = document.getElementById('impChecklist');
+  if (circulo) {
+    circulo.style.setProperty('--pct', d.confianca_pct);
+    valor.textContent = d.confianca_pct + '%';
+    stat.innerHTML = d.confianca_pct > 0
+      ? `Baseado em <span class="highlight">${d.cobertura.musicas}</span> músicas e ${d.total_discos} discos`
+      : 'Nenhum dado enviado ainda';
+    checklist.innerHTML = `
+      <div class="item"><span class="check ${d.fontes.top > 0 ? 'done' : 'missing'}">${d.fontes.top > 0 ? '✅' : '❌'}</span> Top do Ano</div>
+      <div class="item"><span class="check ${d.fontes.fav > 0 ? 'done' : 'missing'}">${d.fontes.fav > 0 ? '✅' : '❌'}</span> Favoritos</div>
+      <div class="item"><span class="check ${d.fontes.desc > 0 ? 'done' : 'missing'}">${d.fontes.desc > 0 ? '✅' : '❌'}</span> Descobertas</div>
+      <div class="item"><span class="check ${d.colecao_importada ? 'done' : 'missing'}">${d.colecao_importada ? '✅' : '❌'}</span> Coleção importada</div>
+    `;
+  }
+
+  // Cobertura de dados
+  const cobertura = document.getElementById('impCobertura');
+  if (cobertura) {
+    cobertura.innerHTML = `
+      <div class="imp-coverage-item"><div class="num">${d.cobertura.artistas}</div><div class="label">Artistas</div></div>
+      <div class="imp-coverage-item"><div class="num">${d.cobertura.albuns}</div><div class="label">Álbuns</div></div>
+      <div class="imp-coverage-item"><div class="num">${d.cobertura.musicas}</div><div class="label">Músicas</div></div>
+      <div class="imp-coverage-item"><div class="num">${d.cobertura.generos}</div><div class="label">Gêneros</div></div>
+      <div class="imp-coverage-item"><div class="num">${d.cobertura.decadas}</div><div class="label">Décadas</div></div>
+      <div class="imp-coverage-item"><div class="num">${d.confianca_pct}%</div><div class="label">Confiança</div></div>
+    `;
+  }
 }
 
     function zerarPlaylists() {
@@ -454,6 +564,7 @@ function carregarDados() {
             statusEl.textContent = '✅ ' + d.mensagem;
             statusEl.className = 'upload-status success';
             document.getElementById('btn-gerar').disabled = false;
+            carregarStatusImportacao();
           } else {
             statusEl.textContent = '❌ ' + (d.erro || 'Erro no upload');
             statusEl.className = 'upload-status error';
